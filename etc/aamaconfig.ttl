@@ -1,0 +1,53 @@
+@prefix fuseki:  <http://jena.apache.org/fuseki#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix tdb:     <http://jena.hpl.hp.com/2008/tdb#> .
+@prefix ja:      <http://jena.hpl.hp.com/2005/11/Assembler#> .
+@prefix :        <#> .
+
+# Declaration additional assembler items.
+[] ja:loadClass "com.hp.hpl.jena.tdb.TDB" .
+
+[] rdf:type fuseki:Server ;
+   # Server-wide context parameters can be given here.
+   # For example, to set query timeouts: on a server-wide basis:
+   # Format 1: "1000" -- 1 second timeout
+   # Format 2: "10000,60000" -- 10s timeout to first result, then 60s timeout to for rest of query.
+   # See java doc for ARQ.queryTimeout
+   # ja:context [ ja:cxtName "arq:queryTimeout" ;  ja:cxtValue "10000" ] ;
+
+   # Load custom code (rarely needed)
+   # ja:loadClass "your.code.Class" ;
+
+   # Services available.  Only explicitly listed services are configured.
+   #  If there is a service description not linked from this list, it is ignored.
+   fuseki:services (
+     <#aamaservice>
+   ) .
+
+# TDB
+tdb:DatasetTDB  rdfs:subClassOf  ja:RDFDataset .
+tdb:GraphTDB    rdfs:subClassOf  ja:Model .
+
+## ---------------------------------------------------------------
+<#aamaservice>  rdf:type fuseki:Service ;
+    fuseki:name              "aama" ;       # http://host:port/aama
+    fuseki:serviceQuery      "query" ;    # SPARQL query service
+    fuseki:serviceUpdate     "update" ;   # SPARQL update service
+    fuseki:serviceUpload     "upload" ;   # Non-SPARQL upload service
+## The GraphStore services implement SPARQL 1.1 Graph Store HTTP Protocol
+## (see http://www.w3.org/TR/2012/CR-sparql11-http-rdf-update-20121108/)
+## They are required to support Fuseki's SOH tools (s-put, s-post, etc.)
+    fuseki:serviceReadWriteGraphStore "data" ; # SPARQL RW Graph store
+    fuseki:serviceReadGraphStore      "get" ; # SPARQL R Graph store
+    fuseki:dataset           <#aamads> ;
+    .
+
+<#aamads> rdf:type      tdb:DatasetTDB ;
+    tdb:location "Data" ;
+    # tdb:location "/var/TDB" ;
+    # Query timeout on this dataset (1s, 1000 milliseconds)
+    ja:context [ ja:cxtName "arq:queryTimeout" ;  ja:cxtValue "1000" ] ;
+    # Make the default graph be the union of all named graphs.
+    tdb:unionDefaultGraph true ;
+     .
