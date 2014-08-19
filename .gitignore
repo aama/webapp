@@ -1,11 +1,10 @@
 pom.xml
-pom.xml.asc
 *jar
-/lib/
+/Data/
 /classes/
+/lib/
+/out/
 /target/
-/checkouts/
 .lein-deps-sum
 .lein-repl-history
 .lein-plugins/
-.lein-failures
