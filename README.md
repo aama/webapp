@@ -8,14 +8,14 @@ Assuming you have cloned the aama/webapp repo into aama/webapp, edit
 webapp/etc/fuseki to set FUSEKI_HOME to the correct directory.  Then
 source it: `$ source webapp/etc/fuseki`.
 
-Then run the server:  ``$ `echo $FUSEKI_HOME`/fuseki-server --config=etc/aamaconfig.ttl ``
+Then run the server:  `$ `echo $FUSEKI_HOME`/fuseki-server --config=etc/aamaconfig.ttl`
 
 ### Load test data:
 
 We'll use the test data that comes with the Fuseki distrib to make
 sure the service is up and running.
 
-``$ `echo $FUSEKI_HOME`/s-put http://localhost:3030/aama/data books `echo $FUSEKI_HOME`/Data/books.ttl``
+`$ `echo $FUSEKI_HOME\`/s-put http://localhost:3030/aama/data books \`echo $FUSEKI_HOME\`/Data/books.ttl`
 
 The syntax of the command:  `s-put datasetURI graphName [file]`; see http://jena.apache.org/documentation/serving_data/soh.html
 

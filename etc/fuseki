@@ -1,1 +1,1 @@
-export FUSEKI_HOME=/usr/local/share/fuseki
+export FUSEKI_HOME=/Applications/jena-fuseki-1.0.1

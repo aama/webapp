@@ -11,7 +11,7 @@
             ))
 
 ;; local aama sparql query endpoint
-(def aama "http://localhost:3030/aama/query")
+(def aama "http://localhost:3030/aamadata/query")
 
 ;; some common prefixes
 (register-namespaces {:bk "<http://example.org/book/>"
