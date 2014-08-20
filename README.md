@@ -8,7 +8,7 @@ Assuming you have cloned the aama/sparql repo into aama/sparql, edit
 sparql/etc/fuseki to set FUSEKI_HOME to the correct directory.  Then
 source it: `$ source sparql/etc/fuseki`.
 
-Then run the server:  `$ ```echo $FUSEKI_HOME```/fuseki-server --config=etc/aamaconfig.ttl`
+Then run the server:  `$ ``` `echo $FUSEKI_HOME`/fuseki-server --config=etc/aamaconfig.ttl ```
 
 ### Load test data:
 
