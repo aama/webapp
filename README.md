@@ -113,8 +113,17 @@ make changes in the clojure and clojurescript source, reload the page,
 and see the results. 
 
 For example, try (by commenting and uncommenting) alternating between
-``"format" "application/sparql-results+json"`` and ``"format" "text"`` in the
-``{:query-params . . . }`` of ``core.clj``.
+
+```
+"format" "application/sparql-results+json"
+```
+ and 
+```"format" "text"```
+ in the
+```
+{:query-params . . . }
+```
+ of ``core.clj``.
 
 The text file webapp/queries.txt contains a number of queries, in native 
 SPARQL format and in the matsu format developed for clojure. You can 
