@@ -15,7 +15,7 @@ Then run the server:  ``$ `echo $FUSEKI_HOME`/fuseki-server --config=etc/aamacon
 We'll use the test data that comes with the Fuseki distrib to make
 sure the service is up and running.
 
-``$ `echo $FUSEKI_HOME`/s-put http://localhost:3030/aamadata/data books `echo $FUSEKI_HOME`/Data/books.ttl``
+``$ `echo $FUSEKI_HOME`/s-put http://localhost:3030/aamadev/data books `echo $FUSEKI_HOME`/Data/books.ttl``
 
 The syntax of the command:  `s-put datasetURI graphName [file]`; see http://jena.apache.org/documentation/serving_data/soh.html
 

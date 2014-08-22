@@ -11,23 +11,23 @@
             ))
 
 ;; local aama sparql query endpoint
-(def aama "http://localhost:3030/aamadata/query")
+(def aama "http://localhost:3030/aamadev/query")
 
 ;; some common prefixes
-(register-namespaces {:bk "<http://example.org/book/>"
-                      :dc "<http://purl.org/dc/elements/1.1/>"})a
+(register-namespaces {:ex "<http://example.org/book>"
+                      :dc "<http://purl.org/dc/elements/1.1/>"})
 
 ;; PREFIX  ex: <http://example.org/book>
 ;; PREFIX  dc: <http://purl.org/dc/elements/1.1/>
 ;; SELECT ?title ?author
 ;; WHERE
 ;;   { ?book dc:title ?title .
-;;       ?book dc:creator ?author . }
+;;      ?book dc:creator ?author . }
 
 (defquery books-qry []
-  (select :title :author)
-  (where :book [:dc :title] :title \;
-         [:dc :creator] :author \. ))
+ (select :title :author)
+ (where :book [:dc :title] :title \;
+        [:dc :creator] :author \. ))
 
 (defroutes app-routes
   (GET "/" []
@@ -45,7 +45,7 @@
        (let [req (http/get aama
                            {:query-params
                             {"query" (books-qry)
-                             "format" "application/sparql-results+json"}})]
+                             "format" "text"}})]
          (log/info "sparql result status: " (:status req))
          (html5
           [:body
