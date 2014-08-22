@@ -18,7 +18,7 @@ $ cd $FUSEKI_HOME
 $ ./fuseki-server --config=etc/aamaconfig.ttl
 ```
 
-(Or just run bin/fuseki.sh.) These steps ensure that you are querying the
+(Or just run `$ bin/fuseki.sh`.) These steps ensure that you are querying the
 same datastore as is being used for development of the aama datastore in
 aama-data.
 
@@ -98,7 +98,7 @@ The webapp also queries this data at http://localhost:3000/aama.
 
 ## Webapp
 
-In one shell (terminal session) run ``lein cljsbuild auto ``
+In one shell (terminal session) run ``$ lein cljsbuild auto ``
 
 This compiles the clojurescript and reloads code on edit.  See
 [lein cljsbuild](https://github.com/emezeske/lein-cljsbuild) for
