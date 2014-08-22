@@ -113,13 +113,16 @@ make changes in the clojure and clojurescript source, reload the page,
 and see the results. 
 
 For example, try (by commenting and uncommenting) alternating between
-"format" "application/sparql-results+json" and "format" "text" in the
-{:query-params . . . } of core.clj.
+``"format" "application/sparql-results+json"`` and ``"format" "text"`` in the
+``{:query-params . . . }`` of ``core.clj``.
 
 The text file webapp/queries.txt contains a number of queries, in native 
 SPARQL format and in the matsu format developed for clojure. You can 
-substitute any of these queries for the "(defquery aama-qry [] . . .)"  
-currently contained in src/clj/webapp/core.clj, or try out SPARQL queries 
+substitute any of these queries for the 
+```
+(defquery aama-qry [] . . .)
+```  
+currently contained in ``src/clj/webapp/core.clj``, or try out SPARQL queries 
 of your own (in matsu format!).
 
 
