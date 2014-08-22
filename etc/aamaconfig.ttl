@@ -31,7 +31,7 @@ tdb:GraphTDB    rdfs:subClassOf  ja:Model .
 
 ## ---------------------------------------------------------------
 <#aamaservice>  rdf:type fuseki:Service ;
-    fuseki:name              "aamadata" ;       # http://host:port/aama
+    fuseki:name              "aama" ;       # http://host:port/aama
     fuseki:serviceQuery      "query" ;    # SPARQL query service
     fuseki:serviceUpdate     "update" ;   # SPARQL update service
     fuseki:serviceUpload     "upload" ;   # Non-SPARQL upload service

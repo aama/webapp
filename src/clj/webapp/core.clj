@@ -11,23 +11,11 @@
             ))
 
 ;; local aama sparql query endpoint
-(def aama "http://localhost:3030/aamadata/query")
+(def aama "http://localhost:3030/aama/query")
 
 ;; some common prefixes
-(register-namespaces {:bk "<http://example.org/book/>"
-                      :dc "<http://purl.org/dc/elements/1.1/>"})a
+(register-namespaces {
 
-;; PREFIX  ex: <http://example.org/book>
-;; PREFIX  dc: <http://purl.org/dc/elements/1.1/>
-;; SELECT ?title ?author
-;; WHERE
-;;   { ?book dc:title ?title .
-;;       ?book dc:creator ?author . }
-
-(defquery books-qry []
-  (select :title :author)
-  (where :book [:dc :title] :title \;
-         [:dc :creator] :author \. ))
 
 (defroutes app-routes
   (GET "/" []
@@ -39,17 +27,17 @@
          [:script {:src "js/webapp.js" :type "text/javascript"}]
          [:script {:type "text/javascript"}
           "goog.require('webapp.core');"]]))
-  (GET "/books"
+  (GET "/sparql"
        []
        ;; send SPARQL over HTTP request
        (let [req (http/get aama
                            {:query-params
-                            {"query" (books-qry)
+                            {"query" (aama-qry)
                              "format" "application/sparql-results+json"}})]
          (log/info "sparql result status: " (:status req))
          (html5
           [:body
-           [:h1#clickable "BOOKS"] ;; clickable: see core.cljs
+           [:h1#clickable "Request Response"] ;; clickable: see core.cljs
            [:pre (:body req)]
            [:script {:src "js/goog/base.js" :type "text/javascript"}]
            [:script {:src "js/webapp.js" :type "text/javascript"}]
