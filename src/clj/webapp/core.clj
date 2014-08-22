@@ -45,7 +45,7 @@
        (let [req (http/get aama
                            {:query-params
                             {"query" (books-qry)
-                             "format" "text"}})]
+                             "format" "application/sparql-results+json"}})]
          (log/info "sparql result status: " (:status req))
          (html5
           [:body
