@@ -16,7 +16,6 @@ the same datastore as is being used in aama-data do the following:
 ```
 $ cd $FUSEKI_HOME
 $ ./fuseki-server --config=etc/aamaconfig.ttl
-
 ```
 
 (Or just run bin/fuseki.sh.) These steps ensure that you are querying the
@@ -37,7 +36,6 @@ WHERE
 {
   GRAPH ?g  {?s ?p ?o }
  }
-
 ```
 
 The result (text format) should look like:
@@ -93,6 +91,7 @@ The result (text format) should look like:
 | <http://oi.uchicago.edu/aama/2013/graph/yaaku>           |
 | <http://oi.uchicago.edu/aama/2013/graph/yemsa>           |
 ------------------------------------------------------------
+```
 
 The webapp also queries this data at http://localhost:3000/aama.
 (Notice the webapp port is 3000, Fuseki's is 3030.)
