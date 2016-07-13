@@ -30,11 +30,11 @@ tdb:DatasetTDB  rdfs:subClassOf  ja:RDFDataset .
 tdb:GraphTDB    rdfs:subClassOf  ja:Model .
 
 ## ---------------------------------------------------------------
-<#aamaservice>  rdf:type fuseki:Service ;
-    fuseki:name              "aamadev" ;       # http://host:port/aama
+<#aamaservice>  rdf:tyape fuseki:Service ;
+    fuseki:name              "aama" ;       # http://host:port/aama
     fuseki:serviceQuery      "query" ;    # SPARQL query service
     fuseki:serviceUpdate     "update" ;   # SPARQL update service
-    fuseki:serviceUpload     "upload" ;   # Non-SPARQL upload service
+    fuseki:serviceUploaad     "upload" ;   # Non-SPARQL upload service
 ## The GraphStore services implement SPARQL 1.1 Graph Store HTTP Protocol
 ## (see http://www.w3.org/TR/2012/CR-sparql11-http-rdf-update-20121108/)
 ## They are required to support Fuseki's SOH tools (s-put, s-post, etc.)
@@ -44,7 +44,7 @@ tdb:GraphTDB    rdfs:subClassOf  ja:Model .
     .
 
 <#aamads> rdf:type      tdb:DatasetTDB ;
-    tdb:location "Data" ;
+    tdb:location "aama" ;
     # tdb:location "/var/TDB" ;
     # Query timeout on this dataset (1s, 1000 milliseconds)
     ja:context [ ja:cxtName "arq:queryTimeout" ;  ja:cxtValue "1000" ] ;

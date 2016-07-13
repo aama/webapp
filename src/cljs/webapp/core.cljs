@@ -1,12 +1,48 @@
-(ns webapp.core)
+(ns webapp.core     
+  (:use [jayq.core :only [$]])
+  (:require [jayq.core :as jq]))
 
-;; (enable-console-print!)
+;;(defn handle-click []
+;;  (js/alert " Cf. cljs code in  src/cljs/webapp/core.cljs"))
 
-;; (println "Hello howdy world!")
+;;(def clickable (.getElementById js/document "clickable"))
 
-(defn handle-click []
-  (js/alert "Hello there!"))
+;;(.addEventListener clickable "click" handle-click)
 
-(def clickable (.getElementById js/document "clickable"))
+(def $clickable ($ :#clickable))
+(def $selection ($ :#selection))
 
-(.addEventListener clickable "click" handle-click)
+;; following gives "[object Object] has just been selected" (also w/o 'value')
+;; w/o 'str' just gives [object Object]
+(jq/bind $selection :click (fn [evt] (js/alert (str ($ :#selection.value) " has just been selected"))))
+ 
+(jq/bind $clickable :click (fn [evt] (js/alert "Cf. cljs code in  src/cljs/webapp/core.cljs")))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
