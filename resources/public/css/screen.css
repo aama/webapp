@@ -1,0 +1,176 @@
+/*##### the main stuff #####*/
+body {
+    font-size: 12px;
+    padding: 7px;
+    line-height: 1.333em;
+}
+
+body,td,th,input {
+    font-family: verdana, sans-serif;
+}
+
+/**body {
+    margin: 0px;
+    background: #C8D9C9;
+    color: #525952;    
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 13px;       
+}*/
+
+h1 {
+    text-align: left;
+}
+
+label {
+    width:500px;
+    float:left;
+}
+
+.help-page {
+    font-weight:normal;
+    height:20px;
+    width:550px;
+    cursor:move;
+}
+
+
+.error {
+    color: red;
+}
+
+.content {
+    clear: both; 
+    padding: 20px;
+}
+
+.menuitem {    
+    color: #D1F0DA;
+    font-size: 15px;
+    font-weight:bold;
+    
+    float: left;
+    list-style: none;        
+    padding: 5px;
+    margin: 5px;    
+}
+
+#usermenu {
+    background-color: #878C87;    
+    width: 100%;
+    
+    border-bottom-color: #dedede;
+    line-height: 25px;
+    border:1px solid;
+    border-color:#ccc;
+    
+    -webkit-box-shadow: 0 8px 6px -6px #555;
+    -moz-box-shadow: 0 8px 6px -6px #555;
+    box-shadow: 0 8px 6px -6px #555;
+    
+    margin-bottom: 25px;
+    display: inline-block;
+}
+
+#usermenu a:link {text-decoration: none; color: white;}
+#usermenu a:hover {text-decoration: underline; color: white;}
+#usermenu a:visited {text-decoration: none; color: white;}
+
+input[type=submit] {
+    background: #99A699;
+    padding: 5px 8px 5px;
+    
+    color: #fff;
+    font-weight: bold;
+
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-box-shadow: 0 1px 3px #999;
+    -webkit-box-shadow: 0 1px 3px #999;
+
+    text-shadow: 0 -1px 1px #222;
+    border-bottom: 1px solid #222;
+    cursor: pointer;
+}
+
+/*table, th, td {
+    border-collapse: collapse;
+    text-align:  left;
+}
+    
+td {
+    vertical-align: top;
+
+}
+*/
+
+
+/*##### the table stuff #####*/
+table {
+    font-size: 10px;
+    border-collapse:collapse;
+    font-family:Tahoma,Helvetica,Arial,sans-serif;
+}
+td, th {
+    text-align:left;
+    vertical-align:top;
+}
+
+tr{
+    marging:0;
+    padding:0;
+}
+
+table td, table th {
+    border:1px solid #CCC;
+    font-size:0.9em;
+    padding:3px;
+}
+
+table.sar-table th {
+    background:none repeat scroll 0 0 #FBF9EA;
+    color:#000;
+    font-weight:normal;
+    height:20px;
+    width:100px;
+    cursor:move;
+}
+
+table.linfo-table th {
+    background:none repeat scroll 0 0 #FBF9EA;
+    color:#000;
+    font-weight:normal;
+    height:20px;
+    width:100px;
+    cursor:move;
+}
+
+table.linfo-table td {
+    font-weight:normal;
+    height:20px;
+    width:400px;
+    cursor:move;
+}
+
+
+#handlerTable th {
+    cursor:default;
+}
+
+.some-handle {
+    cursor:move;
+}
+
+#constrainTable th {
+    cursor:default;
+}
+
+#constrainTable th.accept {
+    cursor:move;
+}
+
+.some-handle {
+    background-image:url("desc.gif");
+    background-repeat:repeat-x;
+    height:18px;
+    margin:0 1px;
+}
