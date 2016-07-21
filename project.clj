@@ -6,7 +6,7 @@
                  [hiccup "1.0.5"]
                  [org.clojure/tools.logging "0.3.0"]
                  [stencil "0.3.4"]
-                 [matsu "0.1.2"] ;; SPARQL query constructor
+                 ;;[matsu "0.1.2"] ;; SPARQL query constructor
                  [clj-http "1.0.0"] ;; http client lib
                  [org.clojure/clojurescript "0.0-2311"]
                  [lib-noir "0.7.6"]

@@ -16,43 +16,44 @@
 (def aama "http://localhost:3030/aama/query")
 
 (defn bibInfoSpecial []
-  (let [biblioglist (slurp "pvlists/menu-bibliographies.txt")
+  (let [biblioglist (slurp "pvlists/bibref-keyword-list.txt")
         bibliogrefs (split biblioglist #"\n")]
   (layout/common 
    ;;[:h1#clickable "Afroasiatic Morphological Archive"]
-   [:h3 "Display Project Bibliographic Information"]
+   [:h3 "Bibliographic Information by Keyword"]
    ;;[:p "(This option will enable a user to display full bibliographic information, given a bibref string.)"]
    [:hr]
    (form-to [:post "/bibInfoSpecial"]
             [:table
-             [:tr [:td "Special Bibliography: " ]
+             [:tr [:td "Keyword: " ]
               [:td [:select#bibliogref.required
-                    {:title "Choose a bibliography.", :name "bibliogref"}
+                    {:title "Choose a Keyword.", :name "bibliogref"}
                     (for [bibliogref bibliogrefs]
                         [:option {:value bibliogref :label bibliogref} bibliogref])]]]
              [:tr 
               [:td {:colspan "2"} [:input#submit
-                    {:value "Choose Bibliography: ", :name "submit", :type "submit"}]]]]))))
+                    {:value "Display Bibliography: ", :name "submit", :type "submit"}]]]]))))
 
 
 (defn handle-bibInfoSpecial
   [bibliogref]
-  (let [biblioglist (slurp "pvlists/menu-bibliographies.txt")
+  (let [biblioglist (slurp"pvlists/bibref-keyword-list.txt")
         bibliogrefs (split biblioglist #"\n")
-        bibliography (str "pvlists/bibref-" bibliogref "-list.txt")
+        bibkwindex (read-string (slurp "pvlists/bibkwindex.edn"))
         oldbref (str bibliogref)
-        reflist (slurp bibliography)
-        bibrefs (split reflist #"\n")
+        bibkey (read-string (str ":" bibliogref))
+        reflist (bibkey bibkwindex)
+        bibrefs (split reflist #" ")
         bibrefmap (read-string (slurp "pvlists/bibrefs.edn"))]
   (layout/common
    [:body
    ;;[:h1#clickable "Afroasiatic Morphological Archive"]
-   [:h3 "Display Project Bibliographic Information"]
+   [:h3 "Bibliographic Information by Keyword"]
    ;;[:p "Form repeated here to enable successive searches. How make cumulative on page?"]
    [:hr]
    (form-to [:post "/bibInfoSpecial"]
             [:table
-             [:tr [:td (str "Bibliography for: ") ]
+             [:tr [:td (str "Keyword: ") ]
               [:td [:select#bibliogref.required
                     {:title "Choose a bibliography.", :name "bibliogref"}
                     (for [bibliogref bibliogrefs]
@@ -61,17 +62,18 @@
                         [:option {:value bibliogref :label bibliogref} bibliogref]))]]]
              [:tr 
               [:td {:colspan "2"} [:input#submit
-                                   {:value "Choose Bibliography: ", :name "submit", :type "submit"}]]]])
-    ;;[:h4#clickable "Bibliographic Information: "]
+                                   {:value "Display Bibliography: ", :name "submit", :type "submit"}]]]])
+    [:h4#clickable (str "Bibliographic Information for " bibliogref ":")]
     [:p]
     [:table {:class "linfo-table"} 
      [:tbody
       (for [bibref bibrefs]
-        (let [bref  (read-string (str ":" bibref))
+        (let [bibid (clojure.string/replace bibref #"^:" "")
+              bref  (read-string bibref)
              ref (bref bibrefmap)]
           [:tr
         ;;[:p (str bibref)])
-           [:th bibref] [:td ref ]]))]]
+           [:th bibid] [:td (str ref) ]]))]]
     [:script {:src "js/goog/base.js" :type "text/javascript"}]
     [:script {:src "js/webapp.js" :type "text/javascript"}]
     [:script {:type "text/javascript"}

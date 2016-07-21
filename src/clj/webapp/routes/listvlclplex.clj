@@ -176,7 +176,6 @@
           [:div
            [:p [:b "Language: "] language]
            [:p [:b "File:     "] outfile]
-           [:p "req2-body: " [:pre (:body req2)]]
            [:p [:b "Pstring: " ] pstring]
            [:p [:b "Porder:  " ] porder]
            [:p [:b "Normstring: "] normstring]
@@ -188,6 +187,7 @@
            [:pre query-sparql2-pr]
            ;;[:hr]
            [:hr]
+           [:p "Query Output: " [:pre (:body req2)]]
            ])))
           [:script {:src "js/goog/base.js" :type "text/javascript"}]
           [:script {:src "js/webapp.js" :type "text/javascript"}]

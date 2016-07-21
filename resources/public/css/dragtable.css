@@ -18,6 +18,10 @@
     border-left: 0px;
 }
 
+.dragtable-sortable th {
+    height: 40px;
+}
+
 .dragtable-sortable li:first-child th, .dragtable-sortable li:first-child td {
     border-left: 1px solid #CCC; 
 }

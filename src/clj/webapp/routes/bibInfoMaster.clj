@@ -45,7 +45,7 @@
 
 (defn handle-bibInfoMaster
   [brefs]
-  (let [bibrefmap (read-string (slurp "pvlists/bibrefs.clj"))]
+  (let [bibrefmap (read-string (slurp "pvlists/bibrefs.edn"))]
   (layout/common
    [:body
    ;;[:h1#clickable "Afroasiatic Morphological Archive"]
@@ -60,7 +60,7 @@
              ;;bref (keyword (str bibref))
              ref (bref bibrefmap)]
           [:tr
-           [:th bibref] [:td ref ]]))]]
+           [:th bibref] [:td (str ref) ]]))]]
     [:script {:src "js/goog/base.js" :type "text/javascript"}]
     [:script {:src "js/webapp.js" :type "text/javascript"}]
     [:script {:type "text/javascript"}

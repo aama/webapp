@@ -126,6 +126,14 @@ table td, table th {
     padding:3px;
 }
 
+table th {
+    background:none repeat scroll 0 0 #FBF9EA;
+    color:#000;
+    font-weight:normal;
+    height:20px;
+    cursor:move;
+}
+
 table.sar-table th {
     background:none repeat scroll 0 0 #FBF9EA;
     color:#000;
@@ -171,6 +179,6 @@ table.linfo-table td {
 .some-handle {
     background-image:url("desc.gif");
     background-repeat:repeat-x;
-    height:18px;
+    height:30 px;
     margin:0 1px;
 }
