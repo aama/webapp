@@ -1,0 +1,15 @@
+Beja beja-arteiga,beja-atmaan,beja-beniamer,beja-bishari,beja-hadendowa
+Agaw awngi,bilin,kemant,khamtanga
+Saho-Afar afar,saho
+Omo-Tana somali-standard,rendille,bayso,boni-jara,boni-kijee-bala,boni-kilii,arbore,dhaasanac,elmolo
+Highland-East-Cushitic alaaba,burji,gedeo,hadiyya,kambaata,sidaama
+Oromoid oromo
+South-East-Cushitic tsamakko,gawwada,yaaku,dahalo
+South-Cushitic burunge,iraqw
+Cushitic afar,alaaba,arbore,awngi,bayso,beja-arteiga,beja-atmaan,beja-beniamer,beja-bishari,beja-hadendowa,bilin,boni-jara,boni-kijee-bala,boni-kilii,burji,burunge,dahalo,dhaasanac,elmolo,gawwada,gedeo,hadiyya,iraqw,kambaata,kemant,khamtanga,oromo,rendille,saho,sidaama,somali-standard,tsamakko,yaaku
+Omotic dizi,koorete,maale,shinassha,wolaytta,yemsa
+(Semitic) akkadian-ob,arabic,geez,hebrew,syriac
+(Egyptian) egyptian-middle,coptic-sahidic
+(Archive) beja-arteiga,beja-atmaan,beja-beniamer,beja-bishari,beja-hadendowa,afar,saho,somali-standard,rendille,bayso,boni-jara,boni-kijee-bala,boni-kilii,arbore,dhaasanac,elmolo
+
+All afar,akkadian-ob,alaaba,arabic,arbore,awngi,bayso,beja-arteiga,beja-atmaan,beja-beniamer,beja-bishari,beja-hadendowa,bilin,boni-jara,boni-kijee-bala,boni-kilii,burji,burunge,coptic-sahidic,dahalo,dhaasanac,dizi,egyptian-middle,elmolo,gawwada,gedeo,geez,hadiyya,hebrew,iraqw,kambaata,kemant,khamtanga,koorete,maale,oromo,rendille,saho,shinassha,sidaama,somali-standard,syriac,tsamakko,wolaytta,yaaku,yemsa

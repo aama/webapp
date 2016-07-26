@@ -1093,10 +1093,11 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX aama: <http://oi.uchicago.edu/aama/schema/2010#>
 PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
 PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/>
-SELECT DISTINCT  ?language
+SELECT DISTINCT  ?language ?lpref
 WHERE {
 	?s aamas:lang ?lang .
         ?lang rdfs:label ?language .
+        ?lang aamas:lpref ?lpref.
 }
 ORDER BY ASC(?language) "))
 

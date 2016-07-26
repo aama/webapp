@@ -5,7 +5,7 @@
             [webapp.models.sparql :as sparql]
             [compojure.handler :as handler]
             [compojure.route :as route]
-            [clojure.string :refer [capitalize split]]
+            [clojure.string :refer [capitalize split lower-case join]]
             [stencil.core :as tmpl]
             [clj-http.client :as http]
             ;;[boutros.matsu.sparql :refer :all]
@@ -19,7 +19,7 @@
 
 (defn listmenulpv []
   (layout/common 
-   [:h3 "Language, Property, Value Lists for Selection Menus"]
+   [:h3 "Property Value Lists for Selection Menus"]
    ;;[:hr]
    ;;[:div
     ;;[:p "This option will generate cached datastore-wide language, property, or value lists for use in selection drop-down menus.."]]
@@ -31,7 +31,6 @@
                     {:title "Choose a list type.", :name "listtype"}
                     [:option {:value "val" :label "General Value List"}]
                     [:option {:value "prop" :label "General Property List"}]
-                    [:option {:value "lang" :label "General Language List"}]
                     ]]]
              ;;(submit-button "Get pdgm")
              [:tr [:td ]
@@ -58,29 +57,28 @@
     [:hr]
                     ;; send SPARQL over HTTP request
     (let [outfile (str "pvlists/menu-" listtype "s.txt")
-      query-sparql (cond 
-                    (= listtype "lang")
-                    (sparql/listmenu-sparql-lang)
-                    (= listtype "prop")
-                    (sparql/listmenu-sparql-prop)
-                    (= listtype "val")
-                    (sparql/listmenu-sparql-val))
-      query-sparql-pr (clojure.string/replace query-sparql #"<" "&lt;")
-      req (http/get aama
-                    {:query-params
-                     {"query" query-sparql ;;generated sparql
-                      ;;"format" "application/sparql-results+json"}})]
-                      "format" "csv"}})
-    req-body (clojure.string/replace (:body req) #",+" ",")
-    req-out (req2mlist req-body)]
+          query-sparql (cond 
+                        (= listtype "prop")
+                        (sparql/listmenu-sparql-prop)
+                        (= listtype "val")
+                        (sparql/listmenu-sparql-val))
+          query-sparql-pr (clojure.string/replace query-sparql #"<" "&lt;")
+          req (http/get aama
+                        {:query-params
+                         {"query" query-sparql ;;generated sparql
+                          ;;"format" "application/sparql-results+json"}})]
+                          "format" "csv"}})
+          req-body (clojure.string/replace (:body req) #",+" ",")
+          req-out (req2mlist req-body)             
+          ]
     (log/info "sparql result status: " (:status req))
-    (spit outfile req-out)
-    [:div
-     [:pre req-out]
+      (spit outfile req-out)
      [:hr]
+     [:div
+     [:p "req-out: "  req-out]
      [:h3#clickable "Query:"]
-     [:pre query-sparql-pr]
-     ])
+     [:pre query-sparql-pr]]
+     )
 [:script {:src "js/goog/base.js" :type "text/javascript"}]
 [:script {:src "js/webapp.js" :type "text/javascript"}]
 [:script {:type "text/javascript"}

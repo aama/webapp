@@ -60,8 +60,9 @@
             [:ul
              [:li "cp target/edn2ttl2-0.1.0-SNAPSHOT-standalone.jar aama-edn2ttl.jar"]
              [:li "cp target/edn2ttl2-0.1.0-SNAPSHOT-standalone.jar ~/.jar/aama-edn2ttl.jar"]]]]]
-         [:li "Then, if necessary, update and upload whole datastore as above (from webapp directory):"
+         [:li "Then update ~/aama/tools, and, if necessary, update and upload whole datastore as above (from webapp directory):"
           [:ul
+           [:li "bin/aama-cptools2lngrepo.sh"]
            [:li "bin/aama-datastore-update.sh \"../aama-data/data/*\""]
            [:li "bin/aama-cp2lngrepo.sh \"../aama-data/data/*\""]]]]]]]
        [:li [:h4 "(Don't forget to commit and push webapp and aama-data!)"]]]

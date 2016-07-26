@@ -22,9 +22,9 @@
      [:p "To be invoked whenever 'pvlists/bibrefs.edn', the general bibliography file, has been modified."]
      [:p "This option will (re-)generate the following indices:"
       [:ol 
-       [:li [:em "bibkwindex.edn"]": a map linking each keyword used in  bibrefs.edn, with a list of the associated bibref IDs."]
-       [:li [:em "bibref-master-list.txt"]": a sorted list of all the bibref IDs [used in the general bibliography menu checkbox list]."]
-       [:li [:em "bibref-keyword-list.txt"]": a sorted list of all the keywords [used in the keyword menu selection list]."]]]
+       [:li [:em "pvlists/bibkwindex.edn"]": a map linking each keyword used in  bibrefs.edn, with a list of the associated bibref IDs."]
+       [:li [:em "pvlists/bibref-master-list.txt"]": a sorted list of all the bibref IDs [used in the general bibliography menu checkbox list]."]
+       [:li [:em "pvlists/bibref-keyword-list.txt"]": a sorted list of all the keywords [used in the keyword menu selection list]."]]]
      [:p (form-to [:post "/bibKWIndexGen"]
               [:table
                [:tr 
@@ -69,7 +69,10 @@
      [:body
       ;;[:h1#clickable "Afroasiatic Morphological Archive"]
       [:h4 "A regenerated Key Word Index has been written to pvlists/bibkwindex.edn"]
-      ;;[:p "kmap: " [:pre (clojure.string/replace kmap #"," "\n")]]
+      [:p "kwvec: " kwvec]
+      [:p "kwmap: " [:pre kwmap]]
+      [:p "kmap1: " kmap]
+      [:p "kmap2: " [:pre (clojure.string/replace kmap #"," "\n")]]
       (let [kmap2 (clojure.string/replace (str kmap) #"[{}]" "")
             kmapvec (split kmap2 #",")]
       [:table

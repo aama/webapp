@@ -39,6 +39,7 @@
           "#LANG INFO:\n\n"
           "aama:{{Lang}} a aamas:Language .\n"
           "aama:{{Lang}} rdfs:label \"{{Lang}}\" .\n"
+          "aama:{{Lang}} aamas:lpref \"{{pfx}}\" .\n"
           "aama:{{Lang}} aamas:dataSource \"{{dsource}}\" .\n"
           "aama:{{Lang}} aamas:geodemoURL \"{{webref}}\" .\n"
           "aama:{{Lang}} aamas:geodemoTXT \"{{desc}}\" .\n")

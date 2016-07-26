@@ -194,14 +194,14 @@
              [:p [:b "Normstring: "] normstring]
              ;;[:p "propstring: " [:pre propstring]]
              ;; for the moment, following prints nothing
-             [:p [:b "Req-pp: "] req-pp]
-             [:h3#clickable "Query:"]
-             [:pre query-sparql2-pr]
+             ;;[:p [:b "Req-pp: "] req-pp]
+             ;;[:h3#clickable "Query:"]
+             ;;[:pre query-sparql2-pr]
              ;;[:hr]
-             [:hr]
-             [:p "Query Output: " [:pre (:body req2)]]
-             [:h4  "Value Clusters: " ]
-             [:pre req4-out]
+             ;;[:hr]
+             ;;[:p "Query Output: " [:pre (:body req2)]]
+             ;;[:h4  "Value Clusters: " ]
+             ;;[:pre req4-out]
              [:p "==========================="]]))
         ;; ) [this is the parens for posvec]
         ))

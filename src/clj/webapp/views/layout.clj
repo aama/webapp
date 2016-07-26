@@ -75,7 +75,6 @@
           [:ul
            [:li (link-to "/bibInfoMaster" "General Bibliography")]
            [:li (link-to "/bibInfoSpecial" "Bibliography by Key Word")]
-           [:li (link-to "/bibKWIndexGen" "Generate Bibliography Indices")]
            ]]]]
 
        [:li (link-to "#" "Search")
@@ -92,25 +91,32 @@
           [:ul
            [:li (link-to "/pvlgpr" "Morphosyntactic Properties")]
            [:li (link-to "/pvlgvl" "Morphosyntactic Values")]
+           [:li (link-to "/listlgpr"  "Properties by Language and POS")]
            [:li (link-to "/listlpv" "Prop-Val Indices by Language")]]]]]
 
        [:li (link-to "#" "Utilities")
         [:ul 
-         [:li (link-to "#" "List Generation:")
+         [:li (link-to "#" "List and Index Generation:")
           [:ul
-           [:li (link-to "/listlgpr"  "POS Properties")]
-           [:li (link-to "#" "Paradigm Value-Clusters")
+           [:li (link-to "#" "Paradigm Value-Clusters Index")
             [:ul
              [:li (link-to "/listvlclplex" "Default Sort Order")]
-             [:li (link-to "/valclmod" "Modifiable Sort Order")]
-             [:li (link-to "/listvlclplabel" "PdgmLabel/Value-Cluster")]]
-           [:li (link-to "/listmenulpv" "Lists for Menus")]]]
+             [:li (link-to "/listvlclplabel" "PdgmLabel/Value-Cluster")]
+             [:li (link-to "/valclmod" "(Modifiable Sort Order)[under development]")]
+             ]]
+           [:li (link-to "#" "Lists and Indices for Menus")
+            [:ul
+             [:li (link-to "/listmenulang" "Language Lists")]
+             [:li (link-to "/bibKWIndexGen" "Bibliography Keyword Indices")]
+             [:li (link-to "/listmenulpv" "Property/Value Lists")]
+             ]]]]
          [:li (link-to "#" "Update:")
           [:ul 
            [:li (link-to "/update" "Update Local Datastore")]
-           [:li (link-to "/upload" "Upload to Remote Repository")]]]]]]
+           [:li (link-to "/upload" "Upload to Remote Repository")]]]]]
        [:li (link-to "#" "Help")
         [:ul
+         [:li (link-to "/helpinitializeapp" "Initialize Application")]
          [:li (link-to "/helpformsearch" "Form Search")]
          [:li (link-to "/helppdgms" "Paradigm Search")]
          [:li (link-to "/helppvdisp" "Morphosyntactic Category Search")]
