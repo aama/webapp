@@ -26,7 +26,7 @@
         lvals (split lvallist #"\n")]
   (layout/common 
    [:h3 "Language-Property-Value Co-occurrences"]
-   ;;[:p "Will write requested Language-Property-Value co-occurrence list to file(s) pvlists/pname-POS-list-LANG.txt for selected language(s)."] 
+   ;;[:p "Will write requested Language-Property-Value co-occurrence list to file(s) pvlists/pname-POS-LANG.txt for selected language(s)."] 
    ;;[:hr]
    (form-to [:post "/listlpv-gen"]
             [:table

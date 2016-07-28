@@ -98,17 +98,14 @@
         [:ul 
          [:li (link-to "#" "List and Index Generation:")
           [:ul
+           [:li (link-to "/listmenulang" "Language Lists")]
+           [:li (link-to "/bibKWIndexGen" "Bibliography Keyword Indices")]
+           [:li (link-to "/listmenulpv" "Property/Value Lists")]
            [:li (link-to "#" "Paradigm Value-Clusters Index")
             [:ul
              [:li (link-to "/listvlclplex" "Default Sort Order")]
              [:li (link-to "/listvlclplabel" "PdgmLabel/Value-Cluster")]
              [:li (link-to "/valclmod" "(Modifiable Sort Order)[under development]")]
-             ]]
-           [:li (link-to "#" "Lists and Indices for Menus")
-            [:ul
-             [:li (link-to "/listmenulang" "Language Lists")]
-             [:li (link-to "/bibKWIndexGen" "Bibliography Keyword Indices")]
-             [:li (link-to "/listmenulpv" "Property/Value Lists")]
              ]]]]
          [:li (link-to "#" "Update:")
           [:ul 

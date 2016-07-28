@@ -46,7 +46,7 @@
   [language pos]
    (let [langlist (slurp "pvlists/menu-langs.txt")
          languages (split langlist #"\n")
-         valclusterfile (str "pvlists/plexname-" pos "-list-" language ".txt")
+         valclusterfile (str "pvlists/plist-" pos "-" language ".txt")
          valclusterlist (slurp valclusterfile)
          valclusters (clojure.string/split valclusterlist #"\n")]
      (layout/common 
@@ -122,7 +122,7 @@
   ;; send SPARQL over HTTP request
   (let [langlist (slurp "pvlists/menu-langs.txt")
         languages (split langlist #"\n")
-        valclusterfile (str "pvlists/plexname-" pos "-list-" language ".txt")
+        valclusterfile (str "pvlists/plist-" pos "-" language ".txt")
         valclusterlist (slurp valclusterfile)
         valclusters (clojure.string/split valclusterlist #"\n")
         Language (capitalize language)

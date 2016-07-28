@@ -23,7 +23,7 @@
         ldoms (split ldomlist #"\n")]
   (layout/common 
    [:h3 "Data Label / PDGM Value-Cluster Map"]
-   ;;[:p "Will write list of paradigm-specifying value-clusters to file(s) pvlists/pname-POS-list-LANG.txt for selected language(s)."]   [:hr]
+   ;;[:p "Will write list of paradigm-specifying value-clusters to file(s) pvlists/pname-POS-LANG.txt for selected language(s)."]   [:hr]
    (form-to [:post "/listvlclplabel-gen"]
             [:table
              [:tr [:td "PDGM Language Domain: " ]

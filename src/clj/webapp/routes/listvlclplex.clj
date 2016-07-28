@@ -22,7 +22,7 @@
         ldoms (split ldomlist #"\n")]
   (layout/common 
    [:h3 "PDGM Value-Cluster List"]
-   ;;[:p "Will write list of paradigm-specifying value-clusters to file(s) pvlists/pname-POS-list-LANG.txt for selected language(s)."]   [:hr]
+   ;;[:p "Will write list of paradigm-specifying value-clusters to file(s) pvlists/pname-POS-LANG.txt for selected language(s)."]   [:hr]
    (form-to [:post "/listvlclplex-gen"]
             [:table
              [:tr [:td "PDGM Language Domain: " ]
@@ -122,7 +122,7 @@
                 lang (read-string (str ":" language))
                 lpref (lang lprefmap)
                 ;; send SPARQL over HTTP request
-                outfile (str "pvlists/plexname-" pos "-list-" language ".txt")
+                outfile (str "pvlists/plist-" pos "-" language ".txt")
                 query-sparql1 (cond 
                           (= pos "pro")
                           (sparql/listlgpr-sparql-pro language lpref)
