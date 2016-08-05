@@ -4,11 +4,11 @@
 
 This is a skeletal Clojure webapp  demonstrating access to an 
 [Resource Description Framework (RDF)](https://www.w3.org/RDF/) dataset
-of  paradigmatic and other rmorphological data via a local RDF server, 
+of  paradigmatic and other morphological data via a local RDF server, 
 in our case [Apache Jena Fuseki](http://jena.apache.org/index.html). 
 The webapp is intended as a test bed for applying a wide variety of 
 [SPARQL](http://www.w3.org/TR/rdf-sparql-query/) 
-queries in a Clojure context. 
+queries about morphological data in a Clojure context. 
 
 The application  uses "live" aama data. It assumes that language data has been 
 loaded into the aama RDF datastore, as described in 
@@ -41,7 +41,8 @@ the values referenced in the templates. This makes it easier for
 the querying of RDF datasets, but not necessariy with Clojure, to inspect the
 queries, and suggest and even effect extensions and modifications to them.
  
-(Analogous considerations may eventually motivate the replacement of Hiccup by
+(Analogous considerations, i.e., input from someone familiar with webpage design 
+but not with Clojure, may eventually motivate the replacement of Hiccup by
 a templating approach to HTML such as [Enlive](https://github.com/cgrand/enlive) or 
 [Selmer](https://github.com/yogthos/Selmer).)
 
@@ -63,7 +64,7 @@ selection-lists, check-boxes, and text-input areas. The requested information
 is passed to a handler function, which uses it to formulate a SPARQL query 
 from one of the templates in ``webapp.models.sparql``,  submits the request to
 the fuseki datastore via ``clj-http.client/get``, and finally parses the 
-response and displays it as html output.
+response, formats it, and displays it as html output.
 
 ### Launching the Webapp
 
