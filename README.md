@@ -2,10 +2,13 @@
 
 ## Web Application
 
-This is a skeletal clojure webapp  demonstrating access to an RDF dataset
-of  paradigmatic and other rmorphological data via a local Fuseki server. 
-The webapp is intended as a test bed for applying a wide variety of SPARQL 
-queries in a clojure context. 
+This is a skeletal Clojure webapp  demonstrating access to an 
+[Resource Description Framework (RDF)](https://www.w3.org/RDF/) dataset
+of  paradigmatic and other rmorphological data via a local RDF server, 
+in our case [Apache Jena Fuseki](http://jena.apache.org/index.html). 
+The webapp is intended as a test bed for applying a wide variety of 
+[SPARQL](http://www.w3.org/TR/rdf-sparql-query/) 
+queries in a Clojure context. 
 
 The application  uses "live" aama data. It assumes that language data has been 
 loaded into the aama RDF datastore, as described in 
@@ -20,7 +23,7 @@ $ bin/fuseki.sh
 ### Clojure Libraries
 
 As can be seen from the dependencies in ``project.clj``, ``aama-webapp``is,
-like most contemporary clojure web applications,
+like most contemporary Clojure web applications,
 based on the [Ring](https://github.com/ring-clojure/ring) 
 web application library, complemented by the
 [Compojure](https://github.com/weavejester/compojure) routing library; 
@@ -33,7 +36,8 @@ by libraries such as [Matsu](https://github.com/boutros/matsu),
  we have preferred to handle these queries as
 a collection of SPARQL templates, using the library
  [Stencil](https://github.com/davidsantiago/stencil) to instantiate
-the values referenced in the templates. This permits someone familiar with 
+the values referenced in the templates. This makes it easier for
+ someone familiar with 
 the querying of RDF datasets, but not necessariy with Clojure, to inspect the
 queries, and suggest and even effect extensions and modifications to them.
  
@@ -65,7 +69,7 @@ response and displays it as html output.
 
 In one shell (terminal session) run ``$ lein cljsbuild auto ``
 
-This compiles the clojurescript and reloads code on edit.  See
+This compiles the Clojurescript and reloads code on edit.  See
 [lein cljsbuild](https://github.com/emezeske/lein-cljsbuild) for
 details.
 

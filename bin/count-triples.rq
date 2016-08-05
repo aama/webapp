@@ -1,0 +1,14 @@
+﻿# 1. COUNT ALL TRIPLES	
+
+		
+PREFIX rdf:	 <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:	 <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX aama:	 <http://id.oi.uchicago.edu/aama/2013/>
+PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
+
+SELECT (COUNT(?s) AS ?sTotal)
+WHERE
+{
+	?s ?p ?o
+}
+
