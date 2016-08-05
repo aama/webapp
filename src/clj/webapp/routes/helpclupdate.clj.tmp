@@ -16,7 +16,7 @@
 
 (defn helpclupdate []
   (layout/common 
-   [:div {:class "info-page"}
+   [:div {:class "help-page"}
      [:h3 "Help: Update [Command-line]"]
      [:p "The following command-line versions presuppose that the edn data files are in the  ~/aama-data/data/[LANG] directories:"]
       [:ul [:li [:h4 "Datastore Update."] 
@@ -43,8 +43,7 @@
         [:ul 
          [:li "bin/aama-cp2lngrepo.sh ../aama-data/data/[LANG] (for a single language)"]
          [:li "bin/aama-cp2lngrepo.sh \"../aama-data/data/*\" (to [re-]upload the whole datastore)"]
-         [:li "bin/aama-cptools2lngrepo.sh (necessary only if aama-edn2ttl.jar has been revised)"
-          [:p "NB: If any of the shell scripts in " [:code "aama/tools/bin"] " (aama-datastore-update.sh fuqueries.sh aama-edn2rdf.sh fuquery-gen.sh aama-rdf2fuseki.sh fuseki.sh) need to be updated, it should be done by hand because of directory issues."]]]]]
+         [:li "bin/aama-cptools2lngrepo.sh (necessary only if aama-edn2ttl.jar has been revised)"]]]]
        [:li [:h4 "Revise aama-edn2ttl.jar."] 
         [:p "Occasionally new schemata elements and relations will be desired, or old ones will need to be corrected, in the mapping of the edn data files to ttl."]
         [:p "Procedure: "

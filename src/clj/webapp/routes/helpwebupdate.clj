@@ -16,7 +16,7 @@
 
 (defn helpwebupdate []
   (layout/common 
-   [:div {:class "help-page"}
+   [:div {:class "info-page"}
      [:h3 "Help: Update [Webapp]"]
      [:p "Procedures to update local and remote datastore after an edn file has been edited:"]
       [:ul [:li (link-to "/update" "Update Local Datastore")]

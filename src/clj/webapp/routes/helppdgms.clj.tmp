@@ -16,7 +16,7 @@
 
 (defn helppdgms []
   (layout/common 
-   [:div {:class "info-page"}
+   [:div {:class "help-page"}
    [:h3 "Help: Paradigms"]
     [:p "These pages experiment with different possibilities for display and comparison of paradigms. The comparisons for the moment are oriented to png-centered displays, and thus work reasonably well for finite verb and pronominal paradigms. Their application is less clear for non-finite verbs. Note that the present datastore contains " [:em "very "] "little material for nominal inflection."]
     [:ul

@@ -5,10 +5,12 @@
 
 (defn aamaApp []
   (layout/common
+   [:div {:class "info-page"}
    ;;[:h1#clickable "Afroasiatic Morphological Archive"]
    [:h1 "Query & Display Tool"]
-   [:p "The purpose of this application is to develop and test various general formats of SPARQL queries that can be used to explore the morphological data registered in the Afroasiatic Morphological Archive. It presupposes that an RDF datastore has been installed and launched, as described in in the " (link-to "http://aama.github.io" "AAMA github") " page, and that the necessary application-specific lists and indices have been generated, as explained in the " (link-to "/helpinitializeapp" "Initialization Instructions") " section."]
-[:p "For the purposes of this provisional tool the implemented queries are divided into three large groups:"]
+   [:p "The purpose of this application is to develop and test various general formats of SPARQL queries that can be used to explore the morphological data registered in the Afroasiatic Morphological Archive. Instructions for installing and configuring the required softward, downloading the data and tools, and setting up an RDF datastore as a SPARQL endpoint, as well as a description of the EDN format for the morphological data are contained in the " (link-to "http://aama.github.io" "AAMA github") " page; a more technical overview of the application code can be found in the aama/webapp repository's " (link-to "https://github.com/aama/webapp/blob/master/README.md" "README") "  page."]
+[:p "The application presupposes that the Fuseki has been launched, by default in " [:code "localhost:3030"] ", by the command, " [:code "bin/fuseki.sh"] ", cf.  " (link-to "http://aama.github.io" "aama.github.io") ",  and that the necessary application-specific lists and indices have been generated, as explained in the " (link-to "/helpinitializeapp" "Help > Initialization Instructions") " menu selection."]
+[:p "For the purposes of this provisional tool the queries implemented under \"" [:code "Menu > Search+"] "\" are divided into three large groups:"]
    [:ol
     [:li "Search for forms meeting some set of morphosyntactic criteria"]
     [:li "Search for paradigms"]
@@ -17,7 +19,7 @@
     [:script {:src "js/goog/base.js" :type "text/javascript"}]
     [:script {:src "js/webapp.js" :type "text/javascript"}]
     [:script {:type "text/javascript"}
-     "goog.require('webapp.core');"]))
+     "goog.require('webapp.core');"]]))
    
 
 (defroutes aamaApp-routes

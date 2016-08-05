@@ -16,7 +16,7 @@
 
 (defn helpformsearch []
   (layout/common 
-   [:div {:class "info-page"}
+   [:div {:class "help-page"}
     [:h3 "Help: Search for Specific Forms"]
     [:p "These pages are designed to permit finding forms corresponding to arbitrary combinations of language, property, value, and shape."]
     [:ul

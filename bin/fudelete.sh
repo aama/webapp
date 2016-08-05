@@ -32,5 +32,5 @@ do
     #uncapitalize_path $lang
     graph="http://oi.uchicago.edu/aama/2013/graph/${lang}"
     echo deleting $graph;
-   ../aama/fuseki/jena-fuseki-1.1.1/s-delete -v http://localhost:3030/aama/data $graph 2>&1 >>logs/fudelete.log
+   ../fuseki/apache-jena-fuseki-2.4.0/bin/s-delete -v http://localhost:3030/aama/data $graph 2>&1 >>logs/fudelete.log
 done

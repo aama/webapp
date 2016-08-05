@@ -1,11 +1,11 @@
 (ns webapp.models.sparql
 (:refer-clojure :exclude [filter concat group-by max min count])
   (:require [compojure.core :refer :all]
-            [compojure.handler :as handler]
-            [compojure.route :as route]
+            ;;[compojure.handler :as handler]
+            ;;[compojure.route :as route]
             [clojure.string :refer [capitalize split]]
             [stencil.core :as tmpl]
-            [clj-http.client :as http]
+            ;;[clj-http.client :as http]
             ;;[boutros.matsu.sparql :refer :all]
             ;;[boutros.matsu.core :refer [register-namespaces]]
             [clojure.tools.logging :as log])
@@ -15,19 +15,20 @@
 ;; see notes/query-ext.clj for matsu and other formats
 ;; and for pdgmqry-sparql-alt
 
+(def PREFIXES "
+	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+	PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/> 
+	PREFIX aamas: <http://id.oi.uchicago.edu/aama/2013/schema/> 
+	PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/>") 
+
+
 ;; Get bibref(s) and geo/demo URL(s) and TXT
 (defn langInfoqry-sparql [language lpref]
   (let [Language (capitalize language)]
-    (str
+    (str PREFIXES
      (tmpl/render-string 
       (str "
-	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
-	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
-        PREFIX dc:    <http://purl.org/dc/elements>
-        PREFIX dcterms:    <http://purl.org/dc/terms>
-	PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/> 
-	PREFIX aamas: <http://id.oi.uchicago.edu/aama/2013/schema/> 
-	PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/> 
 	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
 	SELECT ?bibref ?lurl ?ldesc
 	WHERE
@@ -57,14 +58,9 @@
           Language (capitalize language)
           ]
       ;;(for [lex lexvals]
-      (str
+      (str PREFIXES
       (tmpl/render-string 
        (str "
-	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
-	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
-	PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/> 
-	PREFIX aamas: <http://id.oi.uchicago.edu/aama/2013/schema/> 
-	PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/> 
 	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
 	SELECT ?num ?pers ?gen  ?token
 	WHERE
@@ -131,14 +127,9 @@
           ;;qpropstring (clojure.string/replace qprops "," " ?")
           Language (capitalize language)
           ]
-      (str
+      (str PREFIXES
       (tmpl/render-string 
        (str "
-	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
-	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
-	PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/> 
-	PREFIX aamas: <http://id.oi.uchicago.edu/aama/2013/schema/> 
-	PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/> 
 	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
 	SELECT {{selection}}  ?token  
 	WHERE
@@ -198,14 +189,9 @@
           Language (capitalize language)
           ]
       ;;(for [lex lexvals]
-      (str
+      (str PREFIXES
       (tmpl/render-string 
        (str "
-	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
-	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
-	PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/> 
-	PREFIX aamas: <http://id.oi.uchicago.edu/aama/2013/schema/> 
-	PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/> 
 	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
 	SELECT ?comment ?num ?pers ?gen ?token ?lex
 	WHERE
@@ -262,14 +248,9 @@
                         qprops)
           Language (capitalize language)
           ]
-      (str
+      (str PREFIXES
       (tmpl/render-string 
        (str "
-	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
-	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
-	PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/> 
-	PREFIX aamas: <http://id.oi.uchicago.edu/aama/2013/schema/> 
-	PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/> 
 	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
 	SELECT ?num ?pers ?gen ?token  
 	WHERE
@@ -321,14 +302,9 @@
                         qprops)
           Language (capitalize language)
           ]
-      (str
+      (str PREFIXES
       (tmpl/render-string 
        (str "
-	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
-	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
-	PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/> 
-	PREFIX aamas: <http://id.oi.uchicago.edu/aama/2013/schema/> 
-	PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/> 
 	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
 	SELECT ?comment ?num ?pers ?gen ?token  
 	WHERE
@@ -382,14 +358,9 @@
           ;;qpropstring (clojure.string/replace qprops "," " ?")
           Language (capitalize language)
           ]
-      (str
+      (str PREFIXES
       (tmpl/render-string 
        (str "
-	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
-	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
-	PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/> 
-	PREFIX aamas: <http://id.oi.uchicago.edu/aama/2013/schema/> 
-	PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/> 
 	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
 	SELECT {{selection}}  ?token  
 	WHERE
@@ -452,14 +423,9 @@
           ;;qpropstring (clojure.string/replace qprops "," " ?")
           Language (capitalize language)
           ]
-      (str
+      (str PREFIXES
       (tmpl/render-string 
        (str "
-	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
-	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
-	PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/> 
-	PREFIX aamas: <http://id.oi.uchicago.edu/aama/2013/schema/> 
-	PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/> 
 	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
 	SELECT {{selection}}  ?token  
 	WHERE
@@ -528,14 +494,9 @@
           ;;qpropstring (clojure.string/replace qprops "," " ?")
           Language (capitalize language)
           ]
-      (str
+      (str PREFIXES
       (tmpl/render-string 
        (str "
-	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
-	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
-	PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/> 
-	PREFIX aamas: <http://id.oi.uchicago.edu/aama/2013/schema/> 
-	PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/> 
 	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
 	SELECT ?comment {{selection}}  ?token  
 	WHERE
@@ -605,14 +566,9 @@
           ;;qpropstring (clojure.string/replace qprops "," " ?")
           Language (capitalize language)
           ]
-      (str
+      (str PREFIXES
       (tmpl/render-string 
        (str "
-	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
-	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
-	PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/> 
-	PREFIX aamas: <http://id.oi.uchicago.edu/aama/2013/schema/> 
-	PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/> 
 	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
 	SELECT ?comment {{selection}}  ?token  
 	WHERE
@@ -674,14 +630,9 @@
     (let [values (split valstring1 #",")
           Language1 (capitalize language1)
           ]
-      (str
+      (str PREFIXES
       (tmpl/render-string 
        (str "
-	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
-	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
-	PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/> 
-	PREFIX aamas: <http://id.oi.uchicago.edu/aama/2013/schema/> 
-	PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/> 
         PREFIX {{lpref1}}:   <http://id.oi.uchicago.edu/aama/2013/{{language1}}/> 
 	SELECT ?lex ?num ?pers ?gen ?token  
 	WHERE
@@ -731,14 +682,9 @@
           ;;qpropstring (clojure.string/replace qprops "," " ?")
           Language1 (capitalize language1)
           ]
-      (str
+      (str PREFIXES
       (tmpl/render-string 
        (str "
-	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
-	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
-	PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/> 
-	PREFIX aamas: <http://id.oi.uchicago.edu/aama/2013/schema/> 
-	PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/> 
 	PREFIX {{lpref1}}:   <http://id.oi.uchicago.edu/aama/2013/{{language1}}/> 
 	SELECT {{selection}}  ?token  
 	WHERE
@@ -804,14 +750,9 @@
           ;;qpropstring (clojure.string/replace qprops "," " ?")
           Language1 (capitalize language1)
           ]
-      (str
+      (str PREFIXES
       (tmpl/render-string 
        (str "
-	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
-	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
-	PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/> 
-	PREFIX aamas: <http://id.oi.uchicago.edu/aama/2013/schema/> 
-	PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/> 
 	PREFIX {{lpref1}}:   <http://id.oi.uchicago.edu/aama/2013/{{language1}}/> 
 	SELECT {{selection}}  ?token  
 	WHERE
@@ -872,14 +813,9 @@
           ;;qpropstring (clojure.string/replace qprops "," " ?")
           Language1 (capitalize language1)
           ]
-      (str
+      (str PREFIXES
       (tmpl/render-string 
        (str "
-	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
-	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
-	PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/> 
-	PREFIX aamas: <http://id.oi.uchicago.edu/aama/2013/schema/> 
-	PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/> 
 	PREFIX {{lpref1}}:   <http://id.oi.uchicago.edu/aama/2013/{{language1}}/> 
 	SELECT {{selection}}  ?token  
 	WHERE
@@ -937,13 +873,8 @@
 
 (defn lgpr-sparql [ldomain prop]
   (let [ldoms (split ldomain #",")]
-  (str
+  (str PREFIXES
     (str "
-       prefix aama:	 <http://id.oi.uchicago.edu/aama/2013/>
-       prefix aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-       prefix rdf:	 <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-       prefix rdfs:	 <http://www.w3.org/2000/01/rdf-schema#>
-
        SELECT DISTINCT ?language ?valuelabel
        WHERE { ")
       (apply str  
@@ -966,13 +897,9 @@
        ORDER BY ?language ?valuelabel  "))))
 
 (defn listlgpr-sparql-fv [language lpref]
+(str PREFIXES
   (tmpl/render-string
    (str "
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX aama: <http://oi.uchicago.edu/aama/schema/2010#>
-PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/>
 PREFIX {{lpref}}: <http://id.oi.uchicago.edu/aama/2013/{{lang}}/>
 SELECT DISTINCT  ?property
 WHERE {
@@ -986,16 +913,12 @@ GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{lang}}> {
 }
 ORDER BY ASC(?property) ")
 {:lang language
- :lpref lpref}))
+ :lpref lpref})))
 
 (defn listlgpr-sparql-pro [language lpref]
-  (tmpl/render-string
+  (str PREFIXES
+   (tmpl/render-string
    (str "
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX aama: <http://oi.uchicago.edu/aama/schema/2010#>
-PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/>
 PREFIX {{lpref}}: <http://id.oi.uchicago.edu/aama/2013/{{lang}}/>
 SELECT DISTINCT  ?property
 WHERE {
@@ -1009,16 +932,12 @@ GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{lang}}> {
 }
 ORDER BY ASC(?property) ")
 {:lang language
- :lpref lpref}))
+ :lpref lpref})))
 
 (defn listlgpr-sparql-nfv [language lpref]
+  (str PREFIXES
   (tmpl/render-string
    (str "
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX aama: <http://oi.uchicago.edu/aama/schema/2010#>
-PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/>
 PREFIX {{lpref}}: <http://id.oi.uchicago.edu/aama/2013/{{lang}}/>
 SELECT DISTINCT  ?property
 WHERE {
@@ -1032,16 +951,12 @@ GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{lang}}> {
 }
 ORDER BY ASC(?property) ")
 {:lang language
- :lpref lpref}))
+ :lpref lpref})))
 
 (defn listlgpr-sparql-noun [language lpref]
+  (str PREFIXES
   (tmpl/render-string
    (str "
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX aama: <http://oi.uchicago.edu/aama/schema/2010#>
-PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/>
 PREFIX {{lpref}}: <http://id.oi.uchicago.edu/aama/2013/{{lang}}/>
 SELECT DISTINCT  ?property
 WHERE {
@@ -1054,63 +969,46 @@ GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{lang}}> {
 }}
 ORDER BY ASC(?property) ")
 {:lang language
- :lpref lpref}))
+ :lpref lpref})))
 
 (defn listmenu-sparql-prop []
+  (str PREFIXES
   (str "
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX aama: <http://oi.uchicago.edu/aama/schema/2010#>
-PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/>
 SELECT DISTINCT  ?property
 WHERE {
 	?s ?p ?o .
         ?p rdfs:label ?property .
  	FILTER (?p NOT IN ( aamas:lang) )
 }
-ORDER BY ASC(?property) "))
+ORDER BY ASC(?property) ")))
 
 (defn listmenu-sparql-val []
+  (str PREFIXES
   (str "
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX aama: <http://oi.uchicago.edu/aama/schema/2010#>
-PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/>
 SELECT DISTINCT  ?value
 WHERE {
 	?s ?p ?o .
         ?o rdfs:label ?value .
  	FILTER (?p NOT IN ( aamas:lang, aamas:memberOf, aamas:lexeme) )
 }
-ORDER BY ASC(?value) "))
+ORDER BY ASC(?value) ")))
 
 (defn listmenu-sparql-lang []
+  (str PREFIXES
   (str "
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX aama: <http://oi.uchicago.edu/aama/schema/2010#>
-PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/>
 SELECT DISTINCT  ?language ?lpref
 WHERE {
 	?s aamas:lang ?lang .
         ?lang rdfs:label ?language .
         ?lang aamas:lpref ?lpref.
 }
-ORDER BY ASC(?language) "))
+ORDER BY ASC(?language) ")))
 
 
 (defn listlpv-sparql2 [language]
+  (str PREFIXES
   (tmpl/render-string
    (str "
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX aama: <http://oi.uchicago.edu/aama/schema/2010#>
-PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/>
-
 SELECT DISTINCT  ?lang ?prop ?val
 WHERE {
 GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{language}}> {
@@ -1123,17 +1021,12 @@ GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{language}}> {
 }}
 ORDER BY ASC(?prop) ASC(?val)
  ")
-{:language language}))
+{:language language})))
 
 (defn listlpv-sparql [ldomain]
   (let [langs (split ldomain #",")]
-    (str 
+    (str PREFIXES
      (str "
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX aama: <http://oi.uchicago.edu/aama/schema/2010#>
-    PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-
     SELECT DISTINCT  ?lang ?prop ?val
     WHERE { ")
      (apply str
@@ -1157,13 +1050,8 @@ ORDER BY ASC(?prop) ASC(?val)
 
 (defn listpvl-sparql [ldomain]
   (let [langs (split ldomain #",")]
-    (str 
+    (str PREFIXES
      (str "
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX aama: <http://oi.uchicago.edu/aama/schema/2010#>
-    PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-
     SELECT DISTINCT  ?prop ?val ?lang
     WHERE { ")
      (apply str
@@ -1187,13 +1075,8 @@ ORDER BY ASC(?prop) ASC(?val)
 
 (defn listcpvl-sparql [ldomain]
   (let [langs (split ldomain #",")]
-    (str 
+    (str PREFIXES
      (str "
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX aama: <http://oi.uchicago.edu/aama/schema/2010#>
-    PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-
     SELECT DISTINCT  ?pclass ?prop ?lang ?val
     WHERE { ")
      (apply str
@@ -1218,13 +1101,8 @@ ORDER BY ASC(?prop) ASC(?val)
 
 (defn listvpl-sparql [ldomain]
   (let [langs (split ldomain #",")]
-    (str 
+    (str PREFIXES
      (str "
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX aama: <http://oi.uchicago.edu/aama/schema/2010#>
-    PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-
     SELECT DISTINCT  ?val ?prop ?lang
     WHERE { ")
      (apply str
@@ -1248,13 +1126,8 @@ ORDER BY ASC(?prop) ASC(?val)
 
 (defn listplv-sparql [ldomain]
   (let [langs (split ldomain #",")]
-    (str 
+    (str PREFIXES
      (str "
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX aama: <http://oi.uchicago.edu/aama/schema/2010#>
-    PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-
     SELECT DISTINCT  ?prop ?lang ?val
     WHERE { ")
      (apply str
@@ -1284,14 +1157,9 @@ ORDER BY ASC(?prop) ASC(?val)
         propstring2 (clojure.string/replace qpropstring2 #"^\?" "")
         proplist2 (split propstring2 #",")
         Language (capitalize language)]
-    (str 
+    (str PREFIXES
      (tmpl/render-string
       (str "
-       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-       PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/>
-       PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-       PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/>
        PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/>
        SELECT DISTINCT {{selection}} ?lex
        WHERE{
@@ -1329,14 +1197,9 @@ ORDER BY ASC(?prop) ASC(?val)
         propstring2 (clojure.string/replace qpropstring2 #"^\?" "")
         proplist2 (split propstring2 #",")
         Language (capitalize language)]
-    (str 
+    (str PREFIXES
      (tmpl/render-string
       (str "
-       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-       PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/>
-       PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-       PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/>
        PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/>
        SELECT DISTINCT ?proClass  {{selection}}
        where{
@@ -1375,14 +1238,9 @@ ORDER BY ASC(?prop) ASC(?val)
         propstring2 (clojure.string/replace qpropstring2 #"^\?" "")
         proplist2 (split propstring2 #",")
         Language (capitalize language)]
-    (str 
+    (str PREFIXES
      (tmpl/render-string
       (str "
-       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-       PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/>
-       PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-       PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/>
        PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/>
        SELECT DISTINCT ?pdgmLabel {{selection}} ?lex
        WHERE{
@@ -1422,14 +1280,9 @@ ORDER BY ASC(?prop) ASC(?val)
         propstring2 (clojure.string/replace qpropstring2 #"^\?" "")
         proplist2 (split propstring2 #",")
         Language (capitalize language)]
-    (str 
+    (str PREFIXES
      (tmpl/render-string
       (str "
-       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-       PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/>
-       PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-       PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/>
        PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/>
        SELECT DISTINCT ?pdgmLabel ?proClass  {{selection}}
        where{
@@ -1464,14 +1317,9 @@ ORDER BY ASC(?prop) ASC(?val)
 
 
 (defn listvlcl-sparql-nfv-label [language lpref propstring]
-    (str 
+    (str PREFIXES
      (tmpl/render-string
       (str "
-       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-       PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/>
-       PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-       PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/>
        PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/>
        SELECT DISTINCT  ?pdgmLabel ?morphClassLabel ?property 
        WHERE{
@@ -1495,14 +1343,9 @@ ORDER BY ASC(?prop) ASC(?val)
     ))
 
 (defn listvlcl-sparql-noun-label [language lpref propstring]
-    (str 
+    (str PREFIXES
      (tmpl/render-string
       (str "
-       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-       PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/>
-       PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-       PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/>
        PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/>
        SELECT DISTINCT  ?pdgmLabel ?morphClassLabel ?property 
        WHERE{
@@ -1524,14 +1367,9 @@ ORDER BY ASC(?prop) ASC(?val)
      ))
 
 (defn listvlcl-sparql-nfv [language lpref propstring]
-    (str 
+    (str PREFIXES
      (tmpl/render-string
       (str "
-       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-       PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/>
-       PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-       PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/>
        PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/>
        SELECT DISTINCT  ?morphClassLabel ?property 
        WHERE{
@@ -1553,14 +1391,9 @@ ORDER BY ASC(?prop) ASC(?val)
     ))
 
 (defn listvlcl-sparql-noun [language lpref propstring]
-    (str 
+    (str PREFIXES
      (tmpl/render-string
       (str "
-       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-       PREFIX aama: <http://id.oi.uchicago.edu/aama/2013/>
-       PREFIX aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-       PREFIX aamag:	 <http://oi.uchicago.edu/aama/2013/graph/>
        PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/>
        SELECT DISTINCT  ?morphClassLabel ?property 
        WHERE{
@@ -1582,13 +1415,8 @@ ORDER BY ASC(?prop) ASC(?val)
 
 (defn lgvl-sparql [ldomain lval]
   (let [ldoms (split ldomain #",")]
-  (str
+  (str PREFIXES
     (str "
-       prefix aama:	 <http://id.oi.uchicago.edu/aama/2013/>
-       prefix aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-       prefix rdf:	 <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-       prefix rdfs:	 <http://www.w3.org/2000/01/rdf-schema#>
-
        SELECT DISTINCT ?language ?predlabel
        WHERE { ")
       (apply str  
@@ -1620,14 +1448,9 @@ ORDER BY ASC(?prop) ASC(?val)
                                 qval (clojure.string/replace (last qpval) #"-" "")]
                             (str qval "Label ")))))
         ]
-  (str
+  (str PREFIXES
                (tmpl/render-string 
                   (str "
-       prefix aama:	 <http://id.oi.uchicago.edu/aama/2013/>
-       prefix aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-       prefix rdf:	 <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-       prefix rdfs:	 <http://www.w3.org/2000/01/rdf-schema#>
-
        SELECT DISTINCT ?language {{selection}}  ?pdgmLabel ?token
        #SELECT DISTINCT ?language {{selection}}  ?token
        WHERE { ")
@@ -1689,14 +1512,9 @@ ORDER BY ASC(?prop) ASC(?val)
   ;;(for [tokenID tokenIDs]
     (let [token (last (split tokenID #","))
           dataID (first (split tokenID #","))]
-      (str
+      (str PREFIXES
        (tmpl/render-string 
         (str "
-       prefix aama:	 <http://id.oi.uchicago.edu/aama/2013/>
-       prefix aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-       prefix rdf:	 <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-       prefix rdfs:	 <http://www.w3.org/2000/01/rdf-schema#>
-
        SELECT DISTINCT ?property ?value
        WHERE { 
               ?s ?p ?o .
@@ -1713,14 +1531,9 @@ ORDER BY ASC(?prop) ASC(?val)
 (defn formpos-sparql [tokenID]
     (let [token (last (split tokenID #","))
           dataID (first (split tokenID #","))]
-      (str
+      (str PREFIXES
        (tmpl/render-string 
         (str "
-       prefix aama:	 <http://id.oi.uchicago.edu/aama/2013/>
-       prefix aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-       prefix rdf:	 <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-       prefix rdfs:	 <http://www.w3.org/2000/01/rdf-schema#>
-
        SELECT DISTINCT ?pos
        WHERE { 
               ?s ?p ?o .
@@ -1736,14 +1549,9 @@ ORDER BY ASC(?prop) ASC(?val)
 (defn formptype-sparql [tokenID]
     (let [token (last (split tokenID #","))
           dataID (first (split tokenID #","))]
-      (str
+      (str PREFIXES
        (tmpl/render-string 
         (str "
-       prefix aama:	 <http://id.oi.uchicago.edu/aama/2013/>
-       prefix aamas:	 <http://id.oi.uchicago.edu/aama/2013/schema/>
-       prefix rdf:	 <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-       prefix rdfs:	 <http://www.w3.org/2000/01/rdf-schema#>
-
        ASK
        WHERE { 
               ?s ?p ?o .

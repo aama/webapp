@@ -8,10 +8,10 @@
 
 echo "Query:" $1
 #echo "Response:" $2
-../aama/fuseki/jena-fuseki-1.1.1/s-query --output=tsv --service http://localhost:3030/aama/query --query=$1 
+../fuseki/apache-jena-fuseki-2.4.0/bin/s-query --output=tsv --service http://localhost:3030/aama/query --query=$1 
 
 
-#./s-query \
+#./bin/s-query \
 #	--output=tsv  \
 #	--service http://localhost:3030/aamaTestData/query  \
 #	--file=query-temp.rq  \

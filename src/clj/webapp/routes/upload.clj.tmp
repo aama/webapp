@@ -19,7 +19,7 @@
 
 (defn upload []
   (layout/common [:h3 "Upload"]
-    [:div {:class "info-page"}
+    [:div {:class "help-page"}
      [:hr]
      [:p "[This option will enable a user with access privileges to push the current state of the designated LANG-pdgms.edn file(s) to the appropriate github repository. Webapp page under construction; in the meantime cf." (link-to "/helpclupdate" "Help>Update/Upload>Command Line")".]"]]))
 

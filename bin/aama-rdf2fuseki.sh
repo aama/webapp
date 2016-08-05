@@ -19,13 +19,13 @@ do
     lang=${l#../aama-data/data/}
     graph="http://oi.uchicago.edu/aama/2013/graph/`dirname ${lang/\/\///}`"
     echo posting $f to $graph;
-    ../aama/fuseki/jena-fuseki-1.1.1/s-post -v http://localhost:3030/aama/data $graph  $f 2>&1 >>logs/fuload.log
-	#${FUSEKIDIR}/s-post -v http://localhost:3030/aamaData/data 'default'   $f 2>&1 >>logs/fuload.log
+    ../fuseki/apache-jena-fuseki-2.4.0/bin/s-post -v http://localhost:3030/aama/data $graph  $f 2>&1 >>logs/fuload.log
+	#${FUSEKIDIR}/bin/s-post -v http://localhost:3030/aamaData/data 'default'   $f 2>&1 >>logs/fuload.log
 done
 
 
 # i.e.
-#    ${FUSEKIDIR}/s-post -v http://localhost:3030/aama/data \
+#    ${FUSEKIDIR}/bin/s-post -v http://localhost:3030/aama/data \
 #                          http://oi.uchicago.edu/aama/2013/graph/beja-arteiga  \
 #			  data/beja-arteiga//beja-arteiga-pdgms.rdf \
 #			  2>&1 \ #"redirect stderr to stdout"

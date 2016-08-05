@@ -16,7 +16,7 @@
 
 (defn helpinitializeapp []
   (layout/common 
-   [:div {:class "info-page"}
+   [:div {:class "help-page"}
     [:h3 "Help: Initialize Application"]
     [:p "This application presupposes that the Fuseki AAMA data server has been installed, and launched through the invocation of the shell-script " [:em "bin/fuseki.sh"] ", as described in the " (link-to "http://aama.github.io" "AAMA github") " page."]
     [:p "In order to work properly, the application needs to find in its home directory a directory " [:em "pvlists"] " with application-specific lists and indices used in menus, queries and displays. In fact wihtout these, most menu-options will simply show a blank page. The following steps will properly set up the application:"]
@@ -30,7 +30,6 @@
        [:li (link-to "/listmenulpv" "Generate Property/Value Lists") ". Lists all morphosyntactic properties and values in the data store; for search for specific properties and values."]
        [:li (link-to "/listvlclplex" "Paradigm Value-Cluster List") ". This enables search for specific paradigms in the datastore -- be sure to take the language domain option \"All\"."]
        [:li (link-to "/listvlclplabel" "Map from Datastore Value-Clusters to Data-entry PDGM Labels") "."]]]]
-
     [:p "Note that the appropriate  utilities need to be re-run whenever bibliography items, languages, or prop-val pairs are added, deleted, or edited"]]))
 
 (defroutes helpinitializeapp-routes
