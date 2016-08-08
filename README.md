@@ -5,7 +5,7 @@
 This is a skeletal Clojure webapp  demonstrating access to an 
 [Resource Description Framework (RDF)](https://www.w3.org/RDF/) dataset
 of  paradigmatic and other morphological data via a local RDF server, 
-in our case [Apache Jena Fuseki](http://jena.apache.org/index.html). 
+in our case [Apache Jena Fuseki](http://jena.apache.org/index.html). pppppp
 The webapp is intended as a test bed for applying a wide variety of 
 [SPARQL](http://www.w3.org/TR/rdf-sparql-query/) 
 queries about morphological data in a Clojure context. 
@@ -23,7 +23,7 @@ $ bin/fuseki.sh
 ### Clojure Libraries
 
 As can be seen from the dependencies in ``project.clj``, ``aama-webapp``is,
-like most contemporary Clojure web applications,
+like most [Leiningen](href="http://leiningen.org")-managed Clojure web applications,
 based on the [Ring](https://github.com/ring-clojure/ring) 
 web application library, complemented by the
 [Compojure](https://github.com/weavejester/compojure) routing library; 
@@ -68,17 +68,33 @@ response, formats it, and displays it as html output.
 
 ### Launching the Webapp
 
-In one shell (terminal session) run ``$ lein cljsbuild auto ``
+The application can be run in the webapp directory, in one of two ways:
 
+1. From the downloaded sorce-code,  using [Leiningen](href="http://leiningen.org"):
+
+In one shell (terminal session) run 
+```clojure
+$ lein cljsbuild auto 
+```
 This compiles the Clojurescript and reloads code on edit.  See
 [lein cljsbuild](https://github.com/emezeske/lein-cljsbuild) for
-details.
+details. [Note that at present use of cljs is at best marginal in
+this application.]
 
 In another shell (terminal session), launch the app in a local
-webserver: ``$ lein ring server-headless``
+webserver:
+```clojure
+$ lein ring server-headless
+```
 
-Now you can open localhost:3000 in your browser, and you will see the application's
-main menu.
+2. As a Java application from the jar file to be  found in the webapp directory, 
+with the command: 
+```java
+$ java -jar aama-webapp.jar
+```
+
+In either case,  you can then open localhost:3000 in your browser, 
+and you will see the application's main menu.
 
 ### The REPL
 

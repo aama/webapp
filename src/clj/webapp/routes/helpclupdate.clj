@@ -69,7 +69,7 @@
        [:li [:h4 "(Don't forget to commit and push webapp and aama-data!)"]]]
     
    [:hr]
-   [:h4 "[For more detail on the above, cf. the github aama-data/bin " (link-to "https://github.com/gbgg/aama-data/blob/master/bin/README.md" "README")"]"]]))
+   [:h5 "[For more detail on the above, cf. " (link-to "http://aama.github.io" "aama.github.io") "; some older information is also available in the github aama-data/bin " (link-to "https://github.com/gbgg/aama-data/blob/master/bin/README.md" "README")"]"]]))
 
 (defroutes helpclupdate-routes
   (GET "/helpclupdate" [] (helpclupdate)))
