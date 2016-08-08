@@ -23,7 +23,7 @@ $ bin/fuseki.sh
 ### Clojure Libraries
 
 As can be seen from the dependencies in ``project.clj``, ``aama-webapp``is,
-like most [Leiningen](href="http://leiningen.org")-managed Clojure web applications,
+like most [Leiningen](http://leiningen.org)-managed Clojure web applications,
 based on the [Ring](https://github.com/ring-clojure/ring) 
 web application library, complemented by the
 [Compojure](https://github.com/weavejester/compojure) routing library; 
@@ -70,22 +70,22 @@ response, formats it, and displays it as html output.
 
 The application can be run in the webapp directory, in one of two ways:
 
-1. From the downloaded sorce-code,  using [Leiningen](href="http://leiningen.org"):
+1. From the downloaded sorce-code,  using [Leiningen](http://leiningen.org):
 
-In one shell (terminal session) run 
-```clojure
-$ lein cljsbuild auto 
-```
-This compiles the Clojurescript and reloads code on edit.  See
-[lein cljsbuild](https://github.com/emezeske/lein-cljsbuild) for
-details. [Note that at present use of cljs is at best marginal in
-this application.]
+    In one shell (terminal session) run 
+    ```clojure
+    $ lein cljsbuild auto 
+    ```
+    This compiles the Clojurescript and reloads code on edit.  See
+    [lein cljsbuild](https://github.com/emezeske/lein-cljsbuild) for
+    details. [Note that at present use of cljs is at best marginal in
+    this application.]
 
-In another shell (terminal session), launch the app in a local
-webserver:
-```clojure
-$ lein ring server-headless
-```
+    In another shell (terminal session), launch the app in a local
+    webserver:
+    ```clojure
+    $ lein ring server-headless
+    ```
 
 2. As a Java application from the jar file to be  found in the webapp directory, 
 with the command: 
