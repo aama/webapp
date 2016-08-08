@@ -89,9 +89,9 @@ The application can be run in the webapp directory, in one of two ways:
 
 2. As a Java application from the jar file to be  found in the webapp directory, 
 with the command: 
-```java
-$ java -jar aama-webapp.jar
-```
+    ```java
+    $ java -jar aama-webapp.jar
+    ```
 
 In either case,  you can then open localhost:3000 in your browser, 
 and you will see the application's main menu.
