@@ -13,10 +13,10 @@ queries about morphological data in a Clojure context.
 The application  uses "live" aama data. It assumes that language data has been 
 loaded into the aama RDF datastore, as described in 
 [aama.github.io](http://aama.github.io), 
-and that the Fuseki server has been launched from the webapp directory by the 
+and that the Fuseki server has been launched by the 
 command: 
 ```clojure
-$ bin/fuseki.sh
+aama $ tools/bin/fuseki.sh
 ``` 
 ## Organization of the Code
 
@@ -74,7 +74,7 @@ The application can be run in the webapp directory, in one of two ways:
 
     In one shell (terminal session) run 
     ```clojure
-    $ lein cljsbuild auto 
+    aama/webapp $ lein cljsbuild auto 
     ```
     This compiles the Clojurescript and reloads code on edit.  See
     [lein cljsbuild](https://github.com/emezeske/lein-cljsbuild) for
@@ -84,13 +84,13 @@ The application can be run in the webapp directory, in one of two ways:
     In another shell (terminal session), launch the app in a local
     webserver:
     ```clojure
-    $ lein ring server-headless
+    aama/webapp $ lein ring server-headless
     ```
 
 2. As a Java application from the jar file to be  found in the webapp directory, 
 with the command: 
     ```java
-    $ java -jar aama-webapp.jar
+    aama/webapp $ java -jar aama-webapp.jar
     ```
 
 In either case,  you can then open localhost:3000 in your browser, 
