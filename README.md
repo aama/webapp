@@ -64,7 +64,8 @@ selection-lists, check-boxes, and text-input areas. The requested information
 is passed to a handler function, which uses it to formulate a SPARQL query 
 from one of the templates in ``webapp.models.sparql``,  submits the request to
 the fuseki datastore via ``clj-http.client/get``, and finally parses the 
-response, formats it, and displays it as html output.
+response, formats it, and displays both it, and, where feasible, the query
+ as html output.
 
 ### Launching the Webapp
 
