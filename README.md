@@ -85,7 +85,7 @@ the fuseki datastore via ``clj-http.client/get``, and finally parses the
 response, formats it, and displays both it, and, where feasible, the query,
  as html output.
 
-### Launching the Webapp
+## Launching the Webapp
 
 Cloning the aama/webapp repository, 
 as per [aama.github.io](http://aama.github.io), 
