@@ -26,7 +26,8 @@ The application  uses "live" aama data. It assumes that:
 1.   language data in
 [Extensible Data Notation (edn)](https://github.com/edn-format/edn) format
 has been downloaded from one or more of the aama language repositories, 
-2.   transformed into [ttl/rdf-xml](http://www.w3.org/TR/turtle/) format, and
+2.   transformed into [ttl/rdf-xml](http://www.w3.org/TR/turtle/) format
+using one or more of the shell scripts in ``aama/tools/bin``, and
 3.   loaded into the Fuseki datastore, 
 
 as described in [aama.github.io](http://aama.github.io), 
