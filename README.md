@@ -79,7 +79,7 @@ response, formats it, and displays both it, and, where feasible, the query,
 Cloning the aama/webapp repository, 
 as per [aama.github.io](http://aama.github.io), 
 will have downloaded both the source-code and a stand-alone jar file.
- The application can be run in the webapp directory using either:
+ The application can be run in the webapp directory either:
 
 1. From the downloaded sorce-code,  using [Leiningen](http://leiningen.org):
 
