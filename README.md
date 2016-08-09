@@ -12,7 +12,7 @@ queries about morphological data in a Clojure context.
 
 The application  uses "live" aama data. It assumes that: 
 
-1.   Language data in
+1.   language data in
 [Extensible Data Notation (edn)](https://github.com/edn-format/edn) format
 has been downloaded from one or more of the aama language repositories, 
 2.   transformed into [ttl/rdf-xml](http://www.w3.org/TR/turtle/) format, and
