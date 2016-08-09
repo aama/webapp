@@ -12,7 +12,7 @@ queries about morphological data in a Clojure context.
 
 We have chosen to write the application in the LISP dialect 
 [Clojure](http://clojure.org/index) in part because we find 
-its functional programming structure congenial and conducive
+its functional structure congenial and conducive
 to insights into the problem at hand, and in part 
 because of the formidable and constantly growing set of libraries 
 created by its very involved community of users. 
