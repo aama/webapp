@@ -5,12 +5,15 @@
 This is a skeletal Clojure webapp  demonstrating access to an 
 [Resource Description Framework (RDF)](https://www.w3.org/RDF/) dataset
 of  paradigmatic and other morphological data via a local RDF server, 
-in our case [Apache Jena Fuseki](http://jena.apache.org/index.html). pppppp
+in our case [Apache Jena Fuseki](http://jena.apache.org/index.html).
 The webapp is intended as a test bed for applying a wide variety of 
 [SPARQL](http://www.w3.org/TR/rdf-sparql-query/) 
 queries about morphological data in a Clojure context. 
 
-The application  uses "live" aama data. It assumes that language data has been 
+The application  uses "live" aama data. It assumes that language data in
+[Extensible Data Notation (edn)](https://github.com/edn-format/edn) format
+has been downloaded, transformed into 
+[ttl/rdf-xml](http://www.w3.org/TR/turtle/) format, and
 loaded into the aama RDF datastore, as described in 
 [aama.github.io](http://aama.github.io), 
 and that the Fuseki server has been launched by the 
@@ -39,7 +42,8 @@ a collection of SPARQL templates, using the library
 the values referenced in the templates. This makes it easier for
  someone familiar with 
 the querying of RDF datasets, but not necessariy with Clojure, to inspect the
-queries, and suggest and even effect extensions and modifications to them.
+Extensible 
+		  Data Notation queries, and suggest and even effect extensions and modifications to them.
  
 (Analogous considerations, i.e., input from someone familiar with webpage design 
 but not with Clojure, may eventually motivate the replacement of Hiccup by
