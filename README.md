@@ -10,6 +10,17 @@ The webapp is intended as a test bed for applying a wide variety of
 [SPARQL](http://www.w3.org/TR/rdf-sparql-query/) 
 queries about morphological data in a Clojure context. 
 
+We have chosen to write the application in the LISP dialect 
+[Clojure](http://clojure.org/index) in part because we find 
+its functional programming structure congenial and conducive
+to insights into the problem at hand, and in part 
+because of the formidable and constantly growing set of libraries 
+created by its very involved community of users. 
+However, as we note in [aama.github.io](http://aama.github.io),  
+essentially the same basic functionality could be achieved 
+by any software framework which can provide a web interface for handling
+SPARQL queries submitted to an  RDF datastore.
+
 The application  uses "live" aama data. It assumes that: 
 
 1.   language data in
