@@ -106,7 +106,10 @@ with the command:
 
 In either case,  you can then open localhost:3000 in your browser, 
 and you will see the application's main menu. Go immediately to the
-``Help > Initialize Application`` menu to generate the application-specific
+```html
+Help > Initialize Application
+``` 
+menu item to generate the application-specific
 lists and indices used in menus, queries, and displays (otherwise on 
 most pages you will not see anything).
 
