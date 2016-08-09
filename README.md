@@ -11,11 +11,11 @@ The webapp is intended as a test bed for applying a wide variety of
 queries about morphological data in a Clojure context. 
 
 The application  uses "live" aama data. It assumes that: 
-1. Language data in
+1.  Language data in
 [Extensible Data Notation (edn)](https://github.com/edn-format/edn) format
 has been downloaded from one or more of the aama language repositories, 
-2. transformed into [ttl/rdf-xml](http://www.w3.org/TR/turtle/) format, and
-3. loaded into the Fuseki datastore, 
+2.  transformed into [ttl/rdf-xml](http://www.w3.org/TR/turtle/) format, and
+3.  loaded into the Fuseki datastore, 
 
 as described in [aama.github.io](http://aama.github.io), 
 and that the Fuseki server has been launched by the 
