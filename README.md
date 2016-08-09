@@ -73,7 +73,10 @@ response, formats it, and displays both it, and, where feasible, the query,
 
 ### Launching the Webapp
 
-The application can be run in the webapp directory, in one of two ways:
+Cloning the aama/webapp repository, 
+as per [aama.github.io](http://aama.github.io), 
+will have downloaded both the source-code and a stand-alone jar file.
+ The application can be run in the webapp directory using either:
 
 1. From the downloaded sorce-code,  using [Leiningen](http://leiningen.org):
 
