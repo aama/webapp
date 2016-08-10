@@ -64,11 +64,11 @@ but not with Clojure, may eventually motivate the replacement of Hiccup by
 a templating approach to HTML such as [Enlive](https://github.com/cgrand/enlive) or 
 [Selmer](https://github.com/yogthos/Selmer).)
 
-### Application Code [``src/clj/webapp/``]
+### Application Code [src/clj/webapp/]
 
 The organization of the application code itself follows a rather consistent pattern.
 As usual in a Compojure-based application,  the various parts are held together
-by by a small set of functions in a ``webapp.handler`` namespace file. 
+by a small set of functions in a ``webapp.handler`` namespace file. 
 The application background menu, as well as the basic page layout and invocation 
 of the various javascript 
 and css resources are taken care of in ``webapp.views.layout``.
