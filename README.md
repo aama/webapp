@@ -30,7 +30,7 @@ has been downloaded from one or more of the aama language repositories,
 using one or more of the shell scripts in ``aama/tools/bin``, and
 3.   loaded into the Fuseki datastore, 
 
-as described in [aama.github.io](http://aama.github.io), 
+following the process described in [aama.github.io](http://aama.github.io); 
 and that the Fuseki server has been launched by the 
 command: 
 ```clojure
@@ -57,15 +57,14 @@ a collection of SPARQL templates, using the library
 the values referenced in the templates. This makes it easier for
  someone familiar with 
 the querying of RDF datasets, but not necessariy with Clojure, to inspect the
-Extensible 
-		  Data Notation queries, and suggest and even effect extensions and modifications to them.
+SPARQL query templates, and suggest and even effect extensions and modifications to them.
  
 (Analogous considerations, i.e., input from someone familiar with webpage design 
 but not with Clojure, may eventually motivate the replacement of Hiccup by
 a templating approach to HTML such as [Enlive](https://github.com/cgrand/enlive) or 
 [Selmer](https://github.com/yogthos/Selmer).)
 
-### Application Code
+### Application Code [``src/clj/webapp/``]
 
 The organization of the application code itself follows a rather consistent pattern.
 As usual in a Compojure-based application,  the various parts are held together
@@ -95,20 +94,25 @@ will have downloaded both the source-code and a stand-alone jar file.
 
 1. From the downloaded sorce-code,  using [Leiningen](http://leiningen.org):
 
-    In one shell (terminal session) run 
-    ```clojure
-    aama/webapp $ lein cljsbuild auto 
-    ```
-    This compiles the Clojurescript and reloads code on edit.  See
-    [lein cljsbuild](https://github.com/emezeske/lein-cljsbuild) for
-    details. [Note that at present use of cljs is at best marginal in
-    this application.]
-
-    In another shell (terminal session), launch the app in a local
-    webserver:
+    Enter the following Leiningen command in a shell (terminal session) 
+    to launch the app in a local webserver:
     ```clojure
     aama/webapp $ lein ring server-headless
     ```
+
+    [Note that at present use of 
+    [Clojurescsript(cljs)](https://github.com/clojure/clojurescript) 
+    is at best marginal in
+    this application. However we are currently experimenting with the
+    transfer of at least some js functionality to cljs, and to the extent
+    that this happens, the user, in another shell, will want to run:
+    ```clojure
+    aama/webapp $ lein cljsbuild auto 
+    ```
+    which will compile the Clojurescript and reload code on edit.  See
+    [lein cljsbuild](https://github.com/emezeske/lein-cljsbuild) for
+    details.]
+
 
 2. As a Java application from the jar file to be  found in the webapp directory, 
 with the command: 
