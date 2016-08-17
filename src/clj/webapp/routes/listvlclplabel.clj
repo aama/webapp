@@ -1,5 +1,5 @@
 (ns webapp.routes.listvlclplabel
- (:refer-clojure :exclude [filter concat group-by max min count replace])
+ (:refer-clojure :exclude [filter concat group-by max min  replace])
   (:require [compojure.core :refer :all]
             [webapp.views.layout :as layout]
             [webapp.models.sparql :as sparql]
@@ -118,7 +118,8 @@
         reqcomp (replace reqcompact #"^\n" "")
         reqvec (split reqcomp #"\n")
         reqmap (for [req reqvec] (hash-map (first (split req #"," 2)) (last (split req #"," 2))))]
-    (into (sorted-map) (apply conj (clojure.walk/keywordize-keys reqmap)))))
+    (if (> (count reqmap) 1)
+    (into (sorted-map) (apply conj (clojure.walk/keywordize-keys reqmap))))))
 
 (defn handle-listvlclplabel-gen
   [ldomain pos]
@@ -185,9 +186,11 @@
                 req-edn (csv2map req4-out)
                 req-pp (clojure.pprint/pprint req-edn)]
             (log/info "sparql result status: " (:status req2))
-            (spit outfile req-edn)
+            (if (not (clojure.string/blank? (str req-edn)))
+            (spit outfile req-edn))
             [:div [:h4 "======= Debug Info: ======="]
              [:p [:b "Language: "] language]
+             [:p [:b "File Content"] req-edn]
              [:p [:b "File:     "] outfile]
              [:p [:b "POS: " ] pos]
              [:p [:b "Porder:  " ] porder]
