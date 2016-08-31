@@ -138,7 +138,6 @@
 	  GRAPH aamag:{{language}}  
           { 
 	   ?s {{lpref}}:pos {{lpref}}:Verb .  
-           NOT EXISTS {?s {{lpref}}:person ?person } .
 	   ?s aamas:lang aama:{{Language}} .
            ?s {{lpref}}:morphClass {{lpref}}:{{morphclass}} .
 	   ?s aamas:lang ?lang . 
@@ -193,7 +192,8 @@
       (tmpl/render-string 
        (str "
 	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
-	SELECT ?comment ?num ?pers ?gen ?token ?lex
+	#SELECT ?comment ?num ?pers ?gen ?token ?lex
+	SELECT ?num ?pers ?gen ?token ?lex
 	WHERE
         { 
 	 { 
@@ -220,7 +220,7 @@
 	   ?s {{lpref}}:person ?person .  
 	   ?person rdfs:label ?pers .  
 	   OPTIONAL { ?s {{lpref}}:gender / rdfs:label ?gen . } 
-	   OPTIONAL { ?s aamas:memberOf / rdfs:comment ?comment . } 
+	   #OPTIONAL { ?s aamas:memberOf / rdfs:comment ?comment . } 
 	   ?s {{lpref}}:token ?tkn .
            OPTIONAL { ?s ?t ?o . FILTER (CONTAINS(str(?t), \"token-note\"))}
            BIND((IF(BOUND(?o),
@@ -352,7 +352,8 @@
           props (apply str (rest values))
           propvec (split props #",")
           ;;propstring (clojure.string/replace valstrng #"^.*?:" ",")
-          propstring (str "?" valstrng)
+          ;;propstring (str "?" valstrng)
+          propstring (str "?" props)
           qpropstring (clojure.string/replace propstring #"-|," {"-" "" "," " ?"})
           ;;qprops (clojure.string/replace propstring "-" "")]
           ;;qpropstring (clojure.string/replace qprops "," " ?")
@@ -362,18 +363,20 @@
       (tmpl/render-string 
        (str "
 	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
-	SELECT {{selection}}  ?token  
+	SELECT {{selection}} ?lex ?token  
 	WHERE
         { 
 	 { 
 	  GRAPH aamag:{{language}}  
           { 
 	   ?s {{lpref}}:pos {{lpref}}:Verb .  
-           NOT EXISTS {?s {{lpref}}:person ?person } .
 	   ?s aamas:lang aama:{{Language}} .
            ?s {{lpref}}:morphClass {{lpref}}:{{morphclass}} .
 	   ?s aamas:lang ?lang . 
-	   ?lang rdfs:label ?langLabel .  ")
+	   ?lang rdfs:label ?langLabel . 
+           OPTIONAL {?s aamas:lexeme ?Qlex .
+                     ?Qlex rdfs:label ?lex . }
+ ")
        {:lpref lpref
         :language language
         :Language Language
@@ -401,81 +404,16 @@
                ))
       (tmpl/render-string
        (str " 
-	   ?s {{lpref}}:token ?token .  
+	   ?s {{lpref}}:token ?tkn .  
+           OPTIONAL { ?s ?t ?o . FILTER (CONTAINS(str(?t), \"token-note\"))}
+           BIND((IF(BOUND(?o),
+                    CONCAT(?tkn, \"  [\", ?o, \"]\"),
+                    ?tkn))
+                   AS ?token) .
 	  } 
 	 } 
-	} 
-	ORDER BY {{selection}} ")
-       {:lpref lpref
-        :selection qpropstring})
-       );;str
-))
-
-(defn pdgmqry-sparql-noun [language lpref valstring]
-  (let [valstrng (clojure.string/replace valstring #",$" "")
-          values (split valstrng #"[:,]")
-          morphclass (first values)
-          props (vec (rest values))
-          propstring (clojure.string/replace valstrng #"^.*?:" ",")
-          pstring (str "?" propstring)
-          qpropstring (clojure.string/replace pstring #"-|," {"-" "" "," " ?"})
-          ;;qprops (clojure.string/replace propstring "-" "")]
-          ;;qpropstring (clojure.string/replace qprops "," " ?")
-          Language (capitalize language)
-          ]
-      (str PREFIXES
-      (tmpl/render-string 
-       (str "
-	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
-	SELECT {{selection}}  ?token  
-	WHERE
-        { 
-	 { 
-	  GRAPH aamag:{{language}}  
-          { 
-	   ?s {{lpref}}:pos {{lpref}}:Noun .  
-	   ?s aamas:lang aama:{{Language}} .
-           ?s {{lpref}}:morphClass {{lpref}}:{{morphclass}} .
-	   ?s aamas:lang ?lang . 
-	   ?lang rdfs:label ?langLabel .  ")
-       {:lpref lpref
-        :language language
-        :Language Language
-        :selection qpropstring
-        :morphclass morphclass})
-      (apply str  
-             (for [prop props]
-               (let [qprop (clojure.string/replace prop "-" "")]
-               (if (re-find #"token" prop)
-                 (tmpl/render-string 
-                  (str "
-           OPTIONAL { ?s {{lpref}}:{{prop}} ?{{qprop}} . }")
-                  {:lpref lpref
-                   :prop prop
-                   :qprop qprop})
-                 (tmpl/render-string 
-                  (str "
-           OPTIONAL { ?s {{lpref}}:{{prop}} ?Q{{qprop}} .
-                      ?Q{{qprop}} rdfs:label ?{{qprop}} . }") 
-                  {:lpref lpref
-                   :prop prop
-                   :qprop qprop})
-                 );;if
-               );;let
-               ))
-      (tmpl/render-string
-       (str " 
-	   OPTIONAL { ?s {{lpref}}:number ?number .  
-	   ?number rdfs:label ?num . } 
-	   OPTIONAL {?s {{lpref}}:person ?person .  
-	   ?person rdfs:label ?pers .  }
-	   OPTIONAL { ?s {{lpref}}:gender ?gender .  
-	   ?gender rdfs:label ?gen . } 
-	   ?s {{lpref}}:token ?token .  
-	  } 
-	 } 
-	} 
-	ORDER BY {{selection}} DESC(?num) ?pers DESC(?gen) ")
+	}
+	ORDER BY {{selection}} ?lex ")
        {:lpref lpref
         :selection qpropstring})
        );;str
@@ -488,7 +426,7 @@
           props (apply str (rest values))
           propvec (split props #",")
           ;;propstring (clojure.string/replace valstrng #"^.*?:" ",")
-          propstring (str "?" valstrng)
+          propstring (str "?" props)
           qpropstring (clojure.string/replace propstring #"-|," {"-" "" "," " ?"})
           ;;qprops (clojure.string/replace propstring "-" "")]
           ;;qpropstring (clojure.string/replace qprops "," " ?")
@@ -498,18 +436,20 @@
       (tmpl/render-string 
        (str "
 	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
-	SELECT ?comment {{selection}}  ?token  
+	SELECT ?comment {{selection}} ?lex  ?token  
 	WHERE
         { 
 	 { 
 	  GRAPH aamag:{{language}}  
           { 
 	   ?s {{lpref}}:pos {{lpref}}:Verb .  
-           NOT EXISTS {?s {{lpref}}:person ?person } .
+           #NOT EXISTS {?s {{lpref}}:person ?person } .
 	   ?s aamas:lang aama:{{Language}} .
            ?s {{lpref}}:morphClass {{lpref}}:{{morphclass}} .
 	   ?s aamas:lang ?lang . 
-	   ?lang rdfs:label ?langLabel .  ")
+	   ?lang rdfs:label ?langLabel .  
+           OPTIONAL {?s aamas:lexeme ?Qlex .
+                     ?Qlex rdfs:label ?lex .}")
        {:lpref lpref
         :language language
         :Language Language
@@ -548,24 +488,97 @@
 	  } 
 	 } 
 	} 
-	ORDER BY {{selection}} ")
+	ORDER BY {{selection}} ?lex ")
        {:lpref lpref
         :selection qpropstring})
        );;str
 ))
 
+(defn pdgmqry-sparql-noun [language lpref valstring]
+  (let [valstrng (clojure.string/replace valstring #",$" "")
+        values (split valstrng #"," 2)
+        morphclass (first values)
+        props (apply str (rest values))
+        propvec (split props #",")
+        ;;propstring (clojure.string/replace valstrng #"^.*?:" ",")
+        propstring (str "?" props)
+        qpropstring (clojure.string/replace propstring #"-|," {"-" "" "," " ?"})
+        ;;qprops (clojure.string/replace propstring "-" "")]
+        ;;qpropstring (clojure.string/replace qprops "," " ?")
+        Language (capitalize language)
+        ]
+      (str PREFIXES
+      (tmpl/render-string 
+       (str "
+	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
+	SELECT {{selection}}  ?token  
+	WHERE
+        { 
+	 { 
+	  GRAPH aamag:{{language}}  
+          { 
+	   ?s {{lpref}}:pos {{lpref}}:Noun .  
+	   ?s aamas:lang aama:{{Language}} .
+           ?s {{lpref}}:morphClass {{lpref}}:{{morphclass}} .
+	   ?s aamas:lang ?lang . 
+	   ?lang rdfs:label ?langLabel .  ")
+       {:lpref lpref
+        :language language
+        :Language Language
+        :selection qpropstring
+        :morphclass morphclass})
+      (apply str  
+             (for [prop propvec]
+               (let [qprop (clojure.string/replace prop "-" "")]
+               (if (re-find #"token" prop)
+                 (tmpl/render-string 
+                  (str "
+           OPTIONAL { ?s {{lpref}}:{{prop}} ?{{qprop}} . }")
+                  {:lpref lpref
+                   :prop prop
+                   :qprop qprop})
+                 (tmpl/render-string 
+                  (str "
+           OPTIONAL { ?s {{lpref}}:{{prop}} ?Q{{qprop}} .
+                      ?Q{{qprop}} rdfs:label ?{{qprop}} . }") 
+                  {:lpref lpref
+                   :prop prop
+                   :qprop qprop})
+                 );;if
+               );;let
+               ))
+      (tmpl/render-string
+       (str " 
+	   OPTIONAL { ?s {{lpref}}:number ?number .  
+	   ?number rdfs:label ?num . } 
+	   OPTIONAL {?s {{lpref}}:person ?person .  
+	   ?person rdfs:label ?pers .  }
+	   OPTIONAL { ?s {{lpref}}:gender ?gender .  
+	   ?gender rdfs:label ?gen . } 
+	   ?s {{lpref}}:token ?token .  
+	  } 
+	 } 
+	} 
+	ORDER BY {{selection}} DESC(?num) ?pers DESC(?gen) ")
+       {:lpref lpref
+        :selection qpropstring})
+       );;str
+))
+
+
 (defn pdgmqry-sparql-noun-note [language lpref valstring]
   (let [valstrng (clojure.string/replace valstring #",$" "")
-          values (split valstrng #"[:,]")
-          morphclass (first values)
-          props (vec (rest values))
-          propstring (clojure.string/replace valstrng #"^.*?:" ",")
-          pstring (str "?" propstring)
-          qpropstring (clojure.string/replace pstring #"-|," {"-" "" "," " ?"})
-          ;;qprops (clojure.string/replace propstring "-" "")]
-          ;;qpropstring (clojure.string/replace qprops "," " ?")
-          Language (capitalize language)
-          ]
+        values (split valstrng #"," 2)
+        morphclass (first values)
+        props (apply str (rest values))
+        propvec (split props #",")
+        ;;propstring (clojure.string/replace valstrng #"^.*?:" ",")
+        propstring (str "?" props)
+        qpropstring (clojure.string/replace propstring #"-|," {"-" "" "," " ?"})
+        ;;qprops (clojure.string/replace propstring "-" "")]
+        ;;qpropstring (clojure.string/replace qprops "," " ?")
+        Language (capitalize language)
+        ]
       (str PREFIXES
       (tmpl/render-string 
        (str "
@@ -587,7 +600,7 @@
         :selection qpropstring
         :morphclass morphclass})
       (apply str  
-             (for [prop props]
+             (for [prop propvec]
                (let [qprop (clojure.string/replace prop "-" "")]
                (if (re-find #"token" prop)
                  (tmpl/render-string 
@@ -626,250 +639,6 @@
        );;str
 ))
 
-(defn pdgmqry-sparql-fv-cmp [language1 lpref1 valstring1 language2 lpref2 valstring2]
-    (let [values (split valstring1 #",")
-          Language1 (capitalize language1)
-          ]
-      (str PREFIXES
-      (tmpl/render-string 
-       (str "
-        PREFIX {{lpref1}}:   <http://id.oi.uchicago.edu/aama/2013/{{language1}}/> 
-	SELECT ?lex ?num ?pers ?gen ?token  
-	WHERE
-        { 
-	 { 
-	  GRAPH aamag:{{language1}}  
-          { 
-	   ?s {{lpref1}}:pos {{lpref1}}:Verb .  
-	   ?s aamas:lang aama:{{Language1}} . 
-	   ?s aamas:lang ?lang . 
-	   ?lang rdfs:label ?langLabel .  ")
-       {:lpref1 lpref1
-        :language1 language1
-        :Language1 Language1})
-      (apply str  
-             (for [value values]
-        (tmpl/render-string 
-         (str "
-           ?s ?Q{{value}}  {{lpref1}}:{{value}} .  ")
-         {:value value
-          :lpref1 lpref1})))
-      (tmpl/render-string
-       (str " 
-           OPTIONAL { ?s aamas:lexeme ?lex . }  
-	   OPTIONAL { ?s {{lpref1}}:number ?number .  
-	   ?number rdfs:label ?num . } 
-           ?s {{lpref1}}:person ?person .
-	   ?person rdfs:label ?pers .  
-	   OPTIONAL { ?s {{lpref1}}:gender ?gender .  
-	   ?gender rdfs:label ?gen . } 
-	   ?s {{lpref1}}:token ?token .  
-	  } 
-	 } 
-	} 
-	ORDER BY ?lex DESC(?num) ?pers DESC(?gen) ")
-       {:lpref1 lpref1})
-       );;str
-))
-
-(defn pdgmqry-sparql-pro-cmp [language1 lpref1 valstring1 language2 lpref2 valstring2]
-    (let [values (split valstring1 #"[:,]")
-          proclass (first values)
-          props (vec (rest values))
-          propstring (clojure.string/replace valstring1 #"^.*?:" ",")
-          qpropstring (clojure.string/replace propstring #"-|," {"-" "" "," " ?"})
-          ;;qprops (clojure.string/replace propstring "-" "")]
-          ;;qpropstring (clojure.string/replace qprops "," " ?")
-          Language1 (capitalize language1)
-          ]
-      (str PREFIXES
-      (tmpl/render-string 
-       (str "
-	PREFIX {{lpref1}}:   <http://id.oi.uchicago.edu/aama/2013/{{language1}}/> 
-	SELECT {{selection}}  ?token  
-	WHERE
-        { 
-	 { 
-	  GRAPH aamag:{{language1}}  
-          { 
-	   ?s {{lpref1}}:pos {{lpref1}}:Pronoun .  
-	   ?s aamas:lang aama:{{Language1}} .
-           ?s {{lpref1}}:proClass {{lpref1}}:{{proclass}} .
-	   ?s aamas:lang ?lang . 
-	   ?lang rdfs:label ?langLabel .  ")
-       {:lpref1 lpref1
-        :language1 language1
-        :Language1 Language1
-        :selection qpropstring
-        :proclass proclass})
-      (apply str  
-             (for [prop props]
-               (let [qprop (clojure.string/replace prop "-" "")]
-               (if (re-find #"token" prop)
-                 (tmpl/render-string 
-                  (str "
-           OPTIONAL { ?s {{lpref1}}:{{prop}} ?{{qprop}} . }")
-                  {:lpref1 lpref1
-                   :prop prop
-                   :qprop qprop})
-                 (tmpl/render-string 
-                  (str "
-           OPTIONAL { ?s {{lpref1}}:{{prop}} ?Q{{qprop}} .
-                      ?Q{{qprop}} rdfs:label ?{{qprop}} . }") 
-                  {:lpref1 lpref1
-                   :prop prop
-                   :qprop qprop})
-                 );;if
-               );;let
-               ))
-      (tmpl/render-string
-       (str " 
-	   OPTIONAL { ?s {{lpref1}}:number ?number .  
-	   ?number rdfs:label ?num . } 
-	   OPTIONAL {?s {{lpref1}}:person ?person .  
-	   ?person rdfs:label ?pers .  }
-	   OPTIONAL { ?s {{lpref1}}:gender ?gender .  
-	   ?gender rdfs:label ?gen . } 
-	   ?s {{lpref1}}:token ?token .  
-	  } 
-	 } 
-	} 
-	ORDER BY {{selection}} DESC(?num) ?pers DESC(?gen) ")
-       {:lpref1 lpref1
-        :selection qpropstring})
-       );;str
-))
-
-(defn pdgmqry-sparql-nfv-cmp [language1 lpref1 valstring1 language2 lpref2 valstring2]
-    (let [values (split valstring1 #"[:,]")
-          morphclass (first values)
-          props (vec (rest values))
-          propstring (clojure.string/replace valstring1 #"^.*?:" ",")
-          qpropstring (clojure.string/replace propstring #"-|," {"-" "" "," " ?"})
-          ;;qprops (clojure.string/replace propstring "-" "")]
-          ;;qpropstring (clojure.string/replace qprops "," " ?")
-          Language1 (capitalize language1)
-          ]
-      (str PREFIXES
-      (tmpl/render-string 
-       (str "
-	PREFIX {{lpref1}}:   <http://id.oi.uchicago.edu/aama/2013/{{language1}}/> 
-	SELECT {{selection}}  ?token  
-	WHERE
-        { 
-	 { 
-	  GRAPH aamag:{{language1}}  
-          { 
-	   ?s {{lpref1}}:pos {{lpref1}}:Verb .  
-           NOT EXISTS {?s {{lpref1}}:person ?person } .
-	   ?s aamas:lang aama:{{Language1}} .
-           ?s {{lpref1}}:morphClass {{lpref1}}:{{morphclass}} .
-	   ?s aamas:lang ?lang . 
-	   ?lang rdfs:label ?langLabel .  ")
-       {:lpref1 lpref1
-        :language1 language1
-        :Language1 Language1
-        :selection qpropstring
-        :morphclass morphclass})
-      (apply str  
-             (for [prop props]
-               (let [qprop (clojure.string/replace prop "-" "")]
-               (if (re-find #"token" prop)
-                 (tmpl/render-string 
-                  (str "
-           OPTIONAL { ?s {{lpref1}}:{{prop}} ?{{qprop}} . }")
-                  {:lpref1 lpref1
-                   :prop prop
-                   :qprop qprop})
-                 (tmpl/render-string 
-                  (str "
-           OPTIONAL { ?s {{lpref1}}:{{prop}} ?Q{{qprop}} .
-                      ?Q{{qprop}} rdfs:label ?{{qprop}} . }") 
-                  {:lpref1 lpref1
-                   :prop prop
-                   :qprop qprop})
-                 );;if
-               );;let
-               ))
-      (tmpl/render-string
-       (str " 
-	   ?s {{lpref1}}:token ?token .  
-	  } 
-	 } 
-	} 
-	ORDER BY {{selection}} ")
-       {:lpref1 lpref1
-        :selection qpropstring})
-       );;str
-))
-
-(defn pdgmqry-sparql-noun-cmp [language1 lpref1 valstring1 language2 lpref2 valstring2]
-    (let [values (split valstring1 #"[:,]")
-          morphclass (first values)
-          props (vec (rest values))
-          propstring (clojure.string/replace valstring1 #"^.*?:" ",")
-          qpropstring (clojure.string/replace propstring #"-|," {"-" "" "," " ?"})
-          ;;qprops (clojure.string/replace propstring "-" "")]
-          ;;qpropstring (clojure.string/replace qprops "," " ?")
-          Language1 (capitalize language1)
-          ]
-      (str PREFIXES
-      (tmpl/render-string 
-       (str "
-	PREFIX {{lpref1}}:   <http://id.oi.uchicago.edu/aama/2013/{{language1}}/> 
-	SELECT {{selection}}  ?token  
-	WHERE
-        { 
-	 { 
-	  GRAPH aamag:{{language1}}  
-          { 
-	   ?s {{lpref1}}:pos {{lpref1}}:Noun .  
-	   ?s aamas:lang aama:{{Language1}} .
-           ?s {{lpref1}}:morphClass {{lpref1}}:{{morphclass}} .
-	   ?s aamas:lang ?lang . 
-	   ?lang rdfs:label ?langLabel .  ")
-       {:lpref1 lpref1
-        :language1 language1
-        :Language1 Language1
-        :selection qpropstring
-        :morphclass morphclass})
-      (apply str  
-             (for [prop props]
-               (let [qprop (clojure.string/replace prop "-" "")]
-               (if (re-find #"token" prop)
-                 (tmpl/render-string 
-                  (str "
-           OPTIONAL { ?s {{lpref1}}:{{prop}} ?{{qprop}} . }")
-                  {:lpref1 lpref1
-                   :prop prop
-                   :qprop qprop})
-                 (tmpl/render-string 
-                  (str "
-           OPTIONAL { ?s {{lpref1}}:{{prop}} ?Q{{qprop}} .
-                      ?Q{{qprop}} rdfs:label ?{{qprop}} . }") 
-                  {:lpref1 lpref1
-                   :prop prop
-                   :qprop qprop})
-                 );;if
-               );;let
-               ))
-      (tmpl/render-string
-       (str " 
-	   OPTIONAL { ?s {{lpref1}}:number ?number .  
-	   ?number rdfs:label ?num . } 
-	   OPTIONAL {?s {{lpref1}}:person ?person .  
-	   ?person rdfs:label ?pers .  }
-	   OPTIONAL { ?s {{lpref1}}:gender ?gender .  
-	   ?gender rdfs:label ?gen . } 
-	   ?s {{lpref1}}:token ?token .  
-	  } 
-	 } 
-	} 
-	ORDER BY {{selection}} DESC(?num) ?pers DESC(?gen) ")
-       {:lpref1 lpref1
-        :selection qpropstring})
-       );;str
-))
 
 (defn lgpr-sparql [ldomain prop]
   (let [ldoms (split ldomain #",")]
@@ -944,9 +713,11 @@ WHERE {
 GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{lang}}> {
 	?s ?p ?o ;
 	{{lpref}}:pos  {{lpref}}:Verb .
-	NOT EXISTS {?s {{lpref}}:person ?person }
+	#NOT EXISTS {?s {{lpref}}:person ?person }
+        ?s {{lpref}}:morphClass ?QMorphClass .
         ?p rdfs:label ?property .
- 	FILTER (?p NOT IN ( aamas:lang, {{lpref}}:gender, {{lpref}}:number, {{lpref}}:pngShapeClass, {{lpref}}:person, {{lpref}}:pos, {{lpref}}:token, rdf:type, {{lpref}}:multiLex ) )
+        FILTER (?p NOT IN ( aamas:lang, {{lpref}}:pngShapeClass, {{lpref}}:pos, {{lpref}}:token, rdf:type, {{lpref}}:multiLex ) ) 	
+        #FILTER (?p NOT IN ( aamas:lang, {{lpref}}:gender, {{lpref}}:number, {{lpref}}:pngShapeClass, {{lpref}}:person, {{lpref}}:pos, {{lpref}}:token, rdf:type, {{lpref}}:multiLex ) )
 }
 }
 ORDER BY ASC(?property) ")
@@ -1328,13 +1099,13 @@ ORDER BY ASC(?prop) ASC(?val)
         	?s ?p ?o ;
 	        {{lpref}}:morphClass ?morphClass ;
 	        {{lpref}}:pos  {{lpref}}:Verb .
-	        NOT EXISTS {?s {{lpref}}:person ?person }
+	        #NOT EXISTS {?s {{lpref}}:person ?person }
                 ?morphClass rdfs:label ?morphClassLabel .
                 ?s  aamas:memberOf ?pdgm .
                 ?pdgm rdfs:label ?pdgmLabel .
                 ?p rdfs:label ?property .
                 BIND ((CONCAT( ?property, \",\")) AS ?propertyExt) .
-        	FILTER (?p NOT IN ( aamas:lang, {{lpref}}:gender, {{lpref}}:morphClass, {{lpref}}:number, {{lpref}}:person, {{lpref}}:pos, rdf:type))
+        	FILTER (?p NOT IN ( aamas:lang, {{lpref}}:morphClass, {{lpref}}:pos, rdf:type))
       }}
      }
       ORDER BY ?pdgmLabel ASC(?morphClassLabel) ASC(?property) ")
@@ -1378,11 +1149,12 @@ ORDER BY ASC(?prop) ASC(?val)
         	?s ?p ?o ;
 	        {{lpref}}:morphClass ?morphClass ;
 	        {{lpref}}:pos  {{lpref}}:Verb .
-	        NOT EXISTS {?s {{lpref}}:person ?person }
+	        #NOT EXISTS {?s {{lpref}}:person ?person }
                 ?morphClass rdfs:label ?morphClassLabel .
                 ?p rdfs:label ?property .
                 BIND ((CONCAT( ?property, \",\")) AS ?propertyExt) .
-        	FILTER (?p NOT IN ( aamas:lang, {{lpref}}:gender, {{lpref}}:morphClass, {{lpref}}:number, {{lpref}}:person, {{lpref}}:pos, rdf:type))
+        	FILTER (?p NOT IN ( aamas:lang, {{lpref}}:morphClass, {{lpref}}:pos, rdf:type))
+        	#FILTER (?p NOT IN ( aamas:lang, {{lpref}}:gender, {{lpref}}:morphClass, {{lpref}}:number, {{lpref}}:person, {{lpref}}:pos, rdf:type))
       }}
      }
       ORDER BY ASC(?morphClassLabel) ASC(?property) ")

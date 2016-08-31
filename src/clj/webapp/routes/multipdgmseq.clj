@@ -120,8 +120,8 @@
             vcluster (last vals)
             lang (read-string (str ":" language))
             lpref (lang lprefmap)
-            valstrng (clojure.string/replace vcluster #",*person|,*gender|,*number" "")
-            valstr (clojure.string/replace valstrng #":," ":")
+            ;;valstrng (clojure.string/replace vcluster #",*person|,*gender|,*number" "")
+            valstr (clojure.string/replace vcluster #":," ":")
             query-sparql (cond 
                           (= pos "pro")
                           (sparql/pdgmqry-sparql-pro language lpref valstr)
