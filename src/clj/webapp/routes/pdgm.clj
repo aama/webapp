@@ -48,7 +48,7 @@
   [language pos]
    (let [langlist (slurp "pvlists/menu-langs.txt")
          languages (split langlist #"\n")
-         valclusterfile (str "pvlists/plist-" pos "-" language ".txt")
+         valclusterfile (str "pvlists/vlcl-list-" language "-" pos ".txt")
          valclusterlist (slurp valclusterfile)
          valclusters (clojure.string/split valclusterlist #"\n")]
      (layout/common 
@@ -135,32 +135,31 @@
   ;; send SPARQL over HTTP request
   (let [langlist (slurp "pvlists/menu-langs.txt")
         languages (split langlist #"\n")
-        valclusterfile (str "pvlists/plist-" pos "-" language ".txt")
+        valclusterfile (str "pvlists/vlcl-list-" language "-" pos ".txt")
         valclusterlist (slurp valclusterfile)
         valclusters (clojure.string/split valclusterlist #"\n")
-        Language (capitalize language)
         lprefmap (read-string (slurp "pvlists/lprefs.clj"))
         lang (read-string (str ":" language))
         lpref (lang lprefmap)
         valstrng (clojure.string/replace valstring #",*person|,*gender|,*number" "")
         valstr (clojure.string/replace valstrng #":," ":")
         ;; In single pdgm query only, asking for note (9/29/15) and lex (10/9/15)
-        query-sparql (cond 
+        query-sparql-form (cond 
                       (= pos "pro")
-                      (sparql/pdgmqry-sparql-pro-note language lpref valstr)
+                      (sparql/pdgmqry-sparql-pro language lpref valstr)
                       (= pos "nfv")
-                      (sparql/pdgmqry-sparql-nfv-note language lpref valstring)
+                      (sparql/pdgmqry-sparql-nfv language lpref valstring)
                       (= pos "noun")
-                      (sparql/pdgmqry-sparql-noun-note language lpref valstring)
-                      :else (sparql/pdgmqry-sparql-fv-note language lpref valstring))
-        query-sparql-pr (replace query-sparql #"<" "&lt;")
-        req (http/get aama
+                      (sparql/pdgmqry-sparql-noun language lpref valstring)
+                      :else (sparql/pdgmqry-sparql-fv language lpref valstring))
+        query-sparql-form-pr (replace query-sparql-form #"<" "&lt;")
+        req-form (http/get aama
                       {:query-params
-                       {"query" query-sparql ;;generated sparql
+                       {"query" query-sparql-form ;;generated sparql
                         ;;"format" "application/sparql-results+json"}})]
                         "format" "csv"}})
         ;; find and eliminate single-value columns
-        csv (:body req)
+        csv (:body req-form)
         phead (split (first (split csv #"\n")) #",")
         pmapkeys (into [] (for [ph phead] (keyword (trim (lower-case ph)))))
         pmapvec1 (into [] (parse-csv csv :key :keyword))
@@ -172,24 +171,29 @@
         selkeys (into [] (clojure.set/difference (set pmapkeys) sgvalkeys))
         pmapvec2 (for [mpv pmapvec1] (select-keys mpv selkeys))
         csvred (write-csv pmapvec2)
-        psplit (split csvred #"\n")
+        ;;have to make sure that there is content in each cell for drag-col
+        ;;following two can probably be combined
+        csvpdgm1 (clojure.string/replace csvred #",," ", ,")
+        csvpdgm2 (clojure.string/replace csvred #",\n" ", \n")
+        psplit (split csvpdgm2 #"\n")
         header (first psplit)
         pdgmrows (rest psplit)
-        ;; FIND ANOTHER WAY TO DO NOTES
-        ;;prow (first pdgmrows)
-        ;;pvals (split prow #",")
-        ;;note (clojure.string/replace (first pvals) #"%%" ",")
-        ;;pnotes (pdgmnotes pdgmrows)
-        ;;notelist (split (apply str pnotes) #"// ")
-        ;;pheader (split header #",")
-        ;;pnote (first pheader)
-        ;;pheads (rest pheader)
         pheads (split header #",")
+        pdgmmap (read-string (slurp (str "pvlists/vlcl-dataID-" language "-" pos ".edn")))
+        vlcllistID (replace valstring #"," "_")
+        vlcllistkey (read-string (str ":" vlcllistID))
+        dataID (read-string (vlcllistkey pdgmmap))
+        query-sparql-comment (sparql/pdgmqry-sparql-comment dataID)
+        query-sparql-comment-pr (replace query-sparql-comment #"<" "&lt;")
+        req-comment (http/get aama
+                      {:query-params
+                       {"query" query-sparql-comment ;;generated sparql
+                        ;;"format" "application/sparql-results+json"}})]
+                        "format" "csv"}})
+        comment (last (split (:body req-comment) #"\n" 2))
         ]
-         (log/info "sparql result status: " (:status req))
+         (log/info "sparql result status: " (:status req-form))
          (layout/common
-          [:body
-
            ;; insert repeat of language/pdgm-type choice form
            (form-to [:post "/pdgmqry"]
                     [:table
@@ -205,7 +209,7 @@
                       [:td [:select#language.required
                             {:title "Choose a language.", :name "language"}
                             (for [language languages]
-                              [:option {:value (lower-case language)} language])]]]
+                              [:option {:value language} language])]]]
                      [:tr 
                       [:td {:colspan "2"} [:input#submit
                         {:value "Value Clusters: ", :name "submit", :type "submit"}]]]])
@@ -229,7 +233,7 @@
                             {:value "Paradigm: ", :name "submit", :type "submit"}]]]])
 
            ;;back to main pdgm display
-           [:h3#clickable  Language " / " valstring]
+           [:h3#clickable  language " / " valstring]
            [:h4 "Common Value(s):"]
            [:ul 
             (for [sgval sgvalvec]
@@ -242,7 +246,7 @@
            ;;[:table
             [:thead
               (for [head pheads]
-                [:th [:div {:class "some-handle"} [:br] (capitalize head)]])]
+                [:th [:div {:class "some-handle"}  (capitalize head)]])]
             ;;[:th head])]]
             [:tbody 
              (for [pdgmrow pdgmrows]
@@ -251,26 +255,18 @@
                   [:div
                   (for [rowcell rowcells]
                     [:td (clojure.string/replace rowcell #"%%" ",")])])])]]
- 
-           ;; Note that following works only if  
-           ;; webpp.sparql.pdgmqry-sparql-fv-note has ?lex as first variable
-           ;; in "ORDER BY". Otherwise repeats notes for repeating lex. Has
-           ;; something to do with how ".contains" works in pdgmnotes. Note
-           ;; also that in pdgmnotes only reset! works (not swap! or 
-           ;; ref + alter, cf pdgmnotes2)
-          ;; (if (re-find #"\w" (str notelist))
-            ;; [:p [:em "Paradigm Note:"]
-              ;;[:ul 
-              ;;(for [note notelist]
-                ;;[:li note])]]
-           ;;)
+           [:p]
+           ;;[:hr]
+           [:p]
+           [:p "Paradigm Label: "] [:ul [:li dataID]]
+           [:p "Comment: "] [:ul [:li comment]]
            [:p "  "]
            [:hr]
            [:h3#clickable "Query:"]
-           [:pre query-sparql-pr]
+           [:pre query-sparql-form-pr]
            [:div [:h4 "======= Debug Info: ======="]
             [:h4 "Query Response:"]
-            [:pre (:body req)]
+            [:pre (:body req-form)]
            [:p "pcolred: " pcolred]
             [:p "pmapkeys: " (str pmapkeys)]
             [:p "sgvalkeys: " sgvalkeys]
@@ -282,7 +278,7 @@
            [:script {:src "js/goog/base.js" :type "text/javascript"}]
            [:script {:src "js/webapp.js" :type "text/javascript"}]
            [:script {:type "text/javascript"}
-            "goog.require('webapp.core');"]])))
+            "goog.require('webapp.core');"])))
 
 (defroutes pdgm-routes
   (GET "/pdgm" [] (pdgm))

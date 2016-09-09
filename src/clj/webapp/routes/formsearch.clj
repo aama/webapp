@@ -184,7 +184,7 @@
                                       {:query-params
                                        {"query" query-sparql-pv ;;generated sparql
                                         "format" "text"}})
-                        pdgmmap (read-string (slurp (str "pvlists/dataID-pdgm-" (lower-case language) "-" ptype ".edn")))
+                        pdgmmap (read-string (slurp (str "pvlists/dataID-vlcl-" (lower-case language) "-" ptype ".edn")))
                         dataIDkey (read-string (str ":" dataID))
                         pdgmstr (dataIDkey pdgmmap)
                         pdgms (split pdgmstr #" ")

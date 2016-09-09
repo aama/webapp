@@ -103,8 +103,7 @@
            [:li (link-to "/listmenulpv" "Property/Value Lists")]
            [:li (link-to "#" "Paradigm Value-Clusters Index")
             [:ul
-             [:li (link-to "/listvlclplex" "Default Sort Order")]
-             [:li (link-to "/listvlclplabel" "PdgmLabel/Value-Cluster")]
+             [:li (link-to "/listvlcl" "Default Sort Order")]
              [:li (link-to "/valclmod" "(Modifiable Sort Order)[under development]")]
              ]]]]
          [:li (link-to "#" "Update:")

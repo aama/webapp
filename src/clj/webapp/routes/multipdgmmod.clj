@@ -71,7 +71,7 @@
                    (for [language languages]
                   [:td 
                    {:title "Choose a value.", :name "valcluster"}
-                     (let [valclusterfile (str "pvlists/plist-" pos "-" language ".txt")
+                     (let [valclusterfile (str "pvlists/vlcl-list-" language "-" pos ".txt")
                            valclusterlist (slurp valclusterfile)
                            valclusters (split valclusterlist #"\n")]
                        ;; For pdgm checkboxes, if pos is 'fv', there will be a

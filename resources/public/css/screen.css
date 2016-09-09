@@ -177,7 +177,8 @@ table.linfo-table td {
 }
 
 .some-handle {
-    background-image:url("desc.gif");
+    #background-image:url("desc.gif");
+    #background-image:url("http://us.metamath.org/symbols/bullet.gif")
     background-repeat:repeat-x;
     height:30 px;
     margin:0 1px;

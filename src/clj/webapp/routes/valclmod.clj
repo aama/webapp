@@ -55,7 +55,7 @@
             lang (read-string (str ":" language))
             lpref (lang lprefmap)
             ;; send SPARQL over HTTP request
-            outfile (str "pvlists/plist-" pos "-" language ".txt")
+            outfile (str "pvlists/vlcl-list-" language "-" pos ".txt")
             query-sparql1 (cond 
                            (= pos "pro")
                            (sparql/listlgpr-sparql-pro language lpref)
