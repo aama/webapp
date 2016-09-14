@@ -108,8 +108,8 @@
              ]]]]
          [:li (link-to "#" "Update:")
           [:ul 
-           [:li (link-to "/update" "Update Local Datastore")]
-           [:li (link-to "/upload" "Upload to Remote Repository")]]]]]
+           [:li (link-to "/update" "Update Local Datastore [Under Development]")]
+           [:li (link-to "/upload" "Upload to Remote Repository [Under Development")]]]]]
        [:li (link-to "#" "Help")
         [:ul
          [:li (link-to "/helpinitializeapp" "Initialize Application")]

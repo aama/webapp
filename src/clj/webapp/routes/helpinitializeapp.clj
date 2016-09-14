@@ -28,8 +28,7 @@
        [:li (link-to "/bibKWIndexGen" "Generate Bibliography Keyword Indices") "."]
        [:li (link-to "/listmenulang" "Generate Language Lists") ". Note in particluar " [:em "pvlists/ldomainlist.txt"] " to be edited by the user to register language groups of interest for joint processing."]
        [:li (link-to "/listmenulpv" "Generate Property/Value Lists") ". Lists all morphosyntactic properties and values in the data store; for search for specific properties and values."]
-       [:li (link-to "/listvlclplex" "Paradigm Value-Cluster List") ". This enables search for specific paradigms in the datastore -- be sure to take the language domain option \"All\"."]
-       [:li (link-to "/listvlclplabel" "Map from Datastore Value-Clusters to Data-entry PDGM Labels") "."]]]]
+       [:li (link-to "/listvlcl" "Generate Paradigm Value-Cluster Lists")                          ". This creates the lists which  enable search for specific paradigms in the datastore, and map the application paradigms to the data-enty paradigms. Be sure to take the language domain option \"All\"."]]]]
 
     [:p "Note that the appropriate  utilities need to be re-run whenever bibliography items, languages, or prop-val pairs are added, deleted, or edited"]]))
 

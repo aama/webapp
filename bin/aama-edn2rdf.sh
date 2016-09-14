@@ -1,5 +1,5 @@
 #!/bin/bash
-# usage:  ~/aama-data/bin/edn2ttl.sh "dir"
+# usage:  ~/webapp/bin/aama-edn2ttl.sh "dir"
 
 # 03/21/14: 
 

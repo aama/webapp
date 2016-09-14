@@ -18,8 +18,11 @@
   (layout/common 
    [:div {:class "info-page"}
      [:h3 "Help: Update [Command-line]"]
-     [:p "The following command-line versions presuppose that the edn data files are in the  ~/aama-data/data/[LANG] directories:"]
-      [:ul [:li [:h4 "Datastore Update."] 
+    [:p "There are two scenarios:"]
+    [:ol
+     [:li [:h4 "Datastore Update/Upload From Development Version:"]
+      [:ul [:li [:h4 "Datastore Update"] 
+            [:p "The following command-line versions presuppose that the Fuseki server has been launched, and tha the edn data files are in the  ~/aama-data/data/[LANG] directories:"]
             [:p "The following script, run from the webapp dir,  will:" 
              [:ol 
               [:li "Delete current LANG sub-graph(s) from the datastore, if already in existence"]
@@ -66,7 +69,26 @@
            [:li "bin/aama-cptools2lngrepo.sh"]
            [:li "bin/aama-datastore-update.sh \"../aama-data/data/*\""]
            [:li "bin/aama-cp2lngrepo.sh \"../aama-data/data/*\""]]]]]]]
-       [:li [:h4 "(Don't forget to commit and push webapp and aama-data!)"]]]
+       [:li [:h5 "(Don't forget to commit and push webapp and aama-data!)"]]]]
+     [:li [:h4 "Datastore Update In A Remote Version:"]
+            [:p "This procedure needs to be invoked whenever a revised or new data edn file has been 'git pull'-ed from the master version (or changed on the remote version [not advised!]). The following command-line script assumes that the Fuseki server is in aama/fuseki and has been launched, and that the edn data files are in the  aama/data/[LANG] directories (scripts will need to be edited if directory assumptions are not correct):"]
+            [:p "The following script, run from the aama dir,  will:" 
+             [:ol 
+              [:li "Delete current LANG sub-graph(s) from the datastore, if already in existence"]
+              ;;[:li "(Optionally: Run triple-count and sub-graph-list queries to verify deletion(s))"]
+              [:li "Transform the new or revised edn file to a ttl file"]
+              [:li "Insert new or revised LANG sub-graph(s) into datastore"]
+              ;;[:li "(Optionally: Run triple-count and sub-graph-list queries to verify insertion(s))"]
+              ]]
+            [:p "Usage:" 
+            [:ul 
+             [:li "tools/bin/aama-datastore-update.sh data/[LANG]  (for a single language)"]
+             [:li "tools/bin/aama-datastore-update.sh \"data/*\" (to [re-]initiate the whole datastore)"]
+             [:li "[tools/bin/fuqueries.sh (optionally, before or after update, will run triple-count and subgraph-list queries to verify deletions and/or insertions)]"]]]
+      [:p "Any changes in the Bibliography, Language List, Property/Value Lists, or Value-Cluster lists must be incorporated into the remote version by running the appropriate utilities as was done in the " (link-to "/helpinitializeapp" "Application Initialization")"."]
+]]
+
+
     
    [:hr]
    [:h5 "[For more detail on the above, cf. " (link-to "http://aama.github.io" "aama.github.io") "; some older information is also available in the github aama-data/bin " (link-to "https://github.com/gbgg/aama-data/blob/master/bin/README.md" "README")"]"]]))
