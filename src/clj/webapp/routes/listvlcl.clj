@@ -174,7 +174,7 @@
                            (str "no_" pos)
                            (replace (:body req1) #"\r\n" ","))
               pstring (replace propstring #"property,|,$" "")
-              porder (str "formType,pdgmType,conjClass,derivedStem,derivedStemAug,clauseType,tam,polarity,stemClass,rootClass")
+              porder (str "formType,conjClass,derivedStem,derivedStemAug,clauseType,tam,polarity,stemClass,rootClass,pdgmType")
               normstring (normorder pstring porder)
               plist (replace pstring #"," ", ")
               query-sparql2 (cond 
@@ -201,7 +201,9 @@
                             ;; listvlclplex.clj has req2vlist2, investigate
                             :else (req2vlist2 req2-body))
               req3-out (apply str req2-out)
-              req4-out (replace req3-out #"^\s*\n" "")
+              req4-out (if (re-find #"\w" req3-out)
+                         (replace req3-out #"^\s*\n" "")
+                         (str "EmptyList"))
               req-dataIDvlcl (csv2map1 req4-out)
               req4-vec (split req4-out #"\n")
               req-vlcllist (join "\n" (for [rq4 req4-vec] (replace rq4 #"^.*?," "")))
@@ -223,9 +225,9 @@
              [:p [:b "Porder:  " ] porder]
              [:p [:b "Normstring: "] normstring]
              [:hr]
-             ;;[:h4  "Value Clusters: " ]
-             ;;[:p "req4-out: " [:pre req4-out]]
-             ;;[:p "req4-vec: " [:p req4-vec]]
+             [:h4  "Value Clusters: " ]
+             [:p "req4-out: " [:pre req4-out]]
+             [:p "req4-vec: " [:p req4-vec]]
              ;;[:hr]
              ;;[:p "propstring: " [:pre propstring]]
              [:h3#clickable "Query:"]

@@ -73,7 +73,8 @@
                    {:title "Choose a value.", :name "valcluster"}
                      (let [valclusterfile (str "pvlists/vlcl-list-" language "-" pos ".txt")
                            valclusterlist (slurp valclusterfile)
-                           valclusters (split valclusterlist #"\n")]
+                           ;;valclusterlst (clojure.string/replace valclusterlist #":.*?\n" "\n")
+                           valclusterset (into (sorted-set) (clojure.string/split valclusterlist #"\n"))]
                        ;; For pdgm checkboxes, if pos is 'fv', there will be a
                        ;; label for the valcluster, then actual checkboxes will be 
                        ;; placed at different lexitems having the same valcluster. 
@@ -82,7 +83,9 @@
                        ;; showing identical valclusters with different lex items
                        ;; (e.g., nominal paradigms with inflectional case of the
                        ;; Latin or Greek type).
-                       (for [valcluster valclusters]
+                   (if (re-find #"EmptyList" valclusterlist)
+                     [:div (str "There are no " pos " paradigms in the " language " archive.")]
+                       (for [valcluster valclusterset]
                          (if (= pos "fv")
                            (let [clusters (split valcluster #":")
                                  clustername (first clusters)
@@ -96,7 +99,8 @@
                                   (check-box {:name "valclusters[]" :value (str "Pdgm-" npdgm "%" language "," clustername ":" lex) } lex) lex])]])
                            [:div {:class "form-group"}
                             [:label
-                             (check-box {:class "checkbox1" :name "valclusters[]" :value (str language "," valcluster) } valcluster) valcluster]])))]))]
+                             (check-box {:class "checkbox1" :name "valclusters[]" :value (str language "," valcluster) } valcluster) valcluster]])))
+                       )]))]
                  ;;(submit-button "Get pdgm")
                  [:tr [:td ]
                   [:td [:input#submit

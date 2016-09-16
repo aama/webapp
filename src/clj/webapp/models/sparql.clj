@@ -62,7 +62,7 @@
   "This version, for the moment only called by the single pdgm display option, which is designed to give the most information about an individual paradigm, includes information about input paradigm notes, lex, and token-... . Note info should eventually be displayed in the paradigm-label listing."
     (let [;; if assume last value is lex (generalize to other pos?)
           vals (clojure.string/replace valstring #"(.*):.*?$" "$1")
-          ;;lex (clojure.string/replace valstring #".*:(.*?)$" "$1")
+          lex (clojure.string/replace valstring #".*:(.*?)$" "$1")
           values (split vals #",")
           Language (capitalize language)
           ]
@@ -71,7 +71,7 @@
       (tmpl/render-string 
        (str "
 	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
-	SELECT ?num ?pers ?gen ?token ?lex
+	SELECT ?num ?pers ?gen ?token
 	WHERE
         { 
 	 { 
@@ -81,10 +81,11 @@
 	   ?s aamas:lang aama:{{Language}} . 
 	   ?s aamas:lang / rdfs:label ?langLabel .  
            ?s aamas:lexeme ?lexeme .
-           ?lexeme rdfs:label ?lex . ")
+           ?lexeme rdfs:label \"{{lex}}\" . ")
        {:lpref lpref
         :language language
-        :Language Language})
+        :Language Language
+        :lex lex})
       (apply str  
              (for [value values]
                (tmpl/render-string 

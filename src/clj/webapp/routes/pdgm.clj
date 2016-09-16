@@ -50,7 +50,8 @@
          languages (split langlist #"\n")
          valclusterfile (str "pvlists/vlcl-list-" language "-" pos ".txt")
          valclusterlist (slurp valclusterfile)
-         valclusters (clojure.string/split valclusterlist #"\n")]
+         ;;valclusterlst (clojure.string/replace valclusterlist #":.*?\n" "\n")
+         valclusterset (into (sorted-set) (clojure.string/split valclusterlist #"\n"))]
      (layout/common 
      ;;[:h3 "Paradigms"]
      ;;[:p "Choose Value Clusters"]
@@ -89,12 +90,15 @@
                 [:tr 
                  [:td [:select#valstring.required
                        {:title "Choose a value.", :name "valstring"}
-                       (for [valcluster valclusters]
+                       (for [valcluster valclusterset]
                          [:option  valcluster])]]]
                 ;;(submit-button "Get pdgm")
                 [:tr
-                 [:td [:input#submit
-                       {:value "Paradigm: ", :name "submit", :type "submit"}]]]]))))
+                 (if (re-find #"EmptyList" valclusterlist)
+                   [:td (str "There are no " pos " paradigms in the " language " archive.")]
+                   [:td [:input#submit
+                       {:value "Paradigm: ", :name "submit", :type "submit"}]])
+                   ]]))))
 
 (defn pdgmcolred
   "Finds single-value keys"
@@ -135,10 +139,11 @@
   ;; send SPARQL over HTTP request
   (let [langlist (slurp "pvlists/menu-langs.txt")
         languages (split langlist #"\n")
+        lprefmap (read-string (slurp "pvlists/lprefs.clj"))
         valclusterfile (str "pvlists/vlcl-list-" language "-" pos ".txt")
         valclusterlist (slurp valclusterfile)
-        valclusters (clojure.string/split valclusterlist #"\n")
-        lprefmap (read-string (slurp "pvlists/lprefs.clj"))
+        ;;valclusterlst (clojure.string/replace valclusterlist #":.*?\n" "\n")
+        valclusterset (into (sorted-set) (clojure.string/split valclusterlist #"\n"))
         lang (read-string (str ":" language))
         lpref (lang lprefmap)
         valstrng (clojure.string/replace valstring #",*person|,*gender|,*number" "")
@@ -226,7 +231,7 @@
                      [:tr 
                       [:td [:select#valstring.required
                             {:title "Choose a value.", :name "valstring"}
-                            (for [valcluster valclusters]
+                            (for [valcluster valclusterset]
                               [:option  valcluster])]]]
                      [:tr
                       [:td [:input#submit
