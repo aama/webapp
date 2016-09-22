@@ -45,7 +45,7 @@
 
 (defn handle-bibInfoMaster
   [brefs]
-  (let [bibrefmap (read-string (slurp "pvlists/bibrefs.edn"))]
+  (let [bibrefmap (read-string (slurp "resources/public/bibrefs.edn"))]
   (layout/common
    [:body
    ;;[:h1#clickable "Afroasiatic Morphological Archive"]

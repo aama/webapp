@@ -174,7 +174,7 @@
                            (str "no_" pos)
                            (replace (:body req1) #"\r\n" ","))
               pstring (replace propstring #"property,|,$" "")
-              porder (str "formType,conjClass,derivedStem,derivedStemAug,clauseType,tam,polarity,stemClass,rootClass,pdgmType")
+              porder (str "formType,pdgmType,conjClass,derivedStem,derivedStemAug,clauseType,tam,polarity,stemClass,rootClass")
               normstring (normorder pstring porder)
               plist (replace pstring #"," ", ")
               query-sparql2 (cond 
@@ -206,7 +206,11 @@
                          (str "EmptyList"))
               req-dataIDvlcl (csv2map1 req4-out)
               req4-vec (split req4-out #"\n")
-              req-vlcllist (join "\n" (for [rq4 req4-vec] (replace rq4 #"^.*?," "")))
+              req-vlcllst (sort (for [rq4 req4-vec] (replace rq4 #"^.*?," "")))
+              ;; use req-vlcllist if want to see partial pdgms (usually one token)
+              ;; otherwise req-vlcllist2 [or use 'remove'?]
+              req-vlcllist (join "\n"  req-vlcllst)
+              req-vlcllist2 (clojure.string/replace req-vlcllist #"Partial.*?\n" "")
               req-vlcldataID  (csv2map2 req4-out)
               ]
           (log/info "sparql result status: " (:status req2))
@@ -214,11 +218,12 @@
             ;;(doall (
           (spit dataIDvlcl req-dataIDvlcl)
           (spit vlcldataID req-vlcldataID)
-          (spit vlcllist req-vlcllist)
+          (spit vlcllist req-vlcllist2)
           ;;)))
             [:div [:h4 "======= Debug Info: ======="]
              [:p [:b "Language: "] language]
-             [:p [:b "File vlcl-list:    "] [:pre req-vlcllist]]
+             [:p [:b "File vlcl-list2:    "] [:pre req-vlcllist2]]
+             [:p [:b "req-vlcllist:    "] [:pre req-vlcllist]]
              [:p [:b "File data-vlcl:     "] [:br] req-dataIDvlcl]
              [:p [:b "File vlcl-data:     "] [:br] req-vlcldataID]
              [:p [:b "POS: " ] pos]

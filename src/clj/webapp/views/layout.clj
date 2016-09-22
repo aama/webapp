@@ -99,7 +99,7 @@
          [:li (link-to "#" "List and Index Generation:")
           [:ul
            [:li (link-to "/listmenulang" "Language Lists")]
-           [:li (link-to "/bibKWIndexGen" "Bibliography Keyword Indices")]
+           [:li (link-to "/bibIndexGen" "Bibliography Indices")]
            [:li (link-to "/listmenulpv" "Property/Value Lists")]
            [:li (link-to "#" "Paradigm Value-Clusters Index")
             [:ul

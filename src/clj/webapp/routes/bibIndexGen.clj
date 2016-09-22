@@ -1,4 +1,4 @@
-(ns webapp.routes.bibKWIndexGen
+(ns webapp.routes.bibIndexGen
  (:refer-clojure :exclude [filter concat group-by max min count replace])
   (:require [compojure.core :refer :all]
             [webapp.views.layout :as layout]
@@ -15,17 +15,17 @@
 
 (def aama "http://localhost:3030/aama/query")
 
-(defn bibKWIndexGen []
+(defn bibIndexGen []
     (layout/common 
      ;;[:h1#clickable "Afroasiatic Morphological Archive"]
      [:h3 "Generate Bibliography Indices"]
-     [:p "To be invoked whenever 'pvlists/bibrefs.edn', the general bibliography file, has been modified."]
+     [:p "To be invoked whenever 'resources/public/bibrefs.edn', the general bibliography file, has been modified."]
      [:p "This option will (re-)generate the following indices:"
       [:ol 
        [:li [:em "pvlists/bibkwindex.edn"]": a map linking each keyword used in  bibrefs.edn, with a list of the associated bibref IDs."]
        [:li [:em "pvlists/bibref-master-list.txt"]": a sorted list of all the bibref IDs [used in the general bibliography menu checkbox list]."]
        [:li [:em "pvlists/bibref-keyword-list.txt"]": a sorted list of all the keywords [used in the keyword menu selection list]."]]]
-     [:p (form-to [:post "/bibKWIndexGen"]
+     [:p (form-to [:post "/bibIndexGen"]
               [:table
                [:tr 
                 [:td {:colspan "2"} [:input#submit
@@ -47,10 +47,10 @@
              (do (reset! curpart1 (:part1 partmap))
                  (str ", " @curpart1 " " (:part2 partmap))))))))
 
-(defn handle-bibKWIndexGen
+(defn handle-bibIndexGen
   []
   (let [
-        bibrefmap (read-string (slurp "pvlists/bibrefs.edn"))
+        bibrefmap (read-string (slurp "resources/public/bibrefs.edn"))
         klist (sort (flatten (make-kwindex bibrefmap)))
         kwcompact (apply str (compact-list klist))
         kwcomp (clojure.string/replace kwcompact #"^, " "")
@@ -91,7 +91,7 @@
       [:script {:type "text/javascript"}
        "goog.require('webapp.core');"]])))
 
-(defroutes bibKWIndexGen-routes
-  (GET "/bibKWIndexGen" [] (bibKWIndexGen))
-  (POST "/bibKWIndexGen" [] (handle-bibKWIndexGen)))
+(defroutes bibIndexGen-routes
+  (GET "/bibIndexGen" [] (bibIndexGen))
+  (POST "/bibIndexGen" [] (handle-bibIndexGen)))
 
