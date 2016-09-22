@@ -9,7 +9,7 @@
             [webapp.routes.home :refer [home-routes]]
             [webapp.routes.aamaApp :refer [aamaApp-routes]]
             [webapp.routes.langInfo :refer [langInfo-routes]]
-            [webapp.routes.bibKWIndexGen :refer [bibKWIndexGen-routes]]
+            [webapp.routes.bibIndexGen :refer [bibIndexGen-routes]]
             [webapp.routes.bibInfoSpecial :refer [bibInfoSpecial-routes]]
             [webapp.routes.bibInfoMaster :refer [bibInfoMaster-routes]]
             [webapp.routes.pdgm :refer [pdgm-routes]]            
@@ -45,7 +45,7 @@
   (route/not-found "Not Found"))
 
 (def app
-  (-> (routes home-routes  aamaApp-routes langInfo-routes bibKWIndexGen-routes bibInfoSpecial-routes bibInfoMaster-routes pdgm-routes pvlgpr-routes pvlgvl-routes formsearch-routes listmenulpv-routes listmenulang-routes update-routes upload-routes listlgpr-routes listvlcl-routes  listlpv-routes multipdgmseq-routes valclmod-routes multipdgmmod-routes helpinitializeapp-routes helppdgms-routes helpformsearch-routes helppvdisp-routes helplistgen-routes helpwebupdate-routes helpclupdate-routes app-routes)
+  (-> (routes home-routes  aamaApp-routes langInfo-routes bibIndexGen-routes bibInfoSpecial-routes bibInfoMaster-routes pdgm-routes pvlgpr-routes pvlgvl-routes formsearch-routes listmenulpv-routes listmenulang-routes update-routes upload-routes listlgpr-routes listvlcl-routes  listlpv-routes multipdgmseq-routes valclmod-routes multipdgmmod-routes helpinitializeapp-routes helppdgms-routes helpformsearch-routes helppvdisp-routes helplistgen-routes helpwebupdate-routes helpclupdate-routes app-routes)
       (handler/site)
       (wrap-base-url)))
 

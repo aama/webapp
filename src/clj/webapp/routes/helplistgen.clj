@@ -26,7 +26,7 @@
        [:li [:em "pvlists/lprefs.clj"]": a map linking each language name in the archive with the unique language prefix used in the RDF files and SPARQL queries."]
        [:li [:em "pvlists/ldomainlist.txt"]": a sorted list of all the language groupings recognized by the archive user on whatever basis (genetic, geographic, typological, project-related, etc.). It is up to the user to maintain and modify this list by hand; for comparison a genetic (language-tree) example of an ldomainlist.txt file can be consulted in the resources/public directory. By default the language indexing routine will simply update the final 'All' domain -- very useful when producing displays and indices ranging over the whole archive."]]
        [:p "To be invoked whenever a language or language-variety has been added to the archive or a language-name has been modified."]]]
-     [:li (link-to "/bibKWIndexGen" "Generate Bibliography Keyword Indices") "."
+     [:li (link-to "/bibIndexGen" "Generate Bibliography Keyword Indices") "."
       [:p "This option will (re-)generate the following indices:"
       [:ol 
        [:li [:em "pvlists/bibkwindex.edn"]": a map linking each keyword used in  bibrefs.edn, with a list of the associated bibref IDs."]
