@@ -30,7 +30,7 @@
      (tmpl/render-string 
       (str "
 	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
-	SELECT ?bibref ?lurl ?ldesc
+	SELECT ?bibref ?lurl ?ldesc ?subfam
 	WHERE
         { 
 	 { 
@@ -39,6 +39,7 @@
             aama:{{Language}} aamas:dataSource ?bibref .
             aama:{{Language}} aamas:geodemoURL ?lurl  .
             aama:{{Language}} aamas:geodemoTXT ?ldesc .
+            OPTIONAL { aama:{{Language}} aamas:subfamily ?subfam .}
           }}}
            ")
       {:lpref lpref
