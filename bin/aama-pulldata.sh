@@ -5,8 +5,9 @@
 # (probably needs more revision; revisit as revise data
 
 # 09/15/16
-# PROBLEM: I am currenly getting cl emacs for commit/merge message on each
-# directory. Do I need to do a commit before the pull?
+# PROBLEM: I am currently getting cl emacs for commit/merge message on some
+# directories. Seems to work if I simply c-x c out of emacs.
+# Do I need to do a commit before the pull?
 
 #. bin/constants.sh
 
@@ -19,8 +20,8 @@ do
     echo "$lang ********************************************"
     echo pulling data to aama/$lang
     cd data/$lang
-    # git commit -am "committing current data"
+    git stash
     git pull
-    git commit -am "most recent data pulled"
+    #git commit -am "most recent data pulled"
     cd ../../
 done

@@ -27,8 +27,7 @@
              [:tr [:td "PDGM Type: "]
               [:td [:select#pos.required
                     {:title "Choose a pdgm type.", :name "pos"}
-                    [:option {:value "fv" :label "Finite Verb"}]
-                    [:option {:value "nfv" :label "Non-finite Verb"}]
+                    [:option {:value "verb" :label "Verb"}]
                     [:option {:value "pro" :label "Pronoun"}]
                     [:option {:value "noun" :label "Noun"}]
                     ]]]
@@ -64,8 +63,7 @@
                 [:tr [:td "PDGM Type: "]
                  [:td [:select#pos.required
                        {:title "Choose a pdgm type.", :name "pos"}
-                       [:option {:value "fv" :label "Finite Verb"}]
-                       [:option {:value "nfv" :label "Non-finite Verb"}]
+                       [:option {:value "verb" :label "Verb"}]
                        [:option {:value "pro" :label "Pronoun"}]
                        [:option {:value "noun" :label "Noun"}]
                        ]]]
@@ -139,24 +137,28 @@
   ;; send SPARQL over HTTP request
   (let [langlist (slurp "pvlists/menu-langs.txt")
         languages (split langlist #"\n")
+        lang (lower-case language)
         lprefmap (read-string (slurp "pvlists/lprefs.clj"))
         valclusterfile (str "pvlists/vlcl-list-" language "-" pos ".txt")
         valclusterlist (slurp valclusterfile)
         ;;valclusterlst (clojure.string/replace valclusterlist #":.*?\n" "\n")
         valclusterset (into (sorted-set) (clojure.string/split valclusterlist #"\n"))
-        lang (read-string (str ":" language))
-        lpref (lang lprefmap)
+        langkey (read-string (str ":" language))
+        lpref (langkey lprefmap)
+        vcs (split valstring #"," 2)
+        pdgmType (first vcs)
+        pvalcluster (last vcs)
         valstrng (clojure.string/replace valstring #",*person|,*gender|,*number" "")
         valstr (clojure.string/replace valstrng #":," ":")
         ;; In single pdgm query only, asking for note (9/29/15) and lex (10/9/15)
         query-sparql-form (cond 
-                      (= pos "pro")
-                      (sparql/pdgmqry-sparql-pro language lpref valstr)
-                      (= pos "nfv")
-                      (sparql/pdgmqry-sparql-nfv language lpref valstring)
-                      (= pos "noun")
-                      (sparql/pdgmqry-sparql-noun language lpref valstring)
-                      :else (sparql/pdgmqry-sparql-fv language lpref valstring))
+                           (= pos "pro")
+                           (sparql/pdgmqry-sparql-pro language lpref valstr)
+                           (= pos "noun")
+                           (sparql/pdgmqry-sparql-noun language lpref valstring)
+                           (= pdgmType "Finite")
+                           (sparql/pdgmqry-sparql-fv language lpref pvalcluster)
+                           :else (sparql/pdgmqry-sparql-nfv language lpref valstring))
         query-sparql-form-pr (replace query-sparql-form #"<" "&lt;")
         req-form (http/get aama
                       {:query-params
@@ -184,9 +186,17 @@
         header (first psplit)
         pdgmrows (rest psplit)
         pheads (split header #",")
-        pdgmmap (read-string (slurp (str "pvlists/vlcl-dataID-" language "-" pos ".edn")))
+        ;; from here to 'comment', steps to obtain pdgmLabel (dataID) 
+        ;; and comment
+        pdgmmap (cond
+                 (= pdgmType "Finite")
+                 (read-string (slurp (str "pvlists/vlcl-dataID-" language "-fv.edn")))
+                 (= pos "verb")
+                 (read-string (slurp (str "pvlists/vlcl-dataID-" language "-nfv.edn")))
+                 :else (read-string (slurp (str "pvlists/vlcl-dataID-" language "-" pos ".edn"))))
         vlcllistID (replace valstring #"," "_")
         vlcllistkey (read-string (str ":" vlcllistID))
+        ;; or simply include this in the previous, or next, query?
         dataID (read-string (vlcllistkey pdgmmap))
         query-sparql-comment (sparql/pdgmqry-sparql-comment dataID)
         query-sparql-comment-pr (replace query-sparql-comment #"<" "&lt;")
@@ -205,8 +215,7 @@
                      [:tr [:td "PDGM Type: "]
                       [:td [:select#pos.required
                             {:title "Choose a pdgm type.", :name "pos"}
-                            [:option {:value "fv" :label "Finite Verb"}]
-                            [:option {:value "nfv" :label "Non-finite Verb"}]
+                            [:option {:value "verb" :label "Verb"}]
                             [:option {:value "pro" :label "Pronoun"}]
                             [:option {:value "noun" :label "Noun"}]
                             ]]]
@@ -248,10 +257,11 @@
                [:em  "Columns can be dragged by clicking and holding on 'drag-bar' 
                 at top of column."]]
            [:table {:id "handlerTable" :class "tablesorter sar-table"}
-           ;;[:table
-            [:thead
+            ;;[:table
+             [:thead
               (for [head pheads]
-                [:th [:div {:class "some-handle"}  (capitalize head)]])]
+                [:th [:div {:class "some-handle"}  (capitalize head)]])
+              ]
             ;;[:th head])]]
             [:tbody 
              (for [pdgmrow pdgmrows]
@@ -272,6 +282,14 @@
            [:div [:h4 "======= Debug Info: ======="]
             [:h4 "Query Response:"]
             [:pre (:body req-form)]
+            [:p "language: " language]
+            [:p "lang: " lang]
+            [:p "lpref: " lpref]
+            [:p "valstring: "  valstring]
+            [:p "vlcllistID: "  vlcllistID]
+            [:p "vlcllistkey: "  vlcllistkey]
+            [:p "pdgmmap: " [:pre pdgmmap]]
+            [:p ": " ]
            [:p "pcolred: " pcolred]
             [:p "pmapkeys: " (str pmapkeys)]
             [:p "sgvalkeys: " sgvalkeys]

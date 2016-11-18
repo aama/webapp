@@ -31,8 +31,7 @@
              [:tr [:td "PDGM Type: "]
               [:td [:select#pos.required
                     {:title "Choose a pdgm type.", :name "pos"}
-                    [:option {:value "fv" :label "Finite Verb"}]
-                    [:option {:value "nfv" :label "Non-finite Verb"}]
+                    [:option {:value "verb" :label "Verb"}]
                     [:option {:value "pro" :label "Pronoun"}]
                     [:option {:value "noun" :label "Noun"}]
                     ]]]
@@ -75,31 +74,12 @@
                            valclusterlist (slurp valclusterfile)
                            ;;valclusterlst (clojure.string/replace valclusterlist #":.*?\n" "\n")
                            valclusterset (into (sorted-set) (clojure.string/split valclusterlist #"\n"))]
-                       ;; For pdgm checkboxes, if pos is 'fv', there will be a
-                       ;; label for the valcluster, then actual checkboxes will be 
-                       ;; placed at different lexitems having the same valcluster. 
-                       ;; Otherwise each valcluster will be a separate checkbox.
-                       ;; The 'fv' type may be extended to other kinds of pdgms
-                       ;; showing identical valclusters with different lex items
-                       ;; (e.g., nominal paradigms with inflectional case of the
-                       ;; Latin or Greek type).
                    (if (re-find #"EmptyList" valclusterlist)
                      [:div (str "There are no " pos " paradigms in the " language " archive.")]
                        (for [valcluster valclusterset]
-                         (if (= pos "fv")
-                           (let [clusters (split valcluster #":")
-                                 clustername (first clusters)
-                                 plex (last clusters)
-                                 npdgm (swap! pnum inc)
-                                 lexitems (split plex #",")]
-                             [:div {:class "form-group"}
-                              [:label (str clustername ": ")
-                               (for [lex lexitems]
-                                 [:span 
-                                  (check-box {:name "valclusters[]" :value (str "Pdgm-" npdgm "%" language "," clustername ":" lex) } lex) lex])]])
                            [:div {:class "form-group"}
                             [:label
-                             (check-box {:class "checkbox1" :name "valclusters[]" :value (str language "," valcluster) } valcluster) valcluster]])))
+                             (check-box {:class "checkbox1" :name "valclusters[]" :value (str language "," valcluster) } valcluster) valcluster]]))
                        )]))]
                  ;;(submit-button "Get pdgm")
                  [:tr [:td ]
@@ -113,32 +93,40 @@
     (for [valcluster vcvec]
       (let [vals (split valcluster #"," 2)
             plang (first vals)
-            pnum (clojure.string/replace plang #"%.*" "")
+            ;;pnum (clojure.string/replace plang #"%.*" "")
             language (clojure.string/replace plang #"^P.*?%" "")
             lang (read-string (str ":" language))
             lpref (lang lprefmap)
             vcluster (last vals)
-            valstrng (clojure.string/replace vcluster #",*person|,*gender|,*number" "")
+            vcs (split vcluster #"," 2)
+            pdgmType (first vcs)
+            pvalcluster (last vcs)
+            pvlcl (clojure.string/replace pvalcluster #"," ".")
+            valstrng (clojure.string/replace pvlcl #",*person|,*gender|,*number" "")
             valstr (clojure.string/replace valstrng #":," ":")
             query-sparql (cond 
                           (= pos "pro")
-                          (sparql/pdgmqry-sparql-pro language lpref valstr)
-                          (= pos "nfv")
-                          (sparql/pdgmqry-sparql-nfv language lpref vcluster)
+                          (sparql/pdgmqry-sparql-pro language lpref pvalcluster)
                           (= pos "noun")
                           (sparql/pdgmqry-sparql-noun language lpref vcluster)
-                          :else (sparql/pdgmqry-sparql-fv language lpref vcluster))
+                          (= pdgmType "Finite")
+                          (sparql/pdgmqry-sparql-fv language lpref pvalcluster)
+                          :else (sparql/pdgmqry-sparql-nfv language lpref vcluster))
             req (http/get aama
                       {:query-params
                        {"query" query-sparql ;;generated sparql
                         ;;"format" "application/sparql-results+json"}})]
                         "format" "csv"}})
             ;; get rid of header
-            pbody1 (clojure.string/replace (:body req) #"^.*?\r\n" "\r\n")
+            pbody1 (:body req)
+            ;;pbody1 (clojure.string/replace (:body req) #"^.*?\r\n" "\r\n")
             pbody2 (clojure.string/replace pbody1 #" " "_")
             ]
+        ;;(clojure.string/replace pbody1 #" " "_")
         ;; add pdgm name to each row of pbody as first value
-        (clojure.string/replace pbody2 #"\r\n(\S)" (str "\r\n" pnum  ",$1"))))))
+        (clojure.string/replace pbody2 #"\r\n(\S)" (str "\r\n" lpref "." pvlcl  ",$1"))
+        ;;(str vcluster " +1 " pdgmType " +2 " pvalcluster " +3 " (:body req) " +4 " query-sparql)
+        ))))
 
 (defn csv2pdgm
 "Takes sorted n-col csv list with vectors of pnames and headers, and outputs n+1-col html table with first col for pname ref; cols are draggable and sortable."
@@ -152,10 +140,12 @@
        ;; Take off the top header
        ;; If pdgms are to be comparable
        ;; all header strings will be same
-       header (str "num,pers,gen,token")
+       pstrings (split pdgmstr2 #" ")
+       pdgm1 (first pstrings)
+       header (first (split pdgm1 #"\\r\\n"))
+       ;;header (str "num,pers,gen,token")
        header2 (str "pdgm," header)
        pheads (split header2 #",")
-       pstrings (split pdgmstr2 #" ")
        ]
   [:div
    [:p "Paradigms:"
@@ -196,8 +186,9 @@
         headerset2 (str "pdgm " "num " "pers " "gen ")
         headers (split headerset2 #" ")
         pdgmvec (map #(vc2req  % pos) valclusters)
-        pdgmvec2 (map #(addpnum % ) pdgmvec)
-        header (first pdgmvec)
+        ;;pdgmvec (vc2req valclusters pos)
+        ;;pdgmvec2 (map #(addpnum % ) pdgmvec)
+        ;;vheader (first pdgmvec)
         pdgmstr1 (apply pr-str pdgmvec)
         pdgmstr2 (clojure.string/replace pdgmstr1 #"[\(\)\"]" "")
         pdgmtable (csv2pdgm pdgmstr2 valclusters)
@@ -260,6 +251,7 @@
            [:hr]
            [:div [:h4 "======= Debug Info: ======="]
             [:p "pdgmvec: " [:pre pdgmvec]]
+            [:p "pos: " [:pre pos]]
             [:p "valclusters: " [:pre pdgms]]
             [:p "headerset2: " [:pre headerset2]]
             [:p "pdgmstr2: " [:pre pdgmstr2]]
