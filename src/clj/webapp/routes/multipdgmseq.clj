@@ -149,12 +149,14 @@
          [:hr]
          [:h4 "Valcluster: " valcluster]
          [:pre (:body req)]
-         ;;[:pre req2]
-         ;;[:hr]
+         ;;[:h4 "======= Debug Info: ======="]
          ;;[:p "pdgmType: " [:pre pdgmType]]
+         ;;[:p "pvalues: " [:pre pvalues]]
          ;;[:h3#clickable "Query:"]
          ;;[:pre query-sparql-pr]
-        ])))
+         ;;[:p "req2: " [:pre req2]]
+         ;;[:p "==========================="]
+         ])))
         [:script {:src "js/goog/base.js" :type "text/javascript"}]
         [:script {:src "js/webapp.js" :type "text/javascript"}]
         [:script {:type "text/javascript"}

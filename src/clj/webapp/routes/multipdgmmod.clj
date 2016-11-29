@@ -160,7 +160,8 @@
         [:th [:div {:class "some-handle"}  [:br] (capitalize head)]])]]
     [:tbody 
      (for [pdgm pstrings]
-       (let [pdgm-sp (split pdgm #"\\r\\n" 2)
+       (let [;;throw away header row
+             pdgm-sp (split pdgm #"\\r\\n" 2)
              pheader (first pdgm-sp)
              pbody (last pdgm-sp)
              pdgmrows (split pbody #"\\r\\n")
@@ -201,7 +202,7 @@
            pdgmtable
            [:hr]
            [:h3 "Parallel Display of Paradigms"]
-           [:p "At present only accommodates parallel display of pronominal and verbval paradigms -- to be generalized."]         
+           [:p "At present only accommodates parallel display of pronominal and verbval paradigms where merged paradigms have same number of columns -- to be generalized."]         
            [:hr]
            (form-to [:post "/multimodplldisplay"]
                     [:table
@@ -262,10 +263,12 @@
             "goog.require('webapp.core');"])))
     
 (defn cleanpdgms [pdgmstr]
+  "This version also gets rid of initial header row in each pdgm substring"
   (let [pdgmstr-a (clojure.string/replace pdgmstr #"\\r\\n$" "")
-        pdgmstr-b (clojure.string/replace pdgmstr-a #"^\\r\\n" "")
+        pdgmstr-b (clojure.string/replace pdgmstr-a #"^.*?\\r\\n" "")
         pdgmstr-c (clojure.string/replace pdgmstr-b #":" "_")]
-    (clojure.string/replace pdgmstr-c #"\\r\\n " "")))
+    ;; get rid of initial header row of each member pdgm
+    (clojure.string/replace pdgmstr-c #"\\r\\n .*?(\\r\\n)" "$1")))
 
 (defn make-pmap
   "Build up hash-map key by joining pivot-vals and val by removing pivot-vals"
@@ -338,7 +341,7 @@
         pmaps (join-pmaps prmaps)
         headerset3 (clojure.string/replace headerset2 #"[\[\]\"]" "")
         heads (split (str headerset3) #" ")
-        ;;headvec (for [pivot pivotlist] (vec-remove heads pivotlist))
+        ;;headvec = headerset minus pivot namesn
         pivotnames (vec (for [pivot pivots] (nth heads pivot)))
         headvec (vec (remove (set pivotnames) heads))
         ;; set of lists of vaue-combination-terms
@@ -401,6 +404,7 @@
         [:p "newpdgms: " (str newpdgms)]
         [:p "pvalvec: " (str pvalvec)]
         [:p "pdgmstr2: " [:pre pdgmstr2]]
+        [:p "pdgmstr3: " [:pre pdgmstr3]]
         ;;[:p "vvec: " [:pre vvec]] ;;!!raises "not valid element" exception
         ;;[:p "vvec: " (str vvec)] ;; "not valid el." excp. with "!" in text
         [:p "pmapvec: " [:pre pmapvec]]

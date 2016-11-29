@@ -57,24 +57,24 @@
      ;;[:p error]
       [:h3 "Individual Paradigms"]
       
-      ;; repeat of language/pdgm-type choice form
-      (form-to [:post "/pdgmqry"]
-               [:table
-                [:tr [:td "PDGM Type: "]
-                 [:td [:select#pos.required
-                       {:title "Choose a pdgm type.", :name "pos"}
-                       [:option {:value "verb" :label "Verb"}]
-                       [:option {:value "pro" :label "Pronoun"}]
-                       [:option {:value "noun" :label "Noun"}]
-                       ]]]
-                [:tr [:td "PDGM Language: " ]
-                 [:td [:select#language.required
-                       {:title "Choose a language.", :name "language"}
-                       (for [language languages]
-                         [:option {:value (lower-case language)} language])]]]
-                [:tr 
-                 [:td {:colspan "2"} [:input#submit
-                      {:value "Value Clusters: ", :name "submit", :type "submit"}]]]])
+;;      ;; repeat of language/pdgm-type choice form doesn't seem to work
+;;      (form-to [:post "/pdgmqry"]
+;;               [:table
+;;                [:tr [:td "PDGM Type: "]
+;;                 [:td [:select#pos.required
+;;                       {:title "Choose a pdgm type.", :name "pos"}
+;;                       [:option {:value "verb" :label "Verb"}]
+;;                       [:option {:value "pro" :label "Pronoun"}]
+;;                       [:option {:value "noun" :label "Noun"}]
+;;                       ]]]
+;;                [:tr [:td "PDGM Language: " ]
+;;                 [:td [:select#language.required
+;;                       {:title "Choose a language.", :name "language"}
+;;                       (for [language languages]
+;;                         [:option {:value (lower-case language)} language])]]]
+;;                [:tr 
+;;                 [:td {:colspan "2"} [:input#submit
+;;                     {:value "Value Clusters: ", :name "submit", :type "submit"}]]]])
 
       ;;main form
       (form-to [:post "/pdgmdisplay"]
@@ -210,23 +210,23 @@
          (log/info "sparql result status: " (:status req-form))
          (layout/common
            ;; insert repeat of language/pdgm-type choice form
-           (form-to [:post "/pdgmqry"]
-                    [:table
-                     [:tr [:td "PDGM Type: "]
-                      [:td [:select#pos.required
-                            {:title "Choose a pdgm type.", :name "pos"}
-                            [:option {:value "verb" :label "Verb"}]
-                            [:option {:value "pro" :label "Pronoun"}]
-                            [:option {:value "noun" :label "Noun"}]
-                            ]]]
-                     [:tr [:td "PDGM Language: " ]
-                      [:td [:select#language.required
-                            {:title "Choose a language.", :name "language"}
-                            (for [language languages]
-                              [:option {:value language} language])]]]
-                     [:tr 
-                      [:td {:colspan "2"} [:input#submit
-                        {:value "Value Clusters: ", :name "submit", :type "submit"}]]]])
+    ;;           (form-to [:post "/pdgmqry"]
+    ;;                    [:table
+    ;;                     [:tr [:td "PDGM Type: "]
+    ;;                      [:td [:select#pos.required
+    ;;                            {:title "Choose a pdgm type.", :name "pos"}
+    ;;                            [:option {:value "verb" :label "Verb"}]
+    ;;                            [:option {:value "pro" :label "Pronoun"}]
+    ;;                            [:option {:value "noun" :label "Noun"}]
+    ;;                            ]]]
+    ;;                     [:tr [:td "PDGM Language: " ]
+    ;;                      [:td [:select#language.required
+    ;;                            {:title "Choose a language.", :name "language"}
+    ;;                            (for [language languages]
+    ;;                              [:option {:value language} language])]]]
+    ;;                     [:tr 
+    ;;                      [:td {:colspan "2"} [:input#submit
+    ;;                        {:value "Value Clusters: ", :name "submit", :type "submit"}]]]])
 
            ;;insert repeat of pdgm choice form
            (form-to [:post "/pdgmdisplay"]

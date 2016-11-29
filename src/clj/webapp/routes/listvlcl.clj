@@ -190,7 +190,7 @@
                            (str "no_" pos)
                            (replace (:body req1) #"\r\n" ","))
               pstring (replace propstring #"property,|,$" "")
-              porder (str "conjClass,derivedStem,clauseType,tam,polarity,rootClass")
+              porder (str "conjClass,derivedStem,clauseType,tam,voice,polarity,rootClass")
               normstring (normorder pstring porder)
               plist (replace pstring #"," ", ")
               query-sparql2 (cond 
@@ -228,7 +228,7 @@
               ;; otherwise req-vlcllist2 [or use 'remove'?]
               req-vlcllist (if (= pos "nfv")
                              (propmerge req-vlcllst)
-                             (join "\n"  req-vlcllst))
+                             (str (join "\n"  req-vlcllst) "\n"))
               ;;req-vlcllist2 (clojure.string/replace req-vlcllist #"Partial.*?\n" "")
               ]
           (log/info "sparql result status: " (:status req2))
@@ -239,15 +239,17 @@
           (spit vlcllist req-vlcllist)
           (if (re-find #"v" pos)
             (let [verblist (str "pvlists/vlcl-list-" language "-verb.txt")
-                  fvlist (slurp (str "pvlists/vlcl-list-" language "-fv.txt"))
-                  nfvlist (slurp (str "pvlists/vlcl-list-" language "-nfv.txt"))]
-              (spit verblist (str fvlist "\n"))
-              (spit verblist nfvlist :append true)))
+                  fvfile (str "pvlists/vlcl-list-" language "-fv.txt")
+                  nfvfile (str "pvlists/vlcl-list-" language "-nfv.txt")]
+                  (if (.exists (clojure.java.io/file fvfile))
+                    (spit verblist (slurp fvfile)))
+                  (if (.exists (clojure.java.io/file nfvfile))
+                    (spit verblist (slurp nfvfile) :append true))))
                   
           ;;)))
             [:div 
              [:p [:b "Language: "] language]
-             [:p [:b "File vlcl-lst:    "] [:pre req-vlcllst]]
+             ;;[:p [:b "File vlcl-lst:    "] [:pre req-vlcllst]]
              [:p [:b "File vlcl-list:    "] [:pre req-vlcllist]]
              [:p [:b "File data-vlcl:     "] [:br] req-dataIDvlcl]
              [:p [:b "File vlcl-data:     "] [:br] req-vlcldataID]
