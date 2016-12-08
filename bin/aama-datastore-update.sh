@@ -16,7 +16,7 @@ ldomain=${ldomain//\"/}
 
 echo "ldomain is ${ldomain}"
 
-for f in `find $ldomain -name "*.edn"`
+for f in `find $ldomain -name "*pdgms.edn"`
 do
     f2=${f%/*-pdgms.edn}
     echo "delete f = ${f2}"
