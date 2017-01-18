@@ -1,8 +1,7 @@
 (ns webapp.views.layout
-  (:require [hiccup.page :refer [html5 include-css]]
+  (:require [hiccup.page :refer [html5 include-css include-js]]
             [hiccup.element :refer [link-to]]
             [hiccup.form :refer :all]
-            [hiccup.page :refer [include-css include-js]]
             [ring.util.response :refer [content-type response]]
             [compojure.response :refer [Renderable]]))
 
