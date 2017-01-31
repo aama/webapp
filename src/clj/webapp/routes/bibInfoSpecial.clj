@@ -34,6 +34,7 @@
               [:td {:colspan "2"} [:input#submit
                     {:value "Display Bibliography: ", :name "submit", :type "submit"}]]]]))))
 
+;; to get bibrefs satisfying more than one bibkey, have to make bibkey-list, then cycle through succession of reflists where reflist1 has all refs with bibkey1, then reflist2 has all refs in reflist1 with bibkey2, . . . [try in repl; or put bibinfo in ttl and query with SPARQL] -- perhaps related to how documentation will eventually be done?
 
 (defn handle-bibInfoSpecial
   [bibliogref]
