@@ -111,6 +111,7 @@
            [:li (link-to "/upload" "Upload to Remote Repository [Under Development")]]]]]
        [:li (link-to "#" "Help")
         [:ul
+         [:li (link-to "/helpaamaversions" "AAMA Versions")]
          [:li (link-to "/helpinitializeapp" "Initialize Application")]
          [:li (link-to "/helpformsearch" "Form Search")]
          [:li (link-to "/helppdgms" "Paradigm Search")]

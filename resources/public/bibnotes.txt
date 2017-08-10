@@ -1,0 +1,64 @@
+Baronchelli, A., L. Dall’Asta, A. Barrat, and V. Loreto. 2006a. Topology induced coarsening in language games language. Phys. Rev. E 73 :015102(R). 
+Baronchelli, A., M. Felici, E. Caglioti, V. Loreto, and L. Steels. 2006b. Sharp transition towards shared vocabularies in multi-agent systems. J. Stat. Mech . P06014. 
+Baronchelli, A., V. Loreto, and L. Steels. 2008. In-depth analysis of the Naming Game dynamics: The homogeneous mixing case. Intl. J. Mod. Phys . 19(5) :785– 812. 
+Bickerton, Derek, and Eörs Szathmáry. Biological Foundations and Origin of Syntax, MIT Press, 2009. ProQuest Ebook Central, .
+Created from uchicago on 2017-07-10 09:49:44.
+
+Dall’Asta, L., A. Baronchelli, A. Barrat, and V. Loreto. 2006a. Agreement dynamics on small-world networks. Europhys. Lett . 73 :969. 
+——. 2006b. Non-equilibrium dynamics of language games on complex networks. Phys. Rev. E 74 :036105.
+Bickerton, Derek, and Eörs Szathmáry. Biological Foundations and Origin of Syntax, MIT Press, 2009. ProQuest Ebook Central, .
+Created from uchicago on 2017-07-10 09:54:32.
+
+de Beule, J. 2004. Creating temporal categories for an ontology of time. In: Proc. 16th Belgium-Netherlands AI Conf., ed. R. Verbrugge, N. Taatgen, and L. Schomaker, pp. 107– 114. Groningen: BNAIC04. 
+——. 2008. The emergence of compositionality, hierarchy and recursion in peer-to-peer interactions. In: The Evolution of Language: Proc. 7th Intl. Conf. (EVOLANG7), ed. A. D. M. Smith, K. Smith, and R. Ferrer i Cancho, pp. 75– 82. Barcelona: World Scientific Press. 
+de Beule, J., and L. Steels. 2005. Hierarchy in fluid construction grammar. In: Proc. of KI-2005, ed. U. Furbach, pp. 1– 15. Lecture Notes in AI 3698. Berlin: SpringerVerlag.
+Bickerton, Derek, and Eörs Szathmáry. Biological Foundations and Origin of Syntax, MIT Press, 2009. ProQuest Ebook Central, .
+Created from uchicago on 2017-07-10 09:56:17.
+
+Van Trijp, R. 2008. The emergence of semantic roles in fluid construction grammar. In: The Evolution of Language: Proc. 7th Intl. Conf. (EVOLANG7), ed. A. D. M. Smith, K. Smith, and R. Ferrer i Cancho, pp. 346– 353. Barcelona: World Scientific Press.
+Bickerton, Derek, and Eörs Szathmáry. Biological Foundations and Origin of Syntax, MIT Press, 2009. ProQuest Ebook Central, .
+Created from uchicago on 2017-07-10 09:57:52.
+
+Szathmáry, E. 2000. The evolution of replicators. P. Roy. Soc. Lond. B 355(1403) :1669– 1676. 
+——. 2001. Origin of the human language faculty: The language amoeba hypothesis. In: New Essays on the Origin of Language, ed. J. Trabant and S. Ward, pp. 41– 51 . New York: Mouton/de Gruyter. 
+——. 2003. Cultural processes: The latest major transition in evolution. In: Encyclopedia of Cognitive Science, ed. L. Nadel. London: Macmillan. 
+——. 2007. Towards an understanding of language origins. In: Codes of Life, ed. M. Barbieri, pp. 283– 313. Springer-Verlag. 
+——. 2008. Towards an understanding of language origins. In. Codes of Life, ed. M. Barbieri, pp. 283– 313. New York: Springer-Verlag. 
+Szathmáry, E., and S. Számadó. 2008a. Being human. Language: A social history of words. Nature 456 :40– 41.
+Bickerton, Derek, and Eörs Szathmáry. Biological Foundations and Origin of Syntax, MIT Press, 2009. ProQuest Ebook Central, .
+Created from uchicago on 2017-07-10 10:02:04.
+
+Szathmáry, E. 2000. The evolution of replicators. P. Roy. Soc. Lond. B 355(1403) :1669– 1676. ——. 2001. Origin of the human language faculty: The language amoeba hypothesis. In: New Essays on the Origin of Language, ed. J. Trabant and S. Ward, pp. 41– 51 . New York: Mouton/de Gruyter. ——. 2003. Cultural processes: The latest major transition in evolution. In: Encyclopedia of Cognitive Science, ed. L. Nadel. London: Macmillan. ——. 2007. Towards an understanding of language origins. In: Codes of Life, ed. M. Barbieri, pp. 283– 313. Springer-Verlag. ——. 2008. Towards an understanding of language origins. In. Codes of Life, ed. M. Barbieri, pp. 283– 313. New York: Springer-Verlag. Szathmáry, E., and S. Számadó. 2008a. Being human. Language: A social history of words. Nature 456 :40– 41.
+Bickerton, Derek, and Eörs Szathmáry. Biological Foundations and Origin of Syntax, MIT Press, 2009. ProQuest Ebook Central, .
+Created from uchicago on 2017-07-10 10:02:04.
+
+Szathmáry, E. 2000. The evolution of replicators. P. Roy. Soc. Lond. B 355(1403) :1669– 1676. ——. 2001. Origin of the human language faculty: The language amoeba hypothesis. In: New Essays on the Origin of Language, ed. J. Trabant and S. Ward, pp. 41– 51 . New York: Mouton/de Gruyter. ——. 2003. Cultural processes: The latest major transition in evolution. In: Encyclopedia of Cognitive Science, ed. L. Nadel. London: Macmillan. ——. 2007. Towards an understanding of language origins. In: Codes of Life, ed. M. Barbieri, pp. 283– 313. Springer-Verlag. ——. 2008. Towards an understanding of language origins. In. Codes of Life, ed. M. Barbieri, pp. 283– 313. New York: Springer-Verlag. Szathmáry, E., and S. Számadó. 2008a. Being human. Language: A social history of words. Nature 456 :40– 41.
+Bickerton, Derek, and Eörs Szathmáry. Biological Foundations and Origin of Syntax, MIT Press, 2009. ProQuest Ebook Central, .
+Created from uchicago on 2017-07-10 10:02:04.
+
+Jäger, G. 2004. Learning constraint subhierarchies: The bidirectional gradual learning algorithm. In: Optimality Theory and Pragmatics, ed. R. Blutner and H. Zeevat, pp. 251– 287. New York: Palgrave MacMillan. ——. 2007. Evolutionary game theory and typology: A case study. Language 83(1) :74– 109.
+——. 2008a. Evolutionary stability conditions for signaling games with costly signals. J. Theor. Biol. 253(1) :131– 141. ——. 2008b. The evolution of convex categories. Ling. Phil. 30(5) :551– 564. Jäger, G., and R. van Rooij. 2007. Language structure: Psychological and social constraints. Synthese 159(1) :99– 130.
+Bickerton, Derek, and Eörs Szathmáry. Biological Foundations and Origin of Syntax, MIT Press, 2009. ProQuest Ebook Central, .
+Created from uchicago on 2017-07-10 10:15:55.
+
+Griffiths, T. L., and M. Kalish. 2005. A Bayesian view of language evolution by iterated learning. In: Proc. 27th Annual Conf. of the Cognitive Science Society, ed. B. G. Bara, L. Barsalou, and M. Bucciarelli. Mahwah, NJ: Lawrence Erlbaum. 
+——. 2007. Language evolution by iterated learning with Bayesian agents. Cogn. Sci . 31 :441– 480.
+Bickerton, Derek, and Eörs Szathmáry. Biological Foundations and Origin of Syntax, MIT Press, 2009. ProQuest Ebook Central, .
+Created from uchicago on 2017-07-10 13:19:03.
+
+Christiansen, M. H., and N. Chater. 1999. Toward a connectionist model of recursion in human linguistic performance. Cogn. Sci . 23 :157– 205. 
+——. 2003. Constituency and recursion in language. In: The Handbook of Brain Theory and Neural Networks, ed. M. A. Arbib, 2nd ed., pp. 267– 271. Cambridge, MA: MIT Press.
+Bickerton, Derek, and Eörs Szathmáry. Biological Foundations and Origin of Syntax, MIT Press, 2009. ProQuest Ebook Central, .
+Created from uchicago on 2017-07-10 13:40:25.
+
+Heine, B. 1997. Cognitive Foundations of Grammar. Oxford: Oxford Univ. Press. 
+Heine, B., and T. Kuteva. 2002. World Lexicon of Grammaticalization. Cambridge: Cambridge Univ. Press. 
+——. 2007. The Genesis of Grammar. Oxford: Oxford Univ. Press. 
+——. 2008. The Genesis of Grammar: A Reconstruction. Oxford: Oxford Univ. Press.
+Bickerton, Derek, and Eörs Szathmáry. Biological Foundations and Origin of Syntax, MIT Press, 2009. ProQuest Ebook Central, .
+Created from uchicago on 2017-07-10 14:23:56.
+
+Jaeger, H., W. Maass, and J. Principe. 2007. Special issue on echo state networks and liquid state machines. Neural Netw . 20(3) :287– 289.
+Bickerton, Derek, and Eörs Szathmáry. Biological Foundations and Origin of Syntax, MIT Press, 2009. ProQuest Ebook Central, .
+Created from uchicago on 2017-07-10 14:58:48.
+

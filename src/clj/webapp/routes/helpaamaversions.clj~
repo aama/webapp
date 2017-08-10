@@ -36,7 +36,7 @@
              [:li "bin/aama-datastore-update.sh ../aama-data/data/[LANG]  (for a single language)"]
              [:li "bin/aama-datastore-update.sh \"../aama-data/data/*\" (to [re-]initiate the whole datastore)"]
              [:li "[bin/fuqueries.sh (optionally, before or after update, will run triple-count and subgraph-list queries to verify deletions and/or insertions)]"]]]
-       [:li [:h4 "Datastore Upload to Local Repository and to github."] 
+       [:li [:h4 "Datastore Upload to Local Repository (~/aama) and to github."] 
         [:p "The following scripts, run from the webapp dir, will:"
          [:ol
           [:li "Upload revised edn/ttl/rdf file(s) to aama/[LANG] repository"]
@@ -45,7 +45,7 @@
         [:ul 
          [:li "bin/aama-cp2lngrepo.sh ../aama-data/data/[LANG] (for a single language)"]
          [:li "bin/aama-cp2lngrepo.sh \"../aama-data/data/*\" (to [re-]upload the whole datastore)"]]]]
-       [:li [:h4 "Webapp/Tools Upload to Local Repository and to github."] 
+       [:li [:h4 "Webapp/Tools Upload to Local Repository (~/aama) and to github."] 
         [:p "The following scripts, run from the webapp dir, will:"
          [:ol
           [:li "Upload (revised) shell scripts and utilities to appropriate directory in aama/ repository"]
