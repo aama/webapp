@@ -23,17 +23,17 @@
      [:li [:h4 "The Development Version"]
       [:p "Actual working version with many provisional and note files. Application is in ~/webapp, tools are in ~/webapp/bin/tools, and data is in ~/aama-data/data/[LANG]"]]
      [:li [:h4 "The Local Repository"]
-      [:p "Files from development version which have been copied to ~/aama and are ready to be pushed to origin. Subdirectories are:"
+      [:p "Vetted files from the development version are  copied to local ~/aama, a set of git repositories cloned from the " (link-to "https://github.com/aama" "AAMA") " github organization, and from there pushed to origin. Subdirectories are:"
        [:ul
-        [:li "~/aama/[LANG]:" [:em "one directory for each archive language"]]
-        [:li "~/aama/fuseki:" [:em "current fuseki version"]]
-        [:li "~/aama/jar:" [:em "jar files for aama-edn2ttl (to transform edn language files to ttl) and rdf2rdf (to transform ttl to rdf) "]]
+        [:li "~/aama/[LANG]:" [:em " one directory/repository for each archive language"]]
+        [:li "~/aama/fuseki:" [:em " current fuseki version"]]
+        [:li "~/aama/jar:" [:em " jar files for aama-edn2ttl (to transform edn language files to ttl) and rdf2rdf (to transform ttl to rdf) "]]
         [:li "~/aama/tools:" [:em " aamaconfig.ttl (for fuseki queries), plus subdirs /bin (application shell scripts) and /clj (source code for edn2ttl)"]]
-        [:li "~/aama/webapp:" [:em "clojure source code for application"]]]]]
-     [:li [:h4 "The github Repository (Origin)"]
-      [:p "The files pushed from the local repository."]]
+        [:li "~/aama/webapp:" [:em " source code for application"]]]]]
+     [:li [:h4 (link-to "https://github.com/aama" "AAMA")" - the github \"organization\" of aama language and code repositories  (Origin)"]
+      [:p "Code and language repositories are created here. Their content is created in the local development version, and pushed from the local repository."]]
      [:li [:h4 "One or More Remote Repositories"]
-      [:p "The AAMA application, data and webapp, as downloaded (pulled) from the github repository. For compatablility with development version, there is some rearrangement of the dirs. Currently we only provide for a version which runs as a Leiningen Ring app using the downloaded webapp clojure code."]]]]
+      [:p "The AAMA application, data, and webapp code can be downloaded (pulled) into other local repositories from the github AAMA organization of repositories. The instructions for installing and configuring the required software, and for downloading data, tools, and app code is outlined in " [:em "https://aama.github.io"] " For compatablility with development version, there is some rearrangement of the dirs. Currently we only provide for versions which run as a Leiningen Ring app using the downloaded webapp clojure code. The application can also be compiled into a jar file and run from there; instructions for setting up that environment are being developed."]]]]
    [:HR]
    [:h5 "[For more detail on the above, cf. " (link-to "http://aama.github.io" "aama.github.io") "; some older information is also available in the github aama-data/bin " (link-to "https://github.com/gbgg/aama-data/blob/master/bin/README.md" "README")"]"]]))
 

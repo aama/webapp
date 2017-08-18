@@ -82,12 +82,16 @@
        [:li [:h5 "(Don't forget to commit and push webapp and aama-data!)"]]]]
      [:li [:h4 "Datastore Operations In A Remote Version:"]
       [:p "[Presupposing here that remote version runs webapp as Ring-based application with Leiningen, from directory with downloaded clojure source code. Need to add instructions for case where remote version runs from webapp jar file.]"]
-      [:ul [:li [:h4 "Pulling Data/Tools/Webapp from github repository"]
-            [:p "The following scripts will pull one or more language edn files and the tools and webapp files from the github repository."]
+      [:ul [:li [:h4 "Pulling Data from github repository"]
+            [:p "The following scripts will pull one or more language edn files from the github repository. The remote data repository will exist in aama/data-repo/LANG directories. Prior to being pulled \"git clone https://github.com/aama/LANG\" must be done in the aama/data-repo directory for each language to be pulled. The scripts copy the pulled data into a aama/data/LANG directory for the local working version."]
             [:p "Usage:" 
             [:ul 
              [:li "tools/bin/aama-pulldata.sh data/[LANG] (for a single language)"]
-             [:li "tools/bin/aama-pulldata.sh \"data/*\" (to [re-]initiate the whole datastore)"]
+             [:li "tools/bin/aama-pulldata.sh \"data/*\" (to [re-]initiate the whole datastore)"]]
+       [:li [:h4 "Pulling Tools/Webapp from github repository"]
+            [:p "The following script will pull the tools and webapp files from the github repository. Make sure to cp latest aama-edn2ttl.jar from aama/tools/clj to aama/jar."]
+            [:p "Usage:" 
+            [:ul 
              [:li "tools/bin/aama-pullwebapp.sh"]]]]
        [:li [:h4 "Datastore Update In A Remote Version:"]
             [:p "This procedure needs to be invoked whenever a revised or new data edn file has been 'git pull'-ed from the master version (or changed on the remote version [not advised!]). The following command-line script assumes that the Fuseki server is in aama/fuseki and has been launched, and that the edn data files are in the  aama/data/[LANG] directories (scripts will need to be edited if directory assumptions are not correct):"]
@@ -110,7 +114,7 @@
 
     
    [:hr]
-   [:h5 "[For more detail on the above, cf. " (link-to "http://aama.github.io" "aama.github.io") "; some older information is also available in the github aama-data/bin " (link-to "https://github.com/gbgg/aama-data/blob/master/bin/README.md" "README")"]"]]]]))
+   [:h5 "[For more detail on the above, cf. " (link-to "http://aama.github.io" "aama.github.io") "; some older information is also available in the github aama-data/bin " (link-to "https://github.com/gbgg/aama-data/blob/master/bin/README.md" "README")"]"]]]]]]))
 
 (defroutes helpclupdate-routes
   (GET "/helpclupdate" [] (helpclupdate)))
