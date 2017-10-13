@@ -37,7 +37,8 @@
      [:li (link-to "/listvlcl" "Paradigm Value-Cluster Lists")
       [:p "This set of queries makes a list of the set of values ('Value Clusters', 'Paradigm Names') which define each paradigm in the AAMA application, along with the paradigm label(s) associated with that paradigm in the edn data-file. It then creates the following files:"
       [:ol
-       [:li "A text file, pvlists/vlcl-list-LANG-POS.txt, which it is read-in to the various paradigm-selection menus."]
+       [:li "A csv file, pvlists/vlcl-table-LANG-POS.txt, whose header gives all the properties involved in the verbal or pronominal morphology of the language, with rows specifying each possible combination of values. This is displayed in the \"property-value table\" option of multiple paradigm display."]
+       [:li "A text file, pvlists/vlcl-list-LANG-POS.txt, consisting of comma-separated value combinations existing in the various paradigms. This file is read-in to various language-specific paradigm-selection menus."]
        [:li "A edn file, pvlists/dataID-vlcl-LANG-POS.edn, which maps the dataID to the value-cluster -- used in 'Search > Form Search' to give paradigms associated with a queried form."]
        [:li "A edn file, pvlists/vlcl-dataID-LANG-POS.edn, which maps each value-cluster to the corresponding paradigm label in the data file -- used in 'Search > Paradigm Search > Single Paradigm Detail' for comments and notes on individual paradigms"]]]
       [:p "(In the case of finite verbs these values are those shared by the default person-number-gender paradigms for pronouns and person-number-gender subject agreement paradigms for finite verbs. The relevant dimensions for noun and non-finite verb are less clear, and a suitable set of comparable dimensions remains to be worked out. Note that at present, noun paradigms are recorded only exceptionally in this archive.)"]]

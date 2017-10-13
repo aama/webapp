@@ -1,5 +1,5 @@
 (ns webapp.routes.listvlcl
- (:refer-clojure :exclude [filter group-by max min  replace])
+  (:refer-clojure :exclude [filter group-by max min  replace])
   (:require [compojure.core :refer :all]
             [webapp.views.layout :as layout]
             [webapp.models.sparql :as sparql]
@@ -21,35 +21,35 @@
         languages (split langlist #"\n")
         ldomlist (slurp "pvlists/ldomainlist.txt")
         ldoms (split ldomlist #"\n")]
-  (layout/common 
-   [:h3 "Create value-cluster lists and maps to and from value-clusters to input paradigm IDs"]
-   ;;[:p "Will write list of paradigm-specifying value-clusters to file(s) pvlists/pname-POS-LANG.txt for selected language(s)."]   [:hr]
-   (form-to [:post "/listvlcl-gen"]
-            [:table
-             [:tr [:td "PDGM Language Domain: " ]
-              [:td [:select#ldomain.required
-                    {:title "Choose a language domain.", :name "ldomain"}
-                    [:optgroup {:label "Languages"} 
-                    (for [language languages]
-                      [:option {:value (lower-case language)} language])]
-                    [:optgroup {:label "Language Families"} 
-                     (for [ldom ldoms]
-                       (let [opts (split ldom #" ")]
-                         [:option {:value (last opts)} (first opts) ]))
-                     [:option {:disabled "disabled"} "Other"]]]]]
-             [:tr [:td "Part of Speech: "]
-             [:td [:select#pos.required
-             {:title "Choose a pdgm type.", :name "pos"}
-             [:option {:value "fv" :label "Finite Verb"}]
-             [:option {:value "nfv" :label "Non-finite Verb"}]
-             [:option {:value "pro" :label "Pronoun"}]
-             [:option {:value "noun" :label "Noun"}]]]]
+    (layout/common 
+     [:h3 "Create value-cluster lists and maps to and from value-clusters to input paradigm IDs"]
+     ;;[:p "Will write list of paradigm-specifying value-clusters to file(s) pvlists/pname-POS-LANG.txt for selected language(s)."]   [:hr]
+     (form-to [:post "/listvlcl-gen"]
+              [:table
+               [:tr [:td "PDGM Language Domain: " ]
+                [:td [:select#ldomain.required
+                      {:title "Choose a language domain.", :name "ldomain"}
+                      [:optgroup {:label "Languages"} 
+                       (for [language languages]
+                         [:option {:value (lower-case language)} language])]
+                      [:optgroup {:label "Language Families"} 
+                       (for [ldom ldoms]
+                         (let [opts (split ldom #" ")]
+                           [:option {:value (last opts)} (first opts) ]))
+                       [:option {:disabled "disabled"} "Other"]]]]]
+               [:tr [:td "Part of Speech: "]
+                [:td [:select#pos.required
+                      {:title "Choose a pdgm type.", :name "pos"}
+                      [:option {:value "fv" :label "Verb Finite"}]
+                      [:option {:value "nfv" :label "Verb Other"}]
+                      [:option {:value "pro" :label "Pronoun"}]
+                      [:option {:value "noun" :label "Noun"}]]]]
 
-             ;;(submit-button "Get pdgm")
-             [:tr [:td ]
-             [:td [:input#submit
-                    {:value "Make Data Label / PDGM Value-Cluster Map", :name "submit", :type "submit"}]]]]))))
-             
+               ;;(submit-button "Get pdgm")
+               [:tr [:td ]
+                [:td [:input#submit
+                      {:value "Make Data Label / PDGM Value-Cluster Map", :name "submit", :type "submit"}]]]]))))
+
 
 (defn normorder
   "Takes property list output by listlgpr-sparql-POS and returns string with properties in (partial) order specified by porder."
@@ -60,6 +60,33 @@
         diffset (clojure.set/difference (set pstringvec) (set pordervec))
         diffvec (into [] diffset)]
     (str porder "," (join "," diffvec))))
+
+(defn addvstring
+  "For each row of array, adds in front string of row vals."
+  [vrows]
+  (for [vrow vrows]
+    (let [pstring0 (replace vrow #"^.*?," "")
+          pstring1 (replace pstring0 #",+" "+")
+          pstring2 (replace pstring1 #"(.*)\+(.*?)" "$1:$2")]
+      (apply str pstring2 "," vrow "\r\n"))))
+
+(defn req2vtable1
+  "For fv: adds 'PDGM' to header, and compacted value string to each row"
+  [vtable]
+  (let [vtable2 (split vtable #"\r\n")
+        vheader (str "PDGM," (first vtable2))
+        vrows  (rest vtable2)
+        vrows2 (addvstring vrows)]
+    (apply str vheader "\r\n" vrows2)))
+
+(defn req2vtable2
+  "To be developed in case it turns out that we want a vtable for pos other than fv"
+  [vtable]
+  (let [vtable2 (split vtable #"\r\n")
+        vheader (str "PDGM," (first vtable2))
+        vrows  (rest vtable2)
+        vrows2 (addvstring vrows)]
+    (apply str vheader "\r\n" vrows2)))
 
 (defn req2vlist1
   "For fv: Takes off header row, deletes interior brackets and quotes, makes into list, and separates plabel from morpho-syntactic values with ':'"
@@ -72,7 +99,7 @@
         reqqd (replace reqqc #" " "\n")
         reqqe (replace reqqd #"(.*),(.*?\n)" "$1:$2")]
     (apply str reqqe)
-))
+    ))
 
 (defn req2vlist2
   "For pro: Takes off header row, deletes interior brackets and quotes, deletes line-final ','"
@@ -121,16 +148,16 @@
     (join "\n" (for [vm vmerge1] (str (first vm) "," (join "," (apply sorted-set (last vm))))))))
 
 (defn compact-list
-"Takes string representing sorted bipartite list of dataID and pdgm value-cluster, with divider ',', and builds up list with single mention of dataID (key) paired with space-separated sting  of comma-separated value sub-strings."
- [csvlist]
- (let  [curpart1 (atom "")
-        csvvec (split csvlist #"\n")]
-   (for [csv csvvec]
-         (let [partmap (zipmap [:part1 :part2] (split csv #"," 2))]
-           (if (= (:part1 partmap) @curpart1)
-               (str " " (:part2 partmap))
-             (do (reset! curpart1 (:part1 partmap))
-                 (str "\n" @curpart1 "," (:part2 partmap))))))))
+  "Takes string representing sorted bipartite list of dataID and pdgm value-cluster, with divider ',', and builds up list with single mention of dataID (key) paired with space-separated sting  of comma-separated value sub-strings."
+  [csvlist]
+  (let  [curpart1 (atom "")
+         csvvec (split csvlist #"\n")]
+    (for [csv csvvec]
+      (let [partmap (zipmap [:part1 :part2] (split csv #"," 2))]
+        (if (= (:part1 partmap) @curpart1)
+          (str " " (:part2 partmap))
+          (do (reset! curpart1 (:part1 partmap))
+              (str "\n" @curpart1 "," (:part2 partmap))))))))
 
 (defn csv2map1
   "Maps the first col of a csv to the string consisting of the content of the other cols"
@@ -138,9 +165,11 @@
   (let [reqcompact (apply str (compact-list csvstring))
         reqcomp (replace reqcompact #"^\n" "")
         reqvec (split reqcomp #"\n")
-        reqmap (for [req reqvec] (hash-map (first (split req #"," 2)) (last (split req #"," 2))))]
-    (if (> (count reqmap) 1)
-    (into (sorted-map) (apply conj (clojure.walk/keywordize-keys reqmap))))))
+        reqmap (for [req reqvec] (hash-map (first (split req #"," 2)) (last (split req #"," 2))))
+        reqmap2 (if (> (count reqmap) 1)
+                  (into (sorted-map) (apply conj (clojure.walk/keywordize-keys reqmap))))]
+    (join ",\n" (split (str reqmap2) #", "))
+    ))
 
 (defn csv2map2
   "Maps the content of all the cols after the first (substituting '_' for ',') to the content of the first col"
@@ -149,9 +178,14 @@
         ;;reqcomp (replace reqcompact #"^\n" "")
         reqvec (split csvstring #"\n")
         ;; remember to get rid of commas in key!
-        reqmap (for [req reqvec] (hash-map (replace (last (split req #"," 2)) #"," "_") (first (split req #"," 2))))]
-    (if (> (count reqmap) 1)
-    (into (sorted-map) (apply conj (clojure.walk/keywordize-keys reqmap))))))
+        reqmap (for [req reqvec] (hash-map (replace (last (split req #"," 2)) #"," "_") (first (split req #"," 2))))
+        reqmap2 (if (> (count reqmap) 1)
+                  (into (sorted-map) (apply conj (clojure.walk/keywordize-keys reqmap))))]
+    (join ",\n" (split (str reqmap2) #", "))
+    ))
+
+;;    (if (> (count reqmap) 1)
+;;    (into (sorted-map) (apply conj (clojure.walk/keywordize-keys reqmap))))))
 
 
 (defn handle-listvlcl-gen
@@ -167,9 +201,18 @@
         ;;(for [pos posvec]
         (let [lang (read-string (str ":" language))
               lpref (lang lprefmap)
+              ;; The following are possible lists and tables of pdgm values
               vlcllist (str "pvlists/vlcl-list-" language "-" pos ".txt")
+              ;; 'dataID' is the datastore's pdgm name. For the moment only the
+              ;; valueCluster - dataID map is generated, to retrieve comments
+              ;; about a datastore pdgm. Code is present to generate dataID - valueCluster
+              ;; maps should that ever become relevant.
               dataIDvlcl (str "pvlists/dataID-vlcl-" language "-" pos ".edn")
               vlcldataID (str "pvlists/vlcl-dataID-" language "-" pos ".edn")
+              ;; a sortable table of pdgm values is at present generated for
+              ;; the finite verb only, the only case where there are a large number
+              ;; of value combinations for a given set of pdgm categories.
+              vlcltable (str "pvlists/vlcl-table-" language "-" pos ".txt")
               query-sparql1 (cond 
                              (= pos "pro")
                              (sparql/listlgpr-sparql-pro language lpref)
@@ -179,13 +222,13 @@
                              (sparql/listlgpr-sparql-noun language lpref)
                              (= pos "fv")
                              (sparql/listlgpr-sparql-fv language lpref))
-                ;;query-sparql1-pr (replace query-sparql1 #"<" "&lt;")
+              ;;query-sparql1-pr (replace query-sparql1 #"<" "&lt;")
               req1 (http/get aama
                              {:query-params
                               {"query" query-sparql1 ;;generated sparql
                                "format" "csv"}})
-                               ;;"format" "application/sparql-results+json"}})
-                               ;;"format" "text"}})
+              ;;"format" "application/sparql-results+json"}})
+              ;;"format" "text"}})
               propstring (if (= (:body req1) "property")
                            (str "no_" pos)
                            (replace (:body req1) #"\r\n" ","))
@@ -200,7 +243,7 @@
                              (sparql/listvlcl-sparql-nfv language lpref propstring)
                              (= pos "noun")
                              (sparql/listvlcl-sparql-noun language lpref propstring)
-                             :else (sparql/listvlcl-sparql-fv language lpref normstring))
+                             :else (sparql/listvlcl-sparql-fv language lpref pstring))
               query-sparql2-pr (replace query-sparql2 #"<" "&lt;")
               req2 (http/get aama
                              {:query-params
@@ -212,7 +255,6 @@
                           (= pos "fv")
                           (req2vlist1 req2-body)
                           (= pos "pro")
-                          ;;(rest req2-body)
                           (req2vlist2 req2-body)
                           ;; listvlclplex.clj has req2vlist2, investigate
                           :else (req2vlist3 req2-body))
@@ -223,53 +265,68 @@
               req-dataIDvlcl (csv2map1 req4-out)
               req-vlcldataID  (csv2map2 req4-out)
               req4-vec (split req4-out #"\n")
-              req-vlcllst (sort (for [rq4 req4-vec] (replace rq4 #"^.*?," "")))
+              req-vlcllst (sort (for [rq4 req4-vec] (replace rq4 #"^.*?," "" )))
               ;; use req-vlcllist if want to see partial pdgms (usually one token)
               ;; otherwise req-vlcllist2 [or use 'remove'?]
+              ;; req-vlcllist (if (= pos "nfv")
+              ;;           (propmerge req-vlcllst)
               req-vlcllist (if (= pos "nfv")
                              (propmerge req-vlcllst)
                              (str (join "\n"  req-vlcllst) "\n"))
+              req2-table (cond
+                          (= pos "fv")
+                          (req2vtable1 (:body req2))
+                          ;;(= pos "nfv")
+                          ;;(propmerge req-vlcllst)
+                          ;;:else
+                          ;;(req2vtable2 (:body req2))
+                          )
               ;;req-vlcllist2 (clojure.string/replace req-vlcllist #"Partial.*?\n" "")
               ]
           (log/info "sparql result status: " (:status req2))
           ;;(if (not (clojure.string/blank? (str req-dataIDvlcl)))
-            ;;(doall (
+          ;;(doall (
           (spit dataIDvlcl req-dataIDvlcl)
           (spit vlcldataID req-vlcldataID)
           (spit vlcllist req-vlcllist)
+          (if
+              (= pos "fv")
+            (spit vlcltable req2-table))
           (if (re-find #"v" pos)
             (let [verblist (str "pvlists/vlcl-list-" language "-verb.txt")
                   fvfile (str "pvlists/vlcl-list-" language "-fv.txt")
                   nfvfile (str "pvlists/vlcl-list-" language "-nfv.txt")]
-                  (if (.exists (clojure.java.io/file fvfile))
-                    (spit verblist (slurp fvfile)))
-                  (if (.exists (clojure.java.io/file nfvfile))
-                    (spit verblist (slurp nfvfile) :append true))))
-                  
+              (if (.exists (clojure.java.io/file fvfile))
+                (spit verblist (slurp fvfile)))
+              (if (.exists (clojure.java.io/file nfvfile))
+                (spit verblist (slurp nfvfile) :append true))))
+          
           ;;)))
-            [:div 
-             [:p [:b "Language: "] language]
-             ;;[:p [:b "File vlcl-lst:    "] [:pre req-vlcllst]]
-             [:p [:b "File vlcl-list:    "] [:pre req-vlcllist]]
-             [:p [:b "File data-vlcl:     "] [:br] req-dataIDvlcl]
-             [:p [:b "File vlcl-data:     "] [:br] req-vlcldataID]
-             [:p [:b "POS: " ] pos]
-             [:p [:b "Porder:  " ] porder]
-             [:p [:b "Propstring: "] propstring]
-             [:p [:b "Normstring: "] normstring]
-             [:h4 "======= Debug Info: ======="]
-             ;;[:hr]
-             ;;[:p "propstring: " [:pre propstring]]
-             [:h3#clickable "Query:"]
-             [:pre query-sparql2-pr]
-             [:hr]
-             [:p "Query Output (:body req2): " [:pre (:body req2)]]
-             [:h4  "Value Clusters: " ]
-             [:p "req4-out: " [:pre req4-out]]
-             [:p "req4-vec: " (join "\n" req4-vec)]
-             [:p "==========================="]]))
-        ;; ) [this is the parens for posvec]
-        )
+          [:div 
+           [:p [:b "Language [NEW]: "] language]
+           ;;[:p [:b "File vlcl-lst:    "] [:pre req-vlcllst]]
+           [:p [:b "File vlcl-list:    "] [:pre req-vlcllist]]
+           [:p [:b "File vlcl-table:    "] [:pre req2-table]]
+           ;;[:p [:b "File data-vlcl:     "] [:br] req-dataIDvlcl]
+           ;;[:p [:b "File vlcl-data:     "] [:br] req-vlcldataID]
+           [:p [:b "POS: " ] pos]
+           ;;[:p [:b "Porder:  " ] porder]
+           [:p [:b "Propstring: "] propstring]
+           ;;[:p [:b "Normstring: "] normstring]
+           [:h4 "======= Debug Info: ======="] 
+           [:h3#clickable "Query:"] 
+           [:pre query-sparql2-pr] 
+           [:hr] 
+           [:p "Query Output (:body req2): " 
+            [:pre (:body req2)]] 
+           [:h4 "Value Clusters: " ] 
+           [:p "req2-out: " [:pre req2-out]]
+           [:p "req4-out: " [:pre req4-out]] 
+           [:p "req4-vec: " (join "\n" req4-vec)] 
+           [:p
+            "==========================="]]))
+      ;; ) [this is the parens for posvec]
+      )
     [:script {:src "js/goog/base.js" :type "text/javascript"}]
     [:script {:src "js/webapp.js" :type "text/javascript"}]
     [:script {:type "text/javascript"}

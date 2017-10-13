@@ -1,4 +1,4 @@
-(ns webapp.routes.multipdgmmod
+(ns webapp.routes.multipdgmsort
   (:refer-clojure :exclude [filter concat group-by max min])
   (:require 
    ;;[clojure.core/count :as count]
@@ -19,22 +19,20 @@
 
 (def aama "http://localhost:3030/aama/query")
 
-(defn multipdgmmod []
+(defn multipdgmsort []
   (let [langlist (slurp "pvlists/menu-langs.txt")
         languages (split langlist #"\n")]
     (layout/common 
-     [:h3 " PDGM Value List"]
+     [:h3 " PDGM Property-Value Table"]
      ;;[:p "Use this option to pick one or more  paradigms from a given language or set of languages to be displayed as a single paradigm. (NB: Will only combine paradigms with identical headers.)"]
      [:p "Choose POS and Languages"]
-     (form-to [:post "/multimodqry"]
+     (form-to [:post "/multisortqry"]
               [:table
                [:tr [:td "PDGM Type: "]
                 [:td [:select#pos.required
                       {:title "Choose a pdgm type.", :name "pos"}
+                      ;;[:option {:value "verb" :label "Verb"}]
                       [:option {:value "fv" :label "Finite Verb"}]
-                      [:option {:value "nfv" :label "Non-Finite Verb"}]
-                      [:option {:value "pro" :label "Pronoun"}]
-                      [:option {:value "noun" :label "Noun"}]
                       ]]]
                [:tr [:td "PDGM Language(s): " ]
                 [:td 
@@ -53,40 +51,64 @@
               )
      [:hr])))
 
-(defn handle-multimodqry
+(defn handle-multisortqry
   [languages pos]
-  (layout/common
-   [:h3 "PDGM Value List"]
+  (layout/common 
+   [:h3 "PDGM Property-Value Table"]
    [:p "Choose PDGM"] 
-   (form-to [:post "/multimoddisplay"]
+   (form-to [:post "/multisortdisplay"]
             [:table
-             [:tr [:td "PDGM Type: "]
-              [:td 
+             [:tr [:td "PDGM Type: " ]
+              [:td
                (check-box {:name "pos" :value pos :checked "true"} pos) (str (upper-case pos))]]
+             [:tr [:td ]]
              [:tr [:td "PDGM Language(s): " ]
               (for [language languages]
                 [:td 
                  [:div (str (capitalize language) " ")]])]
              [:tr [:td "PDGM Value Clusters: " ]
-              (let [pnum (atom 0)]
-                (for [language languages]
-                  [:td 
-                   {:title "Choose a value.", :name "valcluster", :width "10"}
-                   (let [valclusterfile (str "pvlists/vlcl-list-" language "-" pos ".txt")
-                         valclusterlist (slurp valclusterfile)
-                         ;;valclusterlst (clojure.string/replace valclusterlist #":.*?\n" "\n")
-                         valclusterset (into (sorted-set) (clojure.string/split valclusterlist #"\n"))]
-                     (if (re-find #"EmptyList" valclusterlist)
-                       [:div (str "There are no " pos " paradigms in the " language " archive.")]
-                       (for [valcluster valclusterset]
-                         [:div {:class "form-group"}
-                          [:label
-                           (check-box {:class "checkbox1" :name "valclusters[]" :value (str language "," valcluster) } valcluster) valcluster]]))
-                     )]))]
-             ;;(submit-button "Get pdgm")
-             [:tr [:td ]
-              [:td [:input#submit
-                    {:value "Display pdgms", :name "submit", :type "submit"}]]]])))
+              ;;[:div
+              (for [language languages]
+                [:td 
+                 {:title "Choose a value.", :name "valcluster"}
+                 (let [valclusterfile (str "pvlists/vlcl-table-" language "-" pos ".txt")
+                       valclustertable (slurp valclusterfile)
+                       brows (split valclustertable #"\r\n")
+                       header (first brows)
+                       headers (split header #",")
+                       valrows (rest brows)]
+                   [:div
+                    ;;[:h4  "Value Clusters: " ]
+                    [:table {:id "handlerTable" :class "tablesorter sar-table"}
+                     [:thead
+                      [:tr
+                       ;;[:th [:div {:class "some-handle"} [:br] "Choose"]]
+                       (for [head headers]
+                         [:th [:div {:class "some-handle"} [:br] head]])]]
+                     [:tbody 
+                      (for [valrow valrows]
+                        [:tr
+                         (let [valcells (split valrow #",")
+                               pcell (clojure.string/replace (first valcells) #"\+" ",")
+                               vcells (rest valcells)]
+                           [:div
+                            [:td 
+                             [:div {:class "form-group"}
+                              [:label 
+                               (check-box {:name "valclusters[]" :value (str language "," pcell) }  (str language "," pcell)) (str language "," pcell) ]]]
+                            (for [vcell vcells]
+                              [:td vcell])])])
+                      ;;(if (re-find #"EmptyList" valclusterlist)
+                      ;; [:div (str "There are no " pos " paradigms in the " language " archive.")]
+                      ;;(submit-button "Get pdgm")
+                      [:tr 
+                       [:td [:input#submit
+                             {:value "Disnplay pdgms", :name "submit", :type "submit"}]]]]]
+                    ;;[:div
+                    ])])]])
+   [:script {:src "js/goog/base.js" :type "text/javascript"}]
+   [:script {:src "js/webapp.js" :type "text/javascript"}]
+   [:script {:type "text/javascript"}  "goog.require('webapp.core');"]))
 
 
 (defn vc2req
@@ -104,6 +126,9 @@
             vcs (split vcluster #"," 2)
             pdgmType (first vcs)
             pvalcluster (last vcs)
+            pvlcl (clojure.string/replace pvalcluster #"," ".")
+            valstrng (clojure.string/replace pvlcl #",*person|,*gender|,*number" "")
+            valstr (clojure.string/replace valstrng #":," ":")
             query-sparql (cond 
                           (= pos "pro")
                           (sparql/pdgmqry-sparql-pro language lpref pvalcluster)
@@ -120,7 +145,7 @@
             pbody1 (:body req)
             pbody2 (clojure.string/replace pbody1 #" " "_")
             ]
-        ;; add pdgm number to each row of pbody as first value
+        ;; add pdgm name to each row of pbody as first value
         (clojure.string/replace pbody2 #"\r\n(\S)" (str "\r\n" pnum ",$1"))))))
 
 (defn csv2pdgm
@@ -165,14 +190,12 @@
                   [:td pdgmcell]))])
            ))]]]))
 
-
 (defn addpnum
   [pnames]
   (for [pname pnames]
     (str "P" (.indexOf pnames pname) "-" pname)))
 
-(defn handle-multimoddisplay
-  "Makes single combo pdgm with headers of headerset1/2. Need to make it work with arbitrary headers ('vheader' below)."
+(defn handle-multisortdisplay
   [valclusters pos]
   (let [headerset1 (str "Paradigm " "Number " "Person " "Gender " "Token ")
         headerset2 (str "pdgm " "num " "pers " "gen ")
@@ -183,32 +206,24 @@
         pnames (split pnamestr2 #" ")
         ;; problem: addpnum gives LazySequence
         pnames2 (addpnum pnames)
-        pdgmvec (vc2req pnames2 pos)
+        pdgmvec (vc2req  pnames2 pos) 
         ;;vheader (first pdgmvec)
         pdgmstr1 (apply pr-str pdgmvec)
         pdgmstr2 (clojure.string/replace pdgmstr1 #"[\(\)\"]" "")
         pdgmtable (csv2pdgm pdgmstr2 pnames2)
         ]
     (layout/common
-     [:h3#clickable "Paradigms: Sequential Display " ]
+     [:h3#clickable "Paradigms: Sequential Display "  ]
      [:p "Click on column to sort (multiple sort by holding down shift key). Columns can be dragged by clicking and holding on 'drag-bar' at top of column."]
-     ;;[:hr]
-     ;;[:p "valclusters: " [:pre valclusters]]
-     ;;[:p "pnames: " [:pre pnames]]
-     ;;[:p "pnames2: " [:pre pnames2]]
-     ;;[:p "pnamevec: " [:pre pnamevec]]
-     ;;[:p "pdgmvec: " [:pre pdgmvec]]
-     ;;[:p "pdgmst1: " [:pre pdgmstr1]]
-     ;;[:p "pdgmstr2: " [:pre pdgmstr2]]
      [:hr]
      pdgmtable
      [:hr]
      [:h3 "Parallel Display of Paradigms"]
      [:p "At present only accommodates parallel display of pronominal and verbval paradigms where merged paradigms have same number of columns -- to be generalized."]         
      [:hr]
-     [:h3 "PDGM Value List"]
+     [:h3 "PDGM Property-Value Table"]
      [:p "Choose Parallel Display Format"]
-     (form-to [:post "/multimodplldisplay"]
+     (form-to [:post "/multisortplldisplay"]
               [:table
                [:tr [:td "PNames: "]
                 [:td 
@@ -256,7 +271,6 @@
      [:hr]
      [:div [:h4 "======= Debug Info: ======="]
       [:p "pdgmvec: " [:pre pdgmvec]]
-      [:p "pdgmvec2: " [:pre pnames2]]
       [:p "pos: " [:pre pos]]
       [:p "valclusters: " [:pre pdgmnames]]
       [:p "headerset2: " [:pre headerset2]]
@@ -320,121 +334,119 @@
       )))
 ;;(prmap))))
 
-(defn handle-multimodplldisplay
-  "In this version pivot/keyset can be generalized beyond png any col (eventually any sequence of cols) between col-1 and token column. (Need to find out how to 'presort' cols before initial display?) [Current version has very ugly string=>list pdgms=>pnames. Simplify?]"
+(defn handle-multisortplldisplay
+  "In this version pivot/keyset can be generalized beyond png any col (eventually any sequence of cols) between col-1 and token column. (Need to find out how to 'presort' cols before initial display?)"
   [pdgms headerset2 pdgmstr2 pivotlist]
-  (let [pnamestr1 (clojure.string/replace pdgms #"[\[\]\"]" "")
-        pnamestr2 (clojure.string/replace pnamestr1 #"%" ".")
-        pnamestr3 (clojure.string/replace  pnamestr2 #"\w(P\d+-)" "\n\r$1")
-        pnames (clojure.string/split-lines pnamestr3)
-        ;;pnames (map read-string pdgms)
-        pivots (map read-string pivotlist)
-        ;;pivot (read-string pivotname)
-        ;; get rid of spurious line-feeds
-        pdgmstr3 (cleanpdgms pdgmstr2)
-        ;; map each 'val-string-w/o-pivot-val token' to token
-        prows (split pdgmstr3 #"\\r\\n")
-        pcells (for [prow prows] (split prow #","))
-        pivot-map (for [pcell pcells] (make-pmap pcell pivots))
-        ;; group the val-tokens associated with each pivot val
-        newpdgms (merge-matches pivot-map)
-        pvalvec (vec (for [npdgm newpdgms] (str (key npdgm))))
-        ;; e.g., ["Plural" "Singular"]
-        ;; make a vector of pdgm rows for each pivot
-        vvec (for [npdgm newpdgms] (val npdgm))
-        pmapvec (for [vgroup vvec] (for [vrow vgroup] (vec2map vrow)))
-        ;; transform pmaps to hash-maps
-        prmaps (for [prmap pmapvec] (for [prmp prmap] (pstring2maps prmp)))
-        ;;pmaps (for [prmap prmaps] (apply conj prmap))
-        pmaps (join-pmaps prmaps)
-        headerset3 (clojure.string/replace headerset2 #"[\[\]\"]" "")
-        heads (split (str headerset3) #" ")
-        ;;headvec = headerset minus pivot namesn
-        pivotnames (vec (for [pivot pivots] (nth heads pivot)))
-        headvec (vec (remove (set pivotnames) heads))
-        ;; set of lists of vaue-combination-terms
-        keylists (vec (for [pmap pmaps] (keys pmap)))
-        ;;keylists (set (keys pmap))
-        ;; replace seems to be ad hoc cluj; 
-        ;; only '[' and ']' appear in one-line paradigm keyvec (but should not)
-        ;; other deleted chars should not be in keys in the first place
-        keystring (clojure.string/replace (str keylists) #"[#(){}\[\]]" "")
-        keyvec (split keystring #" ")
-        ;; set of all value combinations, as strings, in the combined pdgms
-        keyset (set keyvec)
-        ]
-    (layout/common
-     [:body
-      [:p [:h3 "Paradigms: Parallel Display --  Pivot " (str pivotnames)]]
-      [:p "Click on column to sort (multiple sort by holding down shift key). Columns can be dragged by clicking and holding on 'drag-bar' at top of column."]
-      [:p "Paradigms:"
-       [:ul
-        (for [pname pnames]
-          [:li pname])]
-       ]
-      [:hr]
-      [:table {:id "handlerTable" :class "tablesorter sar-table"}
-       [:thead
-        (for [head headvec]
-          [:th [:div {:class "some-handle"} [:br] head]])
-        (for [pval pvalvec]
-          ;;[:div 
-          (let [pvals (split pval #"\+")]
-            [:th [:div {:class "some-handle"} [:br]
-                  (for [pv pvals]
-                    [:div  [:em pv] ])]]))]
-       [:tbody
-        (for [keys keyset]
-          [:tr
-           (let [kstring (clojure.string/replace keys #"^:" "")
-                 npgs (split kstring #",")
-                 kstrkey (keyword kstring)]
-             [:div
-              (for [npg npgs]
-                [:td npg])
-              (for [pmap pmaps]
-                ;; following creates problems for forms w/o '_'
-                ;;(let [pmap1 (clojure.string/replace (kstrkey pmap) #"_" " ")] 
-                [:td (kstrkey pmap)])])]) ]]
-      [:p " "]
-      [:p " "]
-      [:div [:h4 "======= Debug Info: ======="]
-       [:p "pdgms: " [:pre pdgms]]
-       [:p "pnamestr3: " [:pre pnamestr3]]
-       [:p "pnames: " [:pre pnames]]
-       [:p "headerset2: " [:pre headerset2]]
-       [:p "pivotlist: " (str pivotlist)]
-       [:p "pivotnames: " (str pivotnames)]
-       [:p "heads: " (str heads)]
-       [:p "headvec: " (str headvec)]
-       [:p "prows: "  (str prows) [:pre prows]]
-       [:p "pcells: " (apply str pcells) [:pre pcells]]
-       [:p "pivot-map: " [:pre pivot-map]]
-       [:p "newpdgms: " [:pre newpdgms]]
-       [:p "newpdgms: " (str newpdgms)]
-       [:p "pvalvec: " (str pvalvec)]
-       [:p "pdgmstr2: " [:pre pdgmstr2]]
-       [:p "pdgmstr3: " [:pre pdgmstr3]]
-       ;;[:p "vvec: " [:pre vvec]] ;;!!raises "not valid element" exception
-       ;;[:p "vvec: " (str vvec)] ;; "not valid el." excp. with "!" in text
-       [:p "pmapvec: " [:pre pmapvec]]
-       [:p "pmapvec: " (str pmapvec)]
-       [:p "prmaps: " [:pre prmaps]]
-       [:p "pmaps: " [:pre pmaps]]
-       [:p "keylists: " (str keylists)]
-       [:p "keystring: " [:pre keystring]]
-       [:p "keyvec: " [:pre keyvec]]
-       [:p "keyvec: " (str keyvec)]
-       [:p "keyset: " [:pre keyset]]
-       [:p "==========================="]]
-      [:script {:src "js/goog/base.js" :type "text/javascript"}]
-      [:script {:src "js/webapp.js" :type "text/javascript"}]
-      [:script {:type "text/javascript"}
-       "goog.require('webapp.core');"]])))
+  (layout/common
+   [:body
+    (let [pnamestr1 (clojure.string/replace pdgms #"[\[\]\"]" "")
+          pnamestr2 (clojure.string/replace pnamestr1 #"%" ".")
+          pnamestr3 (clojure.string/replace  pnamestr2 #"\w(P\d+-)" "\n\r$1")
+          pnames (clojure.string/split-lines pnamestr3)
+          pivots (map read-string pivotlist)
+          ;;pivot (read-string pivotname)
+          ;; get rid of spurious line-feeds
+          pdgmstr3 (cleanpdgms pdgmstr2)
+          ;; map each 'val-string-w/o-pivot-val token' to token
+          prows (split pdgmstr3 #"\\r\\n")
+          pcells (for [prow prows] (split prow #","))
+          pivot-map (for [pcell pcells] (make-pmap pcell pivots))
+          ;; group the val-tokens associated with each pivot val
+          newpdgms (merge-matches pivot-map)
+          pvalvec (vec (for [npdgm newpdgms] (str (key npdgm))))
+          ;; e.g., ["Plural" "Singular"]
+          ;; make a vector of pdgm rows for each pivot
+          vvec (for [npdgm newpdgms] (val npdgm))
+          pmapvec (for [vgroup vvec] (for [vrow vgroup] (vec2map vrow)))
+          ;; transform pmaps to hash-maps
+          prmaps (for [prmap pmapvec] (for [prmp prmap] (pstring2maps prmp)))
+          ;;pmaps (for [prmap prmaps] (apply conj prmap))
+          pmaps (join-pmaps prmaps)
+          headerset3 (clojure.string/replace headerset2 #"[\[\]\"]" "")
+          heads (split (str headerset3) #" ")
+          ;;headvec = headerset minus pivot namesn
+          pivotnames (vec (for [pivot pivots] (nth heads pivot)))
+          headvec (vec (remove (set pivotnames) heads))
+          ;; set of lists of vaue-combination-terms
+          keylists (vec (for [pmap pmaps] (keys pmap)))
+          ;;keylists (set (keys pmap))
+          ;; replace seems to be ad hoc cluj; 
+          ;; only '[' and ']' appear in one-line paradigm keyvec (but should not)
+          ;; other deleted chars should not be in keys in the first place
+          keystring (clojure.string/replace (str keylists) #"[#(){}\[\]]" "")
+          keyvec (split keystring #" ")
+          ;; set of all value combinations, as strings, in the combined pdgms
+          keyset (set keyvec)
+          ]
+      [:div
+       [:p [:h3 "Paradigms: Parallel Display -- Pivot " (str pivotnames)]]
+       [:p "Click on column to sort (multiple sort by holding down shift key). Columns can be dragged by clicking and holding on 'drag-bar' at top of column."]
+       [:p "Paradigms:"
+        [:ul
+         (for [pname pnames]
+           [:li pname])]]
+       [:hr]
+       [:table {:id "handlerTable" :class "tablesorter sar-table"}
+        [:thead
+         (for [head headvec]
+           [:th [:div {:class "some-handle"} [:br] (capitalize head)]])
+         (for [pval pvalvec]
+           ;;[:div 
+           (let [pvals (split pval #"\+")]
+             [:th [:div {:class "some-handle"} [:br]
+                   (for [pv pvals]
+                     [:div  [:em pv] ])]]))]
+        [:tbody
+         (for [keys keyset]
+           [:tr
+            (let [kstring (clojure.string/replace keys #"^:" "")
+                  npgs (split kstring #",")
+                  kstrkey (keyword kstring)]
+              [:div
+               (for [npg npgs]
+                 [:td npg])
+               (for [pmap pmaps]
+                 ;; following creates problems for forms w/o '_'
+                 ;;(let [pmap1 (clojure.string/replace (kstrkey pmap) #"_" " ")] 
+                 [:td (kstrkey pmap)])])]) ]]
+       [:p " "]
+       [:p " "]
+       [:div [:h4 "======= Debug Info: ======="]
+        ;;[:p "pdgms: " [:pre pdgms]]
+        [:p "pnames: " (str pnames)]
+        [:p "headerset2: " [:pre headerset2]]
+        [:p "pivotlist: " (str pivotlist)]
+        [:p "pivotnames: " (str pivotnames)]
+        [:p "heads: " (str heads)]
+        [:p "headvec: " (str headvec)]
+        [:p "prows: "  (str prows) [:pre prows]]
+        [:p "pcells: " (apply str pcells) [:pre pcells]]
+        [:p "pivot-map: " [:pre pivot-map]]
+        [:p "newpdgms: " [:pre newpdgms]]
+        [:p "newpdgms: " (str newpdgms)]
+        [:p "pvalvec: " (str pvalvec)]
+        [:p "pdgmstr2: " [:pre pdgmstr2]]
+        [:p "pdgmstr3: " [:pre pdgmstr3]]
+        ;;[:p "vvec: " [:pre vvec]] ;;!!raises "not valid element" exception
+        ;;[:p "vvec: " (str vvec)] ;; "not valid el." excp. with "!" in text
+        [:p "pmapvec: " [:pre pmapvec]]
+        [:p "pmapvec: " (str pmapvec)]
+        [:p "prmaps: " [:pre prmaps]]
+        [:p "pmaps: " [:pre pmaps]]
+        [:p "keylists: " (str keylists)]
+        [:p "keystring: " [:pre keystring]]
+        [:p "keyvec: " [:pre keyvec]]
+        [:p "keyvec: " (str keyvec)]
+        [:p "keyset: " [:pre keyset]]
+        [:p "==========================="]]])]
+   [:script {:src "js/goog/base.js" :type "text/javascript"}]
+   [:script {:src "js/webapp.js" :type "text/javascript"}]
+   [:script {:type "text/javascript"}
+    "goog.require('webapp.core');"]))
 
 
-(defroutes multipdgmmod-routes
-  (GET "/multipdgmmod" [] (multipdgmmod))
-  (POST "/multimodqry" [languages pos] (handle-multimodqry languages pos))
-  (POST "/multimoddisplay" [valclusters pos] (handle-multimoddisplay valclusters pos))
-  (POST "/multimodplldisplay" [pdgmnames header pdgmstr2 pivotlist] (handle-multimodplldisplay pdgmnames header pdgmstr2 pivotlist)))
+(defroutes multipdgmsort-routes
+  (GET "/multipdgmsort" [] (multipdgmsort))
+  (POST "/multisortqry" [languages pos] (handle-multisortqry languages pos))
+  (POST "/multisortdisplay" [valclusters pos] (handle-multisortdisplay valclusters pos))
+  (POST "/multisortplldisplay" [pdgmnames header pdgmstr2 pivotlist] (handle-multisortplldisplay pdgmnames header pdgmstr2 pivotlist)))

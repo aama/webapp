@@ -195,7 +195,7 @@
            #NOT EXISTS {?s {{lpref}}:person ?person } .
 	   ?s aamas:lang aama:{{Language}} .
            ?s aamas:memberOf ?pdgm .
-           ?pdgm {{lpref}}:pdgmType {{lpref}}:{{pdgmType}} .
+           ?pdgm aamas:pdgmType {{lpref}}:{{pdgmType}} .
 	   ?s aamas:lang ?lang . 
 	   ?lang rdfs:label ?langLabel .  
            OPTIONAL {?s aamas:lexeme ?Qlex .
@@ -265,11 +265,10 @@
 	 { 
 	  GRAPH aamag:{{language}}  
           { 
-	   ?s {{lpref}}:pos {{lpref}}:Noun .  
-	   ?s aamas:lang aama:{{Language}} .
-           ?s {{lpref}}:pdgmType {{lpref}}:{{pdgmType}} .
-	   ?s aamas:lang ?lang . 
-	   ?lang rdfs:label ?langLabel .  ")
+	   ?s {{lpref}}:pos {{lpref}}:Noun ; 
+	      aamas:lang aama:{{Language}} ;
+              aamas:memberOf ?pdgm .
+	   ?pdgm aamas:pdgmType {{lpref}}:{{pdgmType}} . ")
        {:lpref lpref
         :language language
         :Language Language
@@ -339,6 +338,31 @@
       (str "}
        ORDER BY ?language ?valuelabel  "))))
 
+(defn listlgpr-sparql-checkall [language lpref]
+(str PREFIXES
+  (tmpl/render-string
+   (str "
+PREFIX {{lpref}}: <http://id.oi.uchicago.edu/aama/2013/{{lang}}/>
+SELECT DISTINCT  ?property 
+WHERE {
+GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{lang}}> {
+	?s ?p ?o ;
+        aamas:memberOf ?pdgm .
+        #?pdgm aamas:pdgmType ?pdgmType .
+        OPTIONAL {?p rdfs:label ?prop .}
+        BIND (IF(!bound(?prop) ,
+                 str(?p),
+                 ?prop
+                ) AS ?property
+             ) .
+        #FILTER (CONTAINS (str(?pdgmType), \"Finite\" ))
+ 	FILTER (?p NOT IN ( aamas:lang, {{lpref}}:token, rdf:type, {{lpref}}:multiLex ) )
+}
+}
+ORDER BY ASC(?property) ")
+{:lang language
+ :lpref lpref})))
+
 (defn listlgpr-sparql-fv [language lpref]
 (str PREFIXES
   (tmpl/render-string
@@ -348,13 +372,17 @@ SELECT DISTINCT  ?property
 WHERE {
 GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{lang}}> {
 	?s ?p ?o ;
-	{{lpref}}:pos  {{lpref}}:Verb .
-        ?s {{lpref}}:pdgmType {{lpref}}:Finite .
+	{{lpref}}:pos  {{lpref}}:Verb ;
+        aamas:memberOf ?pdgm .
+        ?pdgm aamas:pdgmType ?pdgmType .
+        #?s aamas:pdgmType {{lpref}}:Finite .
+        #?s aamas:pdgmType ?pdgmType .
         ?p rdfs:label ?property .
+        FILTER (CONTAINS (str(?pdgmType), \"Finite\" ))
  	FILTER (?p NOT IN ( aamas:lang, {{lpref}}:gender, {{lpref}}:number, {{lpref}}:pngShapeClass, {{lpref}}:person, {{lpref}}:pos, {{lpref}}:token, rdf:type, {{lpref}}:multiLex ) )
 }
 }
-ORDER BY ASC(?ptype) ASC(?property) ")
+ORDER BY ASC(?property) ")
 {:lang language
  :lpref lpref})))
 
@@ -367,12 +395,13 @@ SELECT DISTINCT  ?property
 WHERE {
 GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{lang}}> {
 	?s ?p ?o ;
-	{{lpref}}:pos  {{lpref}}:Verb .
+	{{lpref}}:pos  {{lpref}}:Verb ;
+        aamas:memberOf ?pdgm .
+        ?pdgm aamas:pdgmType ?pdgmType .
 	#NOT EXISTS {?s {{lpref}}:person ?person }
-        ?s {{lpref}}:pdgmType ?pdgmType .
         ?p rdfs:label ?property .
-        FILTER (?pdgmType NOT IN ({{lpref}}:Finite))
-        FILTER (?p NOT IN ( aamas:lang, {{lpref}}:pngShapeClass, {{lpref}}:pdgmType, {{lpref}}:pos, {{lpref}}:token, rdf:type, {{lpref}}:multiLex ) ) 	
+        FILTER (!CONTAINS (str(?pdgmType), \"Finite\" ))
+        FILTER (?p NOT IN ( aamas:lang, {{lpref}}:pngShapeClass, aamas:pdgmType, {{lpref}}:pos, {{lpref}}:token, rdf:type, {{lpref}}:multiLex ) ) 	
         #FILTER (?p NOT IN ( aamas:lang, {{lpref}}:gender, {{lpref}}:number, {{lpref}}:pngShapeClass, {{lpref}}:person, {{lpref}}:pos, {{lpref}}:token, rdf:type, {{lpref}}:multiLex ) )
 }
 }
@@ -410,10 +439,10 @@ SELECT DISTINCT  ?property
 WHERE {
 GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{lang}}> {
 	?s ?p ?o ;
-	rdf:type aamas:Muterm ;
+	#rdf:type aamas:Muterm ;
 	{{lpref}}:pos  {{lpref}}:Noun .
         ?p rdfs:label ?property .
-  	FILTER (?p NOT IN ( aamas:lang, {{lpref}}:pos, {{lpref}}:pdgmType, rdf:type))
+  	FILTER (?p NOT IN ( aamas:lang, {{lpref}}:pos, aamas:pdgmType, rdf:type))
 }}
 ORDER BY ASC(?property) ")
 {:lang language
@@ -471,6 +500,178 @@ ORDER BY ASC(?prop) ASC(?val)
  ")
 {:language language})))
 
+(defn listptype-sparql [language]
+  "In case one wants simply a list of pdgmType for a specific language"
+  (let [Language (capitalize language)]
+    (str PREFIXES
+         (str "
+    SELECT DISTINCT  ?ptype 
+    WHERE { ")
+         (apply str
+                (tmpl/render-string
+                 (str "
+    {GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{language}}> {
+	?s aamas:lang  aama:{{Language}} ;
+        aamas:pdgmType ?QpdgmType .
+        OPTIONAL {?QpdgmType rdfs:label ?type .}
+        BIND (IF (!bound(?type) ,
+                 str(?QpdgmType),
+                 ?type 
+                ) AS ?ptype
+             ) .
+     }} }
+   ORDER BY ASC(?ptype) ")
+                 {:language language
+                  :Language Language})))))
+
+(defn listlptype-sparql [ldomain]
+;; In case one wants simply a list of pdgmType 
+  (let [langs (split ldomain #",")]
+    (str PREFIXES
+     (str "
+    SELECT DISTINCT  ?lang ?ptype 
+    WHERE { ")
+     (apply str
+            (for [language langs]
+              (tmpl/render-string
+               (str "
+    {GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{language}}> {
+	?s aamas:lang  ?language ;
+        aamas:pdgmType ?QpdgmType .
+	?language rdfs:label ?lang .
+        OPTIONAL {?QpdgmType rdfs:label ?type .}
+        BIND (IF (!bound(?type) ,
+                 str(?QpdgmType),
+                 ?type 
+                ) AS ?ptype
+             ) .
+
+     }} "
+                    (if (not (= (last langs) language))
+                      (str " 
+          UNION")))
+               {:language language})))
+     (str "}
+   ORDER BY ASC(?lang) ASC(?ptype) "))))
+
+(defn listlptypepdgm-sparql [ldomain]
+;; In case one wants pdgmType to be only a property of specific pdgm
+  (let [langs (split ldomain #",")]
+    (str PREFIXES
+     (str "
+    SELECT DISTINCT  ?lang ?ptype ?pname
+    WHERE { ")
+     (apply str
+            (for [language langs]
+              (tmpl/render-string
+               (str "
+    {GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{language}}> {
+	?s a aamas:Termcluster ;
+	aamas:lang  ?language ;
+        aamas:pdgmType ?QpdgmType .
+        ?s rdfs:label ?pname .
+	?language rdfs:label ?lang .
+        ?QpdgmType rdfs:label ?ptype .
+     }} "
+                    (if (not (= (last langs) language))
+                      (str " 
+          UNION")))
+               {:language language})))
+     (str "}
+   ORDER BY ASC(?lang) ASC(?ptype) ASC(?pname)"))))
+
+(defn listptypelpdgm-sparql [ldomain]
+;; In case one wants pdgmType to be only a property of specific pdgm
+  (let [langs (split ldomain #",")]
+    (str PREFIXES
+     (str "
+    SELECT DISTINCT   ?ptype ?lang ?pname
+    WHERE { ")
+     (apply str
+            (for [language langs]
+              (tmpl/render-string
+               (str "
+    {GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{language}}> {
+	?s a aamas:Termcluster ;
+	aamas:lang  ?language ;
+        aamas:pdgmType ?QpdgmType .
+        ?s rdfs:label ?pname .
+	?language rdfs:label ?lang .
+        ?QpdgmType rdfs:label ?ptype .
+     }} "
+                    (if (not (= (last langs) language))
+                      (str " 
+          UNION")))
+               {:language language})))
+     (str "}
+   ORDER BY ASC(?ptype) ASC(?lang) ASC(?pname)"))))
+
+
+(defn listlpv-check-sparql [ldomain]
+  (let [langs (split ldomain #",")]
+    (str PREFIXES
+     (str "
+    SELECT DISTINCT  ?lang ?prop ?value
+    WHERE { ")
+     (apply str
+            (for [language langs]
+              (tmpl/render-string
+               (str "
+    {GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{language}}> {
+	?s ?p ?o ;
+            aamas:memberOf ?pdgm ;
+            aamas:lang  ?language .
+	?language rdfs:label ?lang .
+        ?p rdfs:label ?prop . 
+        OPTIONAL {?o rdfs:label ?val . }
+        BIND (IF(!bound(?val) ,
+                 str(?o),
+                 ?val
+                ) AS ?value
+             ) .
+ 	FILTER (?p NOT IN ( aamas:lang ) )
+     }} "
+                    (if (not (= (last langs) language))
+                      (str " 
+          UNION")))
+               {:language language})))
+     (str "}
+   ORDER BY ASC(?lang) ASC(?prop) ASC(?value)"))))
+
+(defn makeschemata-sparql [lang]
+  (str PREFIXES
+       (str "
+    SELECT DISTINCT  ?lang ?property ?value
+    WHERE { ")
+       (apply str
+              (tmpl/render-string
+               (str "
+    {GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{language}}> {
+	?s ?p ?o ;
+            aamas:memberOf ?pdgm ;
+            aamas:lang  ?language .
+	?language rdfs:label ?lang .
+        OPTIONAL {?p rdfs:label ?prop . }
+        BIND (IF(!bound(?prop) ,
+                 str(?p),
+                 ?prop
+                ) AS ?property
+             ) .
+        OPTIONAL {?o rdfs:label ?val . }
+        BIND (IF(!bound(?val) ,
+                 str(?o),
+                 ?val
+                ) AS ?value
+             ) .
+ 	FILTER (?p NOT IN ( aamas:lang, aamas:lexeme, aamas:memberOf, rdf:type ) )
+        FILTER (!CONTAINS (str(?p), \"token\" ))
+
+     }}}
+   ORDER BY ASC(?lang) ASC(?prop) ASC(?value)")
+               {:language lang}))))
+
+
+
 (defn listlpv-sparql [ldomain]
   (let [langs (split ldomain #",")]
     (str PREFIXES
@@ -483,7 +684,8 @@ ORDER BY ASC(?prop) ASC(?val)
                (str "
     {GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{language}}> {
 	?s ?p ?o ;
-	aamas:lang  ?language .
+            aamas:memberOf ?pdgm ;
+            aamas:lang  ?language .
 	?language rdfs:label ?lang .
         ?p rdfs:label ?prop .
         ?o rdfs:label ?val .
@@ -607,8 +809,8 @@ ORDER BY ASC(?prop) ASC(?val)
         ;;Language (capitalize language)
         ]
     (str PREFIXES
-     (tmpl/render-string
-      (str "
+         (tmpl/render-string
+          (str "
        PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/>
        SELECT DISTINCT ?pdgmLabel ?pdgmTypeLabel {{selection}} ?lex
        WHERE{
@@ -616,33 +818,30 @@ ORDER BY ASC(?prop) ASC(?val)
           GRAPH aamag:{{language}} {
              ?s {{lpref}}:pos {{lpref}}:Verb ;
                 {{lpref}}:person ?person ;
-                 #aamas:lang aama:{{Language}} ;
-                 #aamas:lang ?lang ;
                  aamas:memberOf ?pdgm .
-        ?pdgm rdfs:label ?pdgmLabel ;
-            {{lpref}}:pdgmType {{lpref}}:Finite ;
-           {{lpref}}:pdgmType ?pdgmType .
-       ?pdgmType rdfs:label ?pdgmTypeLabel .
-       #?lang rdfs:label ?langLabel . 
-       OPTIONAL {?s aamas:lexeme ?lexeme .
-       ?lexeme rdfs:label ?lex .} ")
-      {:language language
-       ;;:Language Language
-       :lpref lpref
-       :selection selection})
-     (apply str
-            (for [prop proplist2]
-              (tmpl/render-string
-               (str "
-	OPTIONAL { ?s {{lpref}}:{{prop}} ?Q{{prop}} . 
-	 ?Q{{prop}} rdfs:label ?{{prop}} . } ")
-               {:prop prop
-                :lpref lpref})))
-            (tmpl/render-string 
-             (str "}}}
+            ?pdgm rdfs:label ?pdgmLabel ;
+                 aamas:pdgmType ?pdgmType .
+             FILTER (CONTAINS (str(?pdgmType), \"Finite\" ))
+             ?pdgmType rdfs:label ?pdgmTypeLabel .
+             OPTIONAL {?s aamas:lexeme ?lexeme .
+                       ?lexeme rdfs:label ?lex .} ")
+          {:language language
+           ;;:Language Language
+           :lpref lpref
+           :selection selection})
+         (apply str
+                (for [prop proplist2]
+                  (tmpl/render-string
+                   (str "
+            OPTIONAL {?s {{lpref}}:{{prop}} ?Q{{prop}} . 
+	              ?Q{{prop}} rdfs:label ?{{prop}} . } ")
+                   {:prop prop
+                    :lpref lpref})))
+         (tmpl/render-string 
+          (str "}}}
        ORDER BY ?pdgmLabel {{selection}}  ")
-             {:selection selection})
-     )))
+          {:selection selection})
+         )))
 
 (defn listvlcl-sparql-nfv [language lpref propstring]
     (str PREFIXES
@@ -656,12 +855,13 @@ ORDER BY ASC(?prop) ASC(?val)
         	?s ?p ?o ;
 	             {{lpref}}:pos  {{lpref}}:Verb ;
                      aamas:memberOf ?pdgm .
-                ?p rdfs:label ?property .
-	        ?pdgm rdfs:label ?pdgmLabel ;
-                     {{lpref}}:pdgmType ?pdgmType .
+                ?pdgm aamas:pdgmType ?pdgmType ; 
+	              rdfs:label ?pdgmLabel .
                 ?pdgmType rdfs:label ?pdgmTypeLabel .
-                FILTER (?pdgmType NOT IN ({{lpref}}:Finite)) 
-        	FILTER (?p NOT IN ( aamas:lang, {{lpref}}:pdgmType, {{lpref}}:pos, rdf:type))
+                ?p rdfs:label ?property .
+                FILTER (!CONTAINS (str(?pdgmType), \"Finite\" ))
+                #FILTER (?pdgmType NOT IN ({{lpref}}:Finite, {{lpref}}:FinitePartial)) 
+        	FILTER (?p NOT IN ( aamas:lang, aamas:pdgmType, {{lpref}}:pos, rdf:type))
       }}
      }
       ORDER BY ?pdgmLabel ASC(?pdgmTypeLabel) ASC(?property) ")
@@ -721,13 +921,13 @@ ORDER BY ASC(?prop) ASC(?val)
          {   
           GRAPH aamag:{{language}} {
         	?s ?p ?o ;
-        	{{lpref}}:pdgmType ?pdgmType ;
-	        {{lpref}}:pos  {{lpref}}:Noun .
+        	     aamas:memberOf ?pdgm ;
+	             {{lpref}}:pos  {{lpref}}:Noun .
+                ?pdgm aamas:pdgmType ?pdgmType . 
 	        ?pdgmType rdfs:label ?pdgmTypeLabel .
-                ?s  aamas:memberOf ?pdgm .
                 ?pdgm rdfs:label ?pdgmLabel .
                 ?p rdfs:label ?property .
-  	        FILTER (?p NOT IN ( aamas:lang, aamas:muterm, {{lpref}}:pos, {{lpref}}:pdgmType, rdf:type, {{lpref}}:token))
+  	        FILTER (?p NOT IN ( aamas:lang, aamas:muterm, {{lpref}}:pos, aamas:pdgmType, rdf:type, {{lpref}}:token))
        }}
        }
        ORDER BY ?pdgmLabel ASC(?pdgmTypeLabel) ASC(?property) ")

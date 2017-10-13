@@ -75,7 +75,6 @@
            [:li (link-to "/bibInfoMaster" "General Bibliography")]
            [:li (link-to "/bibInfoSpecial" "Bibliography by Key Word")]
            ]]]]
-
        [:li (link-to "#" "Search")
         [:ul
          [:li (link-to "/formsearch" "Form Search")]
@@ -85,14 +84,18 @@
            [:li (link-to "#" "Multiple Paradigms")
             [:ul
              [:li (link-to "/multipdgmseq" "Default Display")]
-             [:li (link-to "/multipdgmmod" "Modifiable Display")]]]]]
+             [:li (link-to "#" "Modifiable Display")
+              [:ul
+               [:li (link-to "/multipdgmmod" "From Value-Cluster List")]
+               [:li (link-to "/multipdgmsort" "From Sortable Table (FV Only)")]]]]]]
          [:li (link-to "#" "Morphosyntactic Category Search")
           [:ul
            [:li (link-to "/pvlgpr" "Morphosyntactic Properties")]
            [:li (link-to "/pvlgvl" "Morphosyntactic Values")]
            [:li (link-to "/listlgpr"  "Properties by Language and POS")]
-           [:li (link-to "/listlpv" "Prop-Val Indices by Language")]]]]]
-
+           [:li (link-to "/listlpv" "Morphological Prop-Val Indices by Language")]
+           [:li (link-to "/listptype" "Paradigm-Type Indices by Language")]
+]]]]
        [:li (link-to "#" "Utilities")
         [:ul 
          [:li (link-to "#" "List and Index Generation:")
@@ -100,11 +103,8 @@
            [:li (link-to "/listmenulang" "Language Lists")]
            [:li (link-to "/bibIndexGen" "Bibliography Indices")]
            [:li (link-to "/listmenulpv" "Property/Value Lists")]
-           [:li (link-to "#" "Paradigm Value-Clusters Index")
-            [:ul
-             [:li (link-to "/listvlcl" "Default Sort Order")]
-             [:li (link-to "/valclmod" "(Modifiable Sort Order)[under development]")]
-             ]]]]
+           [:li (link-to "/listvlcl" "Paradigm Value-Clusters Index")]
+           [:li (link-to "/makeschemata" "Make New Schemata Section for LANG-pdgms.edn")]]]
          [:li (link-to "#" "Update:")
           [:ul 
            [:li (link-to "/update" "Update Local Datastore [Under Development]")]
@@ -120,8 +120,7 @@
          [:li (link-to "#" "Update/Upload")
           [:ul
            [:li (link-to "/helpwebupdate" "Webapp")]
-           [:li (link-to "/helpclupdate" "Command Line")]]]]]]
-      
+           [:li (link-to "/helpclupdate" "Command Line")]]]]]]]
       [:div.content content]))
 
 ;;(defn common [& content]

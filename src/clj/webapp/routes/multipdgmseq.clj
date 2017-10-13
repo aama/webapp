@@ -7,6 +7,7 @@
             [webapp.models.sparql :as sparql]
             [compojure.handler :as handler]
             [compojure.route :as route]
+            ;;[clojure.string :as str]
             [clojure.string :refer [capitalize lower-case split upper-case]]
             [stencil.core :as tmpl]
             [clj-http.client :as http]
@@ -133,8 +134,11 @@
                           (= pos "pro")
                           (sparql/pdgmqry-sparql-pro language lpref valstr)
                           (= pos "noun")
+                          ;; should be able to combine next 2 cases w. disjunct or 'begins-with'
                           (sparql/pdgmqry-sparql-noun language lpref vcluster)
                           (= pdgmType "Finite")
+                          (sparql/pdgmqry-sparql-fv language lpref pvalues)
+                          (= pdgmType "FinitePartial")
                           (sparql/pdgmqry-sparql-fv language lpref pvalues)
                           :else (sparql/pdgmqry-sparql-nfv language lpref vcluster))
             query-sparql-pr (clojure.string/replace query-sparql #"<" "&lt;")
@@ -149,13 +153,13 @@
          [:hr]
          [:h4 "Valcluster: " valcluster]
          [:pre (:body req)]
-         ;;[:h4 "======= Debug Info: ======="]
-         ;;[:p "pdgmType: " [:pre pdgmType]]
-         ;;[:p "pvalues: " [:pre pvalues]]
-         ;;[:h3#clickable "Query:"]
-         ;;[:pre query-sparql-pr]
-         ;;[:p "req2: " [:pre req2]]
-         ;;[:p "==========================="]
+         [:h4 "======= Debug Info: ======="]
+         [:p "pdgmType: " [:pre pdgmType]]
+         [:p "pvalues: " [:pre pvalues]]
+         [:h3#clickable "Query:"]
+         [:pre query-sparql-pr]
+         [:p "req2: " [:pre req2]]
+         [:p "==========================="]
          ])))
         [:script {:src "js/goog/base.js" :type "text/javascript"}]
         [:script {:src "js/webapp.js" :type "text/javascript"}]

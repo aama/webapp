@@ -45,7 +45,9 @@
              [:tr [:td "Column Order: "]
               [:td [:select#colorder.required
                     {:title "Choose a column order.", :name "colorder"}
-                    [:option {:value "lang-prop-val" :label "Language-Property-Value"}]
+                    [:option {:value "lang-prop-val" :label "Language-Property-Value (with schemata value check)"}]
+                    [:option {:value "make-schemata" :label "Make New Schemata Section"}]
+                    
                     [:option {:value "prop-val-lang" :label "Property-Value-Language"}]
                     [:option {:value "val-prop-lang" :label "Value-Property-Language"}]
                     [:option {:value "prop-lang-val" :label "Property-Language-Value"}]
@@ -58,8 +60,28 @@
               [:td [:input#submit
                     {:value "Make Language-Property-Value Lists", :name "submit", :type "submit"}]]]]))))
 
+(defn csv2tablemod
+"Takes sorted 3-col csv list and outputs sortable, draggable html table."
+ [header lpvs]
+(let  [curcat1 (atom "")
+      curcat2 (atom "")
+       heads (split header #",")]
+  ;; For visible borders set {:border "1"}.
+  [:div [:h4 "[NB: Work in Progress!]"]
+  [:table {:id "handlerTable" :class "tablesorter sar-table"}
+   [:thead
+    (for [head heads]
+      [:th [:div {:class "some-handle"}] head])]
+   [:tbody
+    (for [lpv lpvs]
+      [:tr
+      (let [cats (split lpv #",")]
+        (for [cat cats]
+          [:td cat]))])]]]))
+
+
 (defn csv2cpvl
-"Takes sorted 3-col csv list and outputs 4-col html table with empty col1 for prop-class and string of col4 vals for repeated col3. [ONLY USEFUL WHEN PROPERTY CLASSES HAVE BEEN ESTABLISHED.]"
+"Takes sorted 3-col csv list and outputs 4-col html table with empty col1 for prop-class and string of col4 vals for repeated col3. [ONLY RELEVANT WHEN PROPERTY CLASSES HAVE BEEN ESTABLISHED.]"
  [header lpvs]
 (let  [curcat1 (atom "")
        curcat2 (atom "")
@@ -93,37 +115,41 @@
 (let  [curcat1 (atom "")
       curcat2 (atom "")]
   ;; For visible borders set {:border "1"}.
- [:table {:border "1"}
+ [:table ;;{:border "1"}
 (for [lpv lpvs]
  (let [catmap (zipmap [:cat1 :cat2 :cat3] (split lpv #","))]
    (if (= (:cat1 catmap) @curcat1)
      (if (= (:cat2 catmap) @curcat2)
-       (str (:cat3 catmap) " ")
+       (str ":"  (:cat3 catmap) " ")
        (do (reset! curcat2 (:cat2 catmap))
-           (str "</td></tr><tr><td></td><td valign=top>"@curcat2"</td><td>" (:cat3 catmap) " ")))
+           (str "],</td></tr><tr><td></td><td valign=top>:"@curcat2"</td><td>[:" (:cat3 catmap) " ")))
      (do (reset! curcat1 (:cat1 catmap))
          (reset! curcat2 (:cat2 catmap))
-         (str "</td></tr><tr><td>" @curcat1 "</td><td valign=top>" @curcat2 "</td><td>" (:cat3 catmap) " ")))))
-  (str "</td></tr>")]))
+         (str "</td></tr><tr><td>{:" @curcat1 "</td><td valign=top>{:" @curcat2 "</td><td>[:" (:cat3 catmap) " ")))))
+  (str "]}}</td></tr>")]))
 
-(defn csv2tablemod
-"Takes sorted 3-col csv list and outputs sortable, draggable html table."
- [header lpvs]
+(defn csv2schemata
+  "Takes sorted 3-col csv list and outputs html table with empty [:td]  for repeated col1 and string of col3 vals for repeated col2."
+  [lpvs]
 (let  [curcat1 (atom "")
-      curcat2 (atom "")
-       heads (split header #",")]
+      curcat2 (atom "")]
   ;; For visible borders set {:border "1"}.
-  [:div [:h4 "[NB: Work in Progress!]"]
-  [:table {:id "handlerTable" :class "tablesorter sar-table"}
-   [:thead
-    (for [head heads]
-      [:th [:div {:class "some-handle"}] head])]
-   [:tbody
-    (for [lpv lpvs]
-      [:tr
-      (let [cats (split lpv #",")]
-        (for [cat cats]
-          [:td cat]))])]]]))
+ ;;[:table {:border "1"}
+(do (for [lpv lpvs]
+ (let [catmap (zipmap [:cat1 :cat2 :cat3] (split lpv #","))]
+   (if (= (:cat1 catmap) @curcat1)
+     (if (= (:cat2 catmap) @curcat2)
+       (str " :" (:cat3 catmap) )
+       (do (reset! curcat2 (:cat2 catmap))
+           (str "],\n\r :"@curcat2" [:" (:cat3 catmap) "")))
+           ;;(str "</td></tr><tr><td></td><td valign=top>"@curcat2"</td><td>" (:cat3 catmap) " ")))
+     (do (reset! curcat1 (:cat1 catmap))
+         (reset! curcat2 (:cat2 catmap))
+         (str "{:" @curcat1 " {:" @curcat2 " [:" (:cat3 catmap) " "))))))))
+
+         ;;(str "</td></tr><tr><td>" @curcat1 "</td><td valign=top>" @curcat2 "</td><td>" (:cat3 catmap)L " ")))))
+;;(str "]}}"))))
+;;(str "</td></tr>")]))
 
 (defn handle-listlpv-gen
   [ldomain colorder]
@@ -134,7 +160,9 @@
         ;; send SPARQL over HTTP request"
          query-sparql (cond 
                        (= colorder "lang-prop-val")
-                       (sparql/listlpv-sparql langs)
+                       (sparql/listlpv-check-sparql langs)
+                       (= colorder "make-schemata")
+                       (sparql/listlpv-check-sparql langs)
                        (= colorder "lang-prop-val-modifiable")
                        (sparql/listlpv-sparql langs)
                        (= colorder "val-prop-lang")
@@ -160,8 +188,12 @@
                    (csv2cpvl header lpvs)
                    (= colorder "lang-prop-val-modifiable")
                    (csv2tablemod header lpvs)
+                   (= colorder "make-schemata")
+                   (csv2schemata lpvs)
                    :else (csv2table lpvs))]
           (log/info "sparql result status: " (:status req))
+          ;;(if (= colorder "make-schemata")
+            ;;(
           [:div
            [:h3#clickable "List Type: " colorder]
            [:h3#clickable "Language Domain: " domain]
@@ -169,11 +201,12 @@
            [:p "Column Order: " colorder]
            [:hr]
            lpvtable
+           (str "]}}")
            [:hr]
            [:h3 "Response:"]
            [:pre (:body req)]
            [:h3#clickable "Query:"]
-           [:pre query-sparql-pr]
+           query-sparql-pr
            ])
           [:script {:src "js/goog/base.js" :type "text/javascript"}]
           [:script {:src "js/webapp.js" :type "text/javascript"}]
