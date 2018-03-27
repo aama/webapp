@@ -24,7 +24,7 @@
         languages (split langlist #"\n")]
     (layout/common 
      [:h3 " PDGM Property-Value Table"]
-     ;;[:p "Use this option to pick one or more  paradigms from a given language or set of languages to be displayed as a single paradigm. (NB: Will only combine paradigms with identical headers.)"]
+     ;;[:p "Use this option to pick one or more  paradigms from a given language or set of languages to be displayed as a single paradigm. (NB: Will only combine finite verb paradigms with identical morphological columns.)"]
      [:p "Choose POS and Languages"]
      (form-to [:post "/multisortqry"]
               [:table
@@ -134,7 +134,7 @@
                           (sparql/pdgmqry-sparql-pro language lpref pvalcluster)
                           (= pos "noun")
                           (sparql/pdgmqry-sparql-noun language lpref vcluster)
-                          (= pdgmType "Finite")
+                          (re-find #"Finite" pdgmType)
                           (sparql/pdgmqry-sparql-fv language lpref pvalcluster)
                           :else (sparql/pdgmqry-sparql-nfv language lpref vcluster))
             req (http/get aama

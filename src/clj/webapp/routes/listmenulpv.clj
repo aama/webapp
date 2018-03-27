@@ -75,7 +75,7 @@
       (spit outfile req-out)
      [:hr]
      [:div
-     [:p "req-out: "  req-out]
+     [:pre "req-out: "  req-out]
      [:h3#clickable "Query:"]
      [:pre query-sparql-pr]]
      )

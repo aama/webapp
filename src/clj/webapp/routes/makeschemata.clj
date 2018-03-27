@@ -38,23 +38,6 @@
               [:td [:input#submit
                     {:value "Make Schemata", :name "submit", :type "submit"}]]]]))))
 
-(defn listptype
-  [language]
-   (let [;; send SPARQL over HTTP request"
-         query-sparql (sparql/listptype-sparql language)
-         query-sparql-pr (replace query-sparql #"<" "&lt;")
-         req (http/get aama
-                       {:query-params
-                        {"query" query-sparql ;;generated sparql
-                         ;;"format" "application/sparql-results+json"}})]
-                         ;;"format" "text"}})
-                         "format" "csv"}})
-         ;;reqvec (csv/parse-csv req)
-         reqvec (split (:body req) #"\n")
-         header (first reqvec)
-         lpvs (rest reqvec)]
-     (str  ":pdgmType [:" (join " :" lpvs) "]" )))
-
 (defn csv2schemata
   "Takes sorted 3-col csv list and outputs html table with empty [:td]  for repeated col1 and string of col3 vals for repeated col2."
   [lpvs]
@@ -83,7 +66,6 @@
   (layout/common
    (let [schemafile (str "pvlists/schemata/" language "-schemata.edn")
          ;; send SPARQL over HTTP request"
-         lptype (listptype language)
          query-sparql (sparql/makeschemata-sparql language)
          query-sparql-pr (replace query-sparql #"<" "&lt;")
          req (http/get aama
@@ -98,7 +80,7 @@
          lpvs (rest reqvec)
          lpvscheme (csv2schemata lpvs)
          lpvscheme2 (apply str lpvscheme)
-         lpvscheme3 (clojure.string/replace (str lpvscheme2 "]\n " lptype "}") #"\r" "")
+         lpvscheme3 (clojure.string/replace (str lpvscheme2 "]\n }") #"\r" "")
          ]
           (log/info "sparql result status: " (:status req))
           (spit schemafile lpvscheme3)

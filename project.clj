@@ -17,13 +17,13 @@
                  ]
   :source-paths ["src/clj"]
   :cljsbuild {
-    :builds [{:id "webapp"
-              :source-paths ["src/cljs"]
-              :compiler {
-                :output-to "resources/public/js/webapp.js"
-                :output-dir "resources/public/js/"
-                :optimizations :none
-                :source-map true}}]}
+              :builds [{:id "webapp"
+                        :source-paths ["src/cljs"]
+                        :compiler {
+                                   :output-to "resources/public/js/webapp.js"
+                                   :output-dir "resources/public/js/"
+                                   :optimizations :none
+                                   :source-map true}}]}
   :plugins [[lein-ring "0.8.11"]
             [lein-cljsbuild "1.0.4-SNAPSHOT"]
             [hiccup-bridge "1.0.0-SNAPSHOT"]]

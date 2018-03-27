@@ -23,8 +23,8 @@
   (let [langlist (slurp "pvlists/menu-langs.txt")
         languages (split langlist #"\n")]
     (layout/common 
-     [:h3 " PDGM Value List"]
-     ;;[:p "Use this option to pick one or more  paradigms from a given language or set of languages to be displayed as a single paradigm. (NB: Will only combine paradigms with identical headers.)"]
+     [:h3 "Multiparadigm Modifiable Display"]
+     [:p "Use this option to pick one or more  paradigms from a given language or set of languages to be displayed as a single paradigm. (NB: For the moment, will only combine paradigms with identical headers in identical order. Future version should allow for blank cols in one or more of the languages, different column orders, and identification of different terminologies.)"]
      [:p "Choose POS and Languages"]
      (form-to [:post "/multimodqry"]
               [:table
@@ -32,7 +32,8 @@
                 [:td [:select#pos.required
                       {:title "Choose a pdgm type.", :name "pos"}
                       [:option {:value "fv" :label "Finite Verb"}]
-                      [:option {:value "nfv" :label "Non-Finite Verb"}]
+                      [:option {:value "nfv" :label "Other Verb"}]
+                      [:option {:value "sel" :label "Selector"}]
                       [:option {:value "pro" :label "Pronoun"}]
                       [:option {:value "noun" :label "Noun"}]
                       ]]]
@@ -56,7 +57,8 @@
 (defn handle-multimodqry
   [languages pos]
   (layout/common
-   [:h3 "PDGM Value List"]
+   [:h3 "PDGM Property List"]
+   [:p "NB: For the moment, in order to combine paradigms, the columns must contain values of identical properties (altough not necessarily identical terminology), and be in the same order ."] 
    [:p "Choose PDGM"] 
    (form-to [:post "/multimoddisplay"]
             [:table
@@ -106,10 +108,13 @@
             pvalcluster (last vcs)
             query-sparql (cond 
                           (= pos "pro")
-                          (sparql/pdgmqry-sparql-pro language lpref pvalcluster)
+                          (sparql/pdgmqry-sparql-pro language lpref vcluster)
                           (= pos "noun")
                           (sparql/pdgmqry-sparql-noun language lpref vcluster)
-                          (= pdgmType "Finite")
+                          (= pos "sel")
+                          (sparql/pdgmqry-sparql-sel language lpref vcluster)
+                          ;;(= pdgmType "Finite")
+                          (re-find #"Finite" pdgmType)
                           (sparql/pdgmqry-sparql-fv language lpref pvalcluster)
                           :else (sparql/pdgmqry-sparql-nfv language lpref vcluster))
             req (http/get aama
@@ -192,14 +197,14 @@
     (layout/common
      [:h3#clickable "Paradigms: Sequential Display " ]
      [:p "Click on column to sort (multiple sort by holding down shift key). Columns can be dragged by clicking and holding on 'drag-bar' at top of column."]
-     ;;[:hr]
-     ;;[:p "valclusters: " [:pre valclusters]]
-     ;;[:p "pnames: " [:pre pnames]]
-     ;;[:p "pnames2: " [:pre pnames2]]
-     ;;[:p "pnamevec: " [:pre pnamevec]]
-     ;;[:p "pdgmvec: " [:pre pdgmvec]]
-     ;;[:p "pdgmst1: " [:pre pdgmstr1]]
-     ;;[:p "pdgmstr2: " [:pre pdgmstr2]]
+     [:hr]
+     [:p "valclusters: " [:pre valclusters]]
+     [:p "pos: " [:pre pos]]
+     [:p "pnames: " [:pre pnames]]
+     [:p "pnames2: " [:pre pnames2]]
+     [:p "pdgmvec: " [:pre pdgmvec]]
+     [:p "pdgmst1: " [:pre pdgmstr1]]
+     [:p "pdgmstr2: " [:pre pdgmstr2]]
      [:hr]
      pdgmtable
      [:hr]

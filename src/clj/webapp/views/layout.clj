@@ -69,7 +69,10 @@
        [:li (link-to "#" "Home")
         [:ul
          [:li (link-to "/aamaApp" "The AAMA Application")]
-         [:li (link-to "/langInfo" "The Languages")]
+         [:li (link-to "#" "The Languages")
+          [:ul
+           [:li (link-to "/langInfo" "Alphabetic")]
+           [:li (link-to "/langInfoTree" "By Family")]]]
          [:li (link-to "#" "Bibliography")
           [:ul
            [:li (link-to "/bibInfoMaster" "General Bibliography")]
@@ -77,25 +80,25 @@
            ]]]]
        [:li (link-to "#" "Search")
         [:ul
-         [:li (link-to "/formsearch" "Form Search")]
-         [:li (link-to "#" "Paradigm Search")
+         [:li (link-to "/formsearch" "Form/Paradigm Search")]
+         [:li (link-to "#" "Archived Paradigm Search")
           [:ul
            [:li (link-to "/pdgm" "Single Paradigm")]
            [:li (link-to "#" "Multiple Paradigms")
             [:ul
              [:li (link-to "/multipdgmseq" "Default Display")]
+             [:li (link-to "/pdgmmultdef" "Default Display")]
              [:li (link-to "#" "Modifiable Display")
               [:ul
                [:li (link-to "/multipdgmmod" "From Value-Cluster List")]
-               [:li (link-to "/multipdgmsort" "From Sortable Table (FV Only)")]]]]]]
+               [:li (link-to "/multipdgmsort" "From Sortable Table (FV Only)")]]]]]]]
          [:li (link-to "#" "Morphosyntactic Category Search")
           [:ul
            [:li (link-to "/pvlgpr" "Morphosyntactic Properties")]
            [:li (link-to "/pvlgvl" "Morphosyntactic Values")]
            [:li (link-to "/listlgpr"  "Properties by Language and POS")]
            [:li (link-to "/listlpv" "Morphological Prop-Val Indices by Language")]
-           [:li (link-to "/listptype" "Paradigm-Type Indices by Language")]
-]]]]
+           [:li (link-to "/listptype" "Paradigm-Type Indices by Language")]]]]]
        [:li (link-to "#" "Utilities")
         [:ul 
          [:li (link-to "#" "List and Index Generation:")
@@ -104,6 +107,7 @@
            [:li (link-to "/bibIndexGen" "Bibliography Indices")]
            [:li (link-to "/listmenulpv" "Property/Value Lists")]
            [:li (link-to "/listvlcl" "Paradigm Value-Clusters Index")]
+           [:li (link-to "/pdgmIndex" "Archive Paradigm Index")]
            [:li (link-to "/makeschemata" "Make New Schemata Section for LANG-pdgms.edn")]]]
          [:li (link-to "#" "Update:")
           [:ul 
@@ -120,7 +124,7 @@
          [:li (link-to "#" "Update/Upload")
           [:ul
            [:li (link-to "/helpwebupdate" "Webapp")]
-           [:li (link-to "/helpclupdate" "Command Line")]]]]]]]
+           [:li (link-to "/helpclupdate" "Command Line")]]]]]]
       [:div.content content]))
 
 ;;(defn common [& content]

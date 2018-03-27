@@ -59,6 +59,95 @@
               rdfs:comment ?comment . } ")
         {:label dataID}))))
             
+(defn pdgmqry-sparql-gen-vrbs [valcluster]
+  "This version, is to be called for all archive pdgm types. Presumes verbose version of pdgm index (all pdgm values, except lex, have 'prop=val')." 
+  (let [lprefmap (read-string (slurp "pvlists/lprefs.clj"))
+        ;; parse valcluster
+        vals (split valcluster #"," 2)
+        language (first vals)
+        vcs (split (last vals) #"," 2)
+        pos (first vcs)
+        mvalsprops (split (last vcs) #"%" 2)
+        mv (first mvalsprops)
+        proplex (last mvalsprops)
+        morphclass (first (split mv #"," 2))
+        props (if (re-find #"," mv)
+                (last (split mv #"," 2))
+                "")
+        valsLex (split proplex #":" 2)
+        valstr (first valsLex)
+        lex (if (re-find #":" proplex)
+                (last (split proplex #":" 2))
+                "")
+        valvec (split valstr #",")
+        selection (str "?" (clojure.string/replace valstr #"," " ?"))
+        selOrder (clojure.string/replace selection #"\?number|\?gender|\?nmbObj|\?gndObj" {"?number" "DESC(?number)" "?gender" "DESC(?gender)" "?nmbObj" "DESC(?nmbObj)" "?gndObj" "DESC(?gndObj)"})
+        lang (read-string (str ":" language))
+        lpref (lang lprefmap)
+        Language (capitalize language)
+        ]
+    (str PREFIXES
+         (tmpl/render-string 
+          (str "
+	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
+	SELECT {{selection}} ?token
+	WHERE
+        { 
+	 { 
+	  GRAPH aamag:{{language}}  
+          { 
+	   ?s {{lpref}}:pos {{lpref}}:{{pos}} .  
+	   ?s aamas:lang aama:{{Language}} . 
+	   ?s aamas:lang / rdfs:label ?langLabel .
+           ?s ?QmorphClass {{lpref}}:{{morphclass}}. ")
+          {:lpref lpref
+           :selection selection
+           :pos pos
+           :morphclass morphclass
+           :language language
+           :Language Language})
+         (if (re-find #"\w" lex)
+           (tmpl/render-string 
+            (str "
+           ?s aamas:lexeme ?lexeme .
+           ?lexeme rdfs:label \"{{lex}}\" .")
+            {:lex lex}))
+         (if (re-find #"\w"  props)
+           (apply str  
+                  (for [prop (split props #",")]
+                    (let [pv (split prop #"=")
+                          property (first pv)
+                          value (last pv)]
+                      (tmpl/render-string 
+                       (str "
+           ?s {{lpref}}:{{property}}  {{lpref}}:{{value}} .  ")
+                       {:lpref lpref
+                        :property property
+                        :value value} )))))
+         (apply str
+                (for [val valvec]
+                  (tmpl/render-string
+                   (str "
+	   ?s {{lpref}}:{{val}} / rdfs:label ?{{val}} .  " )
+                   {:lpref lpref
+                    :val val})))
+         (tmpl/render-string
+           (str "
+	   ?s {{lpref}}:token ?tkn .
+           OPTIONAL { ?s ?t ?o . FILTER (CONTAINS(str(?t), \"token-note\"))}
+           BIND((IF(BOUND(?o),
+                    CONCAT(?tkn, \"  [\", ?o, \"]\"),
+                    ?tkn))
+                   AS ?token) .
+	  } 
+	 } 
+	} 
+	ORDER BY {{selOrder}} ")
+          {:lpref lpref
+          :selOrder selOrder})
+         );;str
+    ))
+
 (defn pdgmqry-sparql-fv [language lpref valstring]
   "This version, for the moment only called by the single pdgm display option, which is designed to give the most information about an individual paradigm, includes information about input paradigm notes, lex, and token-... . Note info should eventually be displayed in the paradigm-label listing."
     (let [;; if assume last value is lex (generalize to other pos?)
@@ -114,97 +203,37 @@
        );;str
 ))
 
-(defn pdgmqry-sparql-pro [language lpref valstr]
-    (let [values (split valstr #"[:,]")
-          proclass (first values)
-          vals (vec (rest values))
-          propstring (clojure.string/replace valstr #"^.*?:" "")
-          propstr (clojure.string/replace propstring #"^," "")
-          ;;qpropstring (clojure.string/replace propstring #"-|," {"-" "" "," " ?"})
-          qprops (clojure.string/replace propstr "-" "")
-          qpropstring (if (re-find #"\S" qprops)
-                        (str "?" (clojure.string/replace qprops "," " ?"))
-                        qprops)
-          Language (capitalize language)
-          ]
-      (str PREFIXES
-      (tmpl/render-string 
-       (str "
-	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
-	SELECT  ?num ?pers ?gen ?token  
-	WHERE
-        { 
-	 { 
-	  GRAPH aamag:{{language}}  
-          { 
-	   ?s {{lpref}}:pos {{lpref}}:Pronoun .  
-	   ?s aamas:lang aama:{{Language}} .
-	   ?s aamas:lang ?lang . 
-	   ?lang rdfs:label ?langLabel .  ")
-       {:lpref lpref
-        :language language
-        :Language Language})
-      (apply str  
-             (for [value values]
-                 (tmpl/render-string 
-                  (str "
-                   ?s ?Q{{value}}  {{lpref}}:{{value}} .  ")
-                  {:lpref lpref
-                   :value value})))
-      (tmpl/render-string
-       (str " 
-	   OPTIONAL { ?s {{lpref}}:number ?number .  
-	   ?number rdfs:label ?num . } 
-	   OPTIONAL {?s {{lpref}}:person ?person .  
-	   ?person rdfs:label ?pers .  }
-	   OPTIONAL { ?s {{lpref}}:gender ?gender .  
-	   ?gender rdfs:label ?gen . } 
-	   ?s {{lpref}}:token ?token .  
-	  } 
-	 } 
-	} 
-	ORDER BY DESC(?num) ?pers DESC(?gen) ")
-       {:lpref lpref})
-       );;str
-))
-
-(defn pdgmqry-sparql-nfv [language lpref valstring]
-    (let [valstrng (clojure.string/replace valstring #",$" "")
-          values (split valstring #"," 2)
-          pdgmType (first values)
-          props (apply str (rest values))
+(defn pdgmqry-sparql-pro [language lpref propstr]
+    (let [properties (split propstr #"," 2)
+          proclass (first properties)
+          props (apply str (rest properties))
           propvec (split props #",")
-          ;;propstring (clojure.string/replace valstrng #"^.*?:" ",")
-          propstring (str "?" props)
-          qpropstring (clojure.string/replace propstring #"-|," {"-" "" "," " ?"})
-          ;;qprops (clojure.string/replace propstring "-" "")]
-          ;;qpropstring (clojure.string/replace qprops "," " ?")
+          ;;propstring (clojure.string/replace valstr #"^.*?:" "")
+          ;;propstr (clojure.string/replace propstring #"^," "")
+          ;;qpropstring (clojure.string/replace propstring #"-|," {"-" "" "," " ?"})
+          ;;qprops (clojure.string/replace (vec properties) "-" "")
+          qprops (if (re-find #"\S" props)
+                   (str "?" props))
+          qpropstring (clojure.string/replace qprops #"-|," {"-" "" "," " ?"})
           Language (capitalize language)
           ]
       (str PREFIXES
       (tmpl/render-string 
        (str "
 	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
-	SELECT  {{selection}} ?lex  ?token  
+	SELECT  {{selection}}  ?token
 	WHERE
         { 
 	 { 
 	  GRAPH aamag:{{language}}  
           { 
-	   ?s {{lpref}}:pos {{lpref}}:Verb .  
-           #NOT EXISTS {?s {{lpref}}:person ?person } .
-	   ?s aamas:lang aama:{{Language}} .
-           ?s aamas:memberOf ?pdgm .
-           ?pdgm aamas:pdgmType {{lpref}}:{{pdgmType}} .
-	   ?s aamas:lang ?lang . 
-	   ?lang rdfs:label ?langLabel .  
-           OPTIONAL {?s aamas:lexeme ?Qlex .
-                     ?Qlex rdfs:label ?lex .}")
+	   ?s {{lpref}}:proClass {{lpref}}:{{proClass}} .  
+	   ?s aamas:lang aama:{{Language}} ." )
        {:lpref lpref
         :language language
         :Language Language
         :selection qpropstring
-        :pdgmType pdgmType})
+        :proClass proclass})
       (apply str  
              (for [prop propvec]
                (let [qprop (clojure.string/replace prop "-" "")]
@@ -236,16 +265,161 @@
 	  } 
 	 } 
 	} 
-	ORDER BY {{selection}} ?lex ")
+	ORDER BY {{selection}}  ")
        {:lpref lpref
         :selection qpropstring})
        );;str
 ))
 
+(defn pdgmqry-sparql-sel [language lpref valstring]
+    (let [valstrng (clojure.string/replace valstring #",$" "")
+          values (split valstring #"," 2)
+          smorphClass (first values)
+          props (apply str (rest values))
+          propvec (split props #",")
+          ;;propstring (clojure.string/replace valstrng #"^.*?:" ",")
+          ;;qprops (str "?" props)
+          qprops (if (re-find #"\S" props)
+                   (str "?" props))
+          qpropstring (clojure.string/replace qprops #"-|," {"-" "" "," " ?"})
+          ;;qprops (clojure.string/replace propstring "-" "")]
+          ;;qpropstring (clojure.string/replace qprops "," " ?")
+          Language (capitalize language)
+          ]
+      (str PREFIXES
+      (tmpl/render-string 
+       (str "
+	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
+	SELECT  {{selection}}  ?token  
+	WHERE
+        { 
+	 { 
+	  GRAPH aamag:{{language}}  
+          { 
+	   ?s {{lpref}}:pos {{lpref}}:Selector .  
+           #NOT EXISTS {?s {{lpref}}:person ?person } .
+	   ?s aamas:lang aama:{{Language}} .
+           ?s aamas:memberOf ?pdgm .
+           ?s {{lpref}}:smorphClass {{lpref}}:{{morphClass}} .")
+       {:lpref lpref
+        :language language
+        :Language Language
+        :selection qpropstring
+        :morphClass smorphClass})
+      (apply str  
+             (for [prop propvec]
+               (let [qprop (clojure.string/replace prop "-" "")]
+               (if (re-find #"token" prop)
+                 (tmpl/render-string 
+                  (str "
+           OPTIONAL { ?s {{lpref}}:{{prop}} ?{{qprop}} . }")
+                  {:lpref lpref
+                   :prop prop
+                   :qprop qprop})
+                 (tmpl/render-string 
+                  (str "
+           OPTIONAL { ?s {{lpref}}:{{prop}} ?Q{{qprop}} .
+                      ?Q{{qprop}} rdfs:label ?{{qprop}} . }") 
+                  {:lpref lpref
+                   :prop prop
+                   :qprop qprop})
+                 );;if
+               );;let
+               ))
+      (tmpl/render-string
+       (str " 
+	   ?s {{lpref}}:token ?tkn .  
+           OPTIONAL { ?s ?t ?o . FILTER (CONTAINS(str(?t), \"token-note\"))}
+           BIND((IF(BOUND(?o),
+                    CONCAT(?tkn, \"  [\", ?o, \"]\"),
+                    ?tkn))
+                   AS ?token) .
+	  } 
+	 } 
+	} 
+	ORDER BY {{selection}}  ")
+       {:lpref lpref
+        :selection qpropstring})
+       );;str
+))
+
+(defn pdgmqry-sparql-nfv [language lpref valstring]
+    (let [valstrng (clojure.string/replace valstring #",$" "")
+          values (split valstring #"," 2)
+          vmorphClass (first values)
+          props (apply str (rest values))
+          propvec (split props #",")
+          ;;propstring (clojure.string/replace valstrng #"^.*?:" ",")
+          ;;qprops (str "?" props)
+          qprops (if (re-find #"\S" props)
+                   (str "?" props))
+          qpropstring (clojure.string/replace qprops #"-|," {"-" "" "," " ?"})
+          ;;qprops (clojure.string/replace propstring "-" "")]
+          ;;qpropstring (clojure.string/replace qprops "," " ?")
+          Language (capitalize language)
+          ]
+      (str PREFIXES
+      (tmpl/render-string 
+       (str "
+	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
+	SELECT  {{selection}}  ?token  
+	WHERE
+        { 
+	 { 
+	  GRAPH aamag:{{language}}  
+          { 
+	   ?s {{lpref}}:pos {{lpref}}:Verb .  
+           #NOT EXISTS {?s {{lpref}}:person ?person } .
+	   ?s aamas:lang aama:{{Language}} .
+           ?s aamas:memberOf ?pdgm .
+           ?s {{lpref}}:vmorphClass {{lpref}}:{{morphClass}} .")
+       {:lpref lpref
+        :language language
+        :Language Language
+        :selection qpropstring
+        :morphClass vmorphClass})
+      (apply str  
+             (for [prop propvec]
+               (let [qprop (clojure.string/replace prop "-" "")]
+               (if (re-find #"token" prop)
+                 (tmpl/render-string 
+                  (str "
+           OPTIONAL { ?s {{lpref}}:{{prop}} ?{{qprop}} . }")
+                  {:lpref lpref
+                   :prop prop
+                   :qprop qprop})
+                 (tmpl/render-string 
+                  (str "
+           OPTIONAL { ?s {{lpref}}:{{prop}} ?Q{{qprop}} .
+                      ?Q{{qprop}} rdfs:label ?{{qprop}} . }") 
+                  {:lpref lpref
+                   :prop prop
+                   :qprop qprop})
+                 );;if
+               );;let
+               ))
+      (tmpl/render-string
+       (str " 
+	   ?s {{lpref}}:token ?tkn .  
+           OPTIONAL { ?s ?t ?o . FILTER (CONTAINS(str(?t), \"token-note\"))}
+           BIND((IF(BOUND(?o),
+                    CONCAT(?tkn, \"  [\", ?o, \"]\"),
+                    ?tkn))
+                   AS ?token) .
+	  } 
+	 } 
+	} 
+	ORDER BY {{selection}}  ")
+       {:lpref lpref
+        :selection qpropstring})
+       );;str
+))
+
+
 (defn pdgmqry-sparql-noun [language lpref valstring]
   (let [valstrng (clojure.string/replace valstring #",$" "")
         values (split valstrng #"," 2)
-        pdgmType (first values)
+        nmorphClass (first values)
         props (apply str (rest values))
         propvec (split props #",")
         ;;propstring (clojure.string/replace valstrng #"^.*?:" ",")
@@ -267,13 +441,13 @@
           { 
 	   ?s {{lpref}}:pos {{lpref}}:Noun ; 
 	      aamas:lang aama:{{Language}} ;
-              aamas:memberOf ?pdgm .
-	   ?pdgm aamas:pdgmType {{lpref}}:{{pdgmType}} . ")
+              aamas:memberOf ?pdgm ;
+	      {{lpref}}:nmorphClass {{lpref}}:{{morphClass}} . ")
        {:lpref lpref
         :language language
         :Language Language
         :selection qpropstring
-        :pdgmType pdgmType})
+        :morphClass nmorphClass})
       (apply str  
              (for [prop propvec]
                (let [qprop (clojure.string/replace prop "-" "")]
@@ -302,7 +476,13 @@
 	   ?person rdfs:label ?pers .  }
 	   OPTIONAL { ?s {{lpref}}:gender ?gender .  
 	   ?gender rdfs:label ?gen . } 
-	   ?s {{lpref}}:token ?token .  
+	   ?s {{lpref}}:token ?tkn .  
+           OPTIONAL { ?s ?t ?o . FILTER (CONTAINS(str(?t), \"token-note\"))}
+           BIND((IF(BOUND(?o),
+                    CONCAT(?tkn, \"  [\", ?o, \"]\"),
+                    ?tkn))
+                   AS ?token) .
+
 	  } 
 	 } 
 	} 
@@ -391,17 +571,15 @@ ORDER BY ASC(?property) ")
   (tmpl/render-string
    (str "
 PREFIX {{lpref}}: <http://id.oi.uchicago.edu/aama/2013/{{lang}}/>
-SELECT DISTINCT  ?property
+SELECT DISTINCT ?property
 WHERE {
 GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{lang}}> {
 	?s ?p ?o ;
-	{{lpref}}:pos  {{lpref}}:Verb ;
-        aamas:memberOf ?pdgm .
-        ?pdgm aamas:pdgmType ?pdgmType .
-	#NOT EXISTS {?s {{lpref}}:person ?person }
+	{{lpref}}:vmorphClass  ?QmorphClass .
+        ?QmorphClass rdfs:label ?morphClass .
         ?p rdfs:label ?property .
-        FILTER (!CONTAINS (str(?pdgmType), \"Finite\" ))
-        FILTER (?p NOT IN ( aamas:lang, {{lpref}}:pngShapeClass, aamas:pdgmType, {{lpref}}:pos, {{lpref}}:token, rdf:type, {{lpref}}:multiLex ) ) 	
+        FILTER (!CONTAINS (str(?morphClass), \"Finite\" ))
+        FILTER (?p NOT IN ( aamas:lang, {{lpref}}:pngShapeClass, {{lpref}}:pos, {{lpref}}:token, rdf:type, {{lpref}}:multiLex ) ) 	
         #FILTER (?p NOT IN ( aamas:lang, {{lpref}}:gender, {{lpref}}:number, {{lpref}}:pngShapeClass, {{lpref}}:person, {{lpref}}:pos, {{lpref}}:token, rdf:type, {{lpref}}:multiLex ) )
 }
 }
@@ -419,10 +597,32 @@ SELECT DISTINCT  ?property
 WHERE {
 GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{lang}}> {
 	?s ?p ?o ;
-	{{lpref}}:pos  {{lpref}}:Pronoun .
-        #?s {{lpref}}:person ?person .
+	{{lpref}}:proClass  ?QmorphClass .
+        #?QmorphClass rdfs:label ?morphClass .
         ?p rdfs:label ?property .
- 	FILTER (?p NOT IN ( aamas:lang, {{lpref}}:gender, {{lpref}}:number, {{lpref}}:pngShapeClass, {{lpref}}:person, {{lpref}}:pos, {{lpref}}:token, rdf:type, {{lpref}}:multiLex ) )
+        FILTER (?p NOT IN ( aamas:lang, {{lpref}}:pngShapeClass, {{lpref}}:pos, {{lpref}}:token, rdf:type, {{lpref}}:multiLex ) ) 	
+        #FILTER (?p NOT IN ( aamas:lang, {{lpref}}:gender, {{lpref}}:number, {{lpref}}:pngShapeClass, {{lpref}}:person, {{lpref}}:pos, {{lpref}}:token, rdf:type, {{lpref}}:multiLex ) )
+}
+}
+ORDER BY ASC(?property) ")
+{:lang language
+ :lpref lpref})))
+
+
+(defn listlgpr-sparql-sel [language lpref]
+  (str PREFIXES
+   (tmpl/render-string
+   (str "
+PREFIX {{lpref}}: <http://id.oi.uchicago.edu/aama/2013/{{lang}}/>
+SELECT DISTINCT   ?property
+WHERE {
+GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{lang}}> {
+	?s ?p ?o ;
+	{{lpref}}:smorphClass  ?QmorphClass .
+        #?QmorphClass rdfs:label ?morphClass .
+        ?p rdfs:label ?property .
+        FILTER (?p NOT IN ( aamas:lang, {{lpref}}:pngShapeClass,  {{lpref}}:pos, {{lpref}}:token, rdf:type, {{lpref}}:multiLex ) ) 	
+        #FILTER (?p NOT IN ( aamas:lang, {{lpref}}:gender, {{lpref}}:number, {{lpref}}:pngShapeClass, {{lpref}}:person, {{lpref}}:pos, {{lpref}}:token, rdf:type, {{lpref}}:multiLex ) )
 }
 }
 ORDER BY ASC(?property) ")
@@ -435,15 +635,17 @@ ORDER BY ASC(?property) ")
   (tmpl/render-string
    (str "
 PREFIX {{lpref}}: <http://id.oi.uchicago.edu/aama/2013/{{lang}}/>
-SELECT DISTINCT  ?property
+SELECT DISTINCT    ?property
 WHERE {
 GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{lang}}> {
 	?s ?p ?o ;
-	#rdf:type aamas:Muterm ;
-	{{lpref}}:pos  {{lpref}}:Noun .
+	{{lpref}}:nmorphClass  ?QmorphClass .
+        #?QmorphClass rdfs:label ?morphClass .
         ?p rdfs:label ?property .
-  	FILTER (?p NOT IN ( aamas:lang, {{lpref}}:pos, aamas:pdgmType, rdf:type))
-}}
+        FILTER (?p NOT IN ( aamas:lang, {{lpref}}:pngShapeClass,  {{lpref}}:pos, {{lpref}}:token, rdf:type, {{lpref}}:multiLex ) ) 	
+        #FILTER (?p NOT IN ( aamas:lang, {{lpref}}:gender, {{lpref}}:number, {{lpref}}:pngShapeClass, {{lpref}}:person, {{lpref}}:pos, {{lpref}}:token, rdf:type, {{lpref}}:multiLex ) )
+}
+}
 ORDER BY ASC(?property) ")
 {:lang language
  :lpref lpref})))
@@ -453,9 +655,16 @@ ORDER BY ASC(?property) ")
   (str "
 SELECT DISTINCT  ?property
 WHERE {
-	?s ?p ?o .
-        ?p rdfs:label ?property .
- 	FILTER (?p NOT IN ( aamas:lang) )
+	?s ?p ?o ;
+            aamas:memberOf ?pdgm .
+        OPTIONAL {?p rdfs:label ?prop .}
+        BIND (IF(!bound(?prop) ,
+                 str(?p),
+                 ?prop
+                ) AS ?property
+             ) .
+        FILTER (!CONTAINS (str(?p), \"token\" ))
+ 	FILTER (?p NOT IN ( aamas:lang, rdf:type ) )
 }
 ORDER BY ASC(?property) ")))
 
@@ -464,9 +673,16 @@ ORDER BY ASC(?property) ")))
   (str "
 SELECT DISTINCT  ?value
 WHERE {
-	?s ?p ?o .
-        ?o rdfs:label ?value .
- 	FILTER (?p NOT IN ( aamas:lang, aamas:memberOf, aamas:lexeme) )
+	?s ?p ?o ;
+            aamas:memberOf ?pdgm .
+        OPTIONAL {?o rdfs:label ?val .}
+        BIND (IF(!bound(?val) ,
+                 str(?o),
+                 ?val
+                ) AS ?value
+             ) .
+        FILTER (!CONTAINS (str(?p), \"token\" ))
+ 	FILTER (?p NOT IN ( aamas:lang, aamas:memberOf, aamas:lexeme, rdf:type) )
 }
 ORDER BY ASC(?value) ")))
 
@@ -500,111 +716,6 @@ ORDER BY ASC(?prop) ASC(?val)
  ")
 {:language language})))
 
-(defn listptype-sparql [language]
-  "In case one wants simply a list of pdgmType for a specific language"
-  (let [Language (capitalize language)]
-    (str PREFIXES
-         (str "
-    SELECT DISTINCT  ?ptype 
-    WHERE { ")
-         (apply str
-                (tmpl/render-string
-                 (str "
-    {GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{language}}> {
-	?s aamas:lang  aama:{{Language}} ;
-        aamas:pdgmType ?QpdgmType .
-        OPTIONAL {?QpdgmType rdfs:label ?type .}
-        BIND (IF (!bound(?type) ,
-                 str(?QpdgmType),
-                 ?type 
-                ) AS ?ptype
-             ) .
-     }} }
-   ORDER BY ASC(?ptype) ")
-                 {:language language
-                  :Language Language})))))
-
-(defn listlptype-sparql [ldomain]
-;; In case one wants simply a list of pdgmType 
-  (let [langs (split ldomain #",")]
-    (str PREFIXES
-     (str "
-    SELECT DISTINCT  ?lang ?ptype 
-    WHERE { ")
-     (apply str
-            (for [language langs]
-              (tmpl/render-string
-               (str "
-    {GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{language}}> {
-	?s aamas:lang  ?language ;
-        aamas:pdgmType ?QpdgmType .
-	?language rdfs:label ?lang .
-        OPTIONAL {?QpdgmType rdfs:label ?type .}
-        BIND (IF (!bound(?type) ,
-                 str(?QpdgmType),
-                 ?type 
-                ) AS ?ptype
-             ) .
-
-     }} "
-                    (if (not (= (last langs) language))
-                      (str " 
-          UNION")))
-               {:language language})))
-     (str "}
-   ORDER BY ASC(?lang) ASC(?ptype) "))))
-
-(defn listlptypepdgm-sparql [ldomain]
-;; In case one wants pdgmType to be only a property of specific pdgm
-  (let [langs (split ldomain #",")]
-    (str PREFIXES
-     (str "
-    SELECT DISTINCT  ?lang ?ptype ?pname
-    WHERE { ")
-     (apply str
-            (for [language langs]
-              (tmpl/render-string
-               (str "
-    {GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{language}}> {
-	?s a aamas:Termcluster ;
-	aamas:lang  ?language ;
-        aamas:pdgmType ?QpdgmType .
-        ?s rdfs:label ?pname .
-	?language rdfs:label ?lang .
-        ?QpdgmType rdfs:label ?ptype .
-     }} "
-                    (if (not (= (last langs) language))
-                      (str " 
-          UNION")))
-               {:language language})))
-     (str "}
-   ORDER BY ASC(?lang) ASC(?ptype) ASC(?pname)"))))
-
-(defn listptypelpdgm-sparql [ldomain]
-;; In case one wants pdgmType to be only a property of specific pdgm
-  (let [langs (split ldomain #",")]
-    (str PREFIXES
-     (str "
-    SELECT DISTINCT   ?ptype ?lang ?pname
-    WHERE { ")
-     (apply str
-            (for [language langs]
-              (tmpl/render-string
-               (str "
-    {GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{language}}> {
-	?s a aamas:Termcluster ;
-	aamas:lang  ?language ;
-        aamas:pdgmType ?QpdgmType .
-        ?s rdfs:label ?pname .
-	?language rdfs:label ?lang .
-        ?QpdgmType rdfs:label ?ptype .
-     }} "
-                    (if (not (= (last langs) language))
-                      (str " 
-          UNION")))
-               {:language language})))
-     (str "}
-   ORDER BY ASC(?ptype) ASC(?lang) ASC(?pname)"))))
 
 
 (defn listlpv-check-sparql [ldomain]
@@ -800,14 +911,10 @@ ORDER BY ASC(?prop) ASC(?val)
    ORDER BY  ASC(?prop) ASC(?lang) ASC(?val)"))))
 
 (defn listvlcl-sparql-fv [language lpref propstring]
-  (let [;;qpropstring1 (clojure.string/replace propstring #"^.*?," "?")
-        qpropstring1 (str "?" propstring)
-        qpropstring2 (clojure.string/replace qpropstring1 #",$" "")
-        selection (clojure.string/replace qpropstring2 #"," " ?")
-        propstring2 (clojure.string/replace qpropstring2 #"^\?" "")
-        proplist2 (split propstring2 #",")
-        ;;Language (capitalize language)
-        ]
+  (let [propstring2 (clojure.string/replace propstring #",$" "")
+        qpropstring (str "?" propstring2)
+        selection (clojure.string/replace qpropstring #"," " ?")
+        proplist (split propstring2 #",")]
     (str PREFIXES
          (tmpl/render-string
           (str "
@@ -826,11 +933,10 @@ ORDER BY ASC(?prop) ASC(?val)
              OPTIONAL {?s aamas:lexeme ?lexeme .
                        ?lexeme rdfs:label ?lex .} ")
           {:language language
-           ;;:Language Language
            :lpref lpref
            :selection selection})
          (apply str
-                (for [prop proplist2]
+                (for [prop proplist]
                   (tmpl/render-string
                    (str "
             OPTIONAL {?s {{lpref}}:{{prop}} ?Q{{prop}} . 
@@ -843,97 +949,93 @@ ORDER BY ASC(?prop) ASC(?val)
           {:selection selection})
          )))
 
-(defn listvlcl-sparql-nfv [language lpref propstring]
+(defn listvlcl-sparql-nfv [language lpref]
     (str PREFIXES
      (tmpl/render-string
       (str "
        PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/>
-       SELECT DISTINCT  ?pdgmLabel ?pdgmTypeLabel ?property
+       SELECT DISTINCT  ?pdgmLabel ?vmorphClass ?property
        WHERE{
          {   
           GRAPH aamag:{{language}} {
         	?s ?p ?o ;
-	             {{lpref}}:pos  {{lpref}}:Verb ;
+	             {{lpref}}:vmorphClass ?QvmorphClass ;
                      aamas:memberOf ?pdgm .
-                ?pdgm aamas:pdgmType ?pdgmType ; 
-	              rdfs:label ?pdgmLabel .
-                ?pdgmType rdfs:label ?pdgmTypeLabel .
+                ?pdgm  rdfs:label ?pdgmLabel .
+                ?QvmorphClass rdfs:label ?vmorphClass .
                 ?p rdfs:label ?property .
-                FILTER (!CONTAINS (str(?pdgmType), \"Finite\" ))
-                #FILTER (?pdgmType NOT IN ({{lpref}}:Finite, {{lpref}}:FinitePartial)) 
-        	FILTER (?p NOT IN ( aamas:lang, aamas:pdgmType, {{lpref}}:pos, rdf:type))
+                FILTER (!CONTAINS (str(?vmorphClass), \"Finite\" ))
+        	FILTER (?p NOT IN ( aamas:lang,  aamas:pdgmType, {{lpref}}:pos,  {{lpref}}:vmorphClass, rdf:type))
       }}
      }
-      ORDER BY ?pdgmLabel ASC(?pdgmTypeLabel) ASC(?property) ")
-      {:language language
-       :lpref lpref})
-    ))
+      ORDER BY  ASC(?vmorphClass) ASC(?property) ")
+       {:language language
+       :lpref lpref})))
 
-(defn listvlcl-sparql-pro [language lpref propstring]
-  (let [qpropstring1 (clojure.string/replace propstring #"^.*?," "?")
-        qpropstring2 (clojure.string/replace qpropstring1 #",$" "")
-        selection (clojure.string/replace qpropstring2 #"," " ?")
-        propstring2 (clojure.string/replace qpropstring2 #"^\?" "")
-        proplist2 (split propstring2 #",")
-        Language (capitalize language)]
+(defn listvlcl-sparql-sel [language lpref]
     (str PREFIXES
      (tmpl/render-string
       (str "
        PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/>
-       SELECT DISTINCT ?pdgmLabel ?proClass  {{selection}}
-       where{
-         {   
-          graph aamag:{{language}} {
-             ?s {{lpref}}:pos {{lpref}}:Pronoun . 
-             #?s {{lpref}}:person ?person .
-       ?s aamas:lang aama:{{Language}} .
-       ?s aamas:lang ?lang .
-        ?s  aamas:memberOf ?pdgm .
-        ?pdgm rdfs:label ?pdgmLabel .
-       #?s aamas:lexeme ?lexeme .
-       #?lexeme rdfs:label ?lex .
-       ?lang rdfs:label ?langLabel . ")
-      {:language language
-       :Language Language
-       :lpref lpref
-       :selection selection})
-     (apply str
-            (for [prop proplist2]
-              (tmpl/render-string
-               (str "
-	OPTIONAL { ?s {{lpref}}:{{prop}} ?Q{{prop}} . 
-	 ?Q{{prop}} rdfs:label ?{{prop}} . } ")
-               {:prop prop
-                :lpref lpref})))
-            (tmpl/render-string 
-             (str "}}}
-       ORDER BY ?pdgmLabel  {{selection}}  ")
-             {:selection selection})
-     )))
-
-(defn listvlcl-sparql-noun [language lpref propstring]
-    (str PREFIXES
-     (tmpl/render-string
-      (str "
-       PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/>
-       SELECT DISTINCT  ?pdgmLabel ?pdgmTypeLabel ?property 
+       SELECT DISTINCT  ?pdgmLabel ?smorphClass ?property 
        WHERE{
          {   
           GRAPH aamag:{{language}} {
         	?s ?p ?o ;
         	     aamas:memberOf ?pdgm ;
-	             {{lpref}}:pos  {{lpref}}:Noun .
-                ?pdgm aamas:pdgmType ?pdgmType . 
-	        ?pdgmType rdfs:label ?pdgmTypeLabel .
+	             {{lpref}}:smorphClass  ?QsmorphClass .
                 ?pdgm rdfs:label ?pdgmLabel .
+                ?QsmorphClass rdfs:label ?smorphClass . 
                 ?p rdfs:label ?property .
-  	        FILTER (?p NOT IN ( aamas:lang, aamas:muterm, {{lpref}}:pos, aamas:pdgmType, rdf:type, {{lpref}}:token))
+  	        FILTER (?p NOT IN ( aamas:lang, aamas:muterm, {{lpref}}:pos, {{lpref}}:smorphClass, aamas:pdgmType, rdf:type, {{lpref}}:token))
        }}
        }
-       ORDER BY ?pdgmLabel ASC(?pdgmTypeLabel) ASC(?property) ")
+       ORDER BY ASC(?smorphClass) ASC(?property) ")
       {:language language
-       :lpref lpref})
-     ))
+       :lpref lpref})))
+
+(defn listvlcl-sparql-pro [language lpref]
+    (str PREFIXES
+     (tmpl/render-string
+      (str "
+       PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/>
+       SELECT DISTINCT ?pdgmLabel ?proClass ?property
+       where{
+         {   
+          graph aamag:{{language}} {
+             ?s  ?p ?o ;
+                 aamas:memberOf ?pdgm ;
+                {{lpref}}:proClass ?QProClass .
+        ?pdgm rdfs:label ?pdgmLabel .
+        ?QProClass rdfs:label ?proClass . 
+        ?p rdfs:label ?property . 
+       	FILTER (?p NOT IN ( aamas:lang, {{lpref}}:proClass, aamas:pdgmType, {{lpref}}:pos, rdf:type))
+     }}}
+       ORDER BY ASC(?proClass) ASC(?property)  ")
+      {:language language
+       :lpref lpref})))
+
+(defn listvlcl-sparql-noun [language lpref]
+    (str PREFIXES
+     (tmpl/render-string
+      (str "
+       PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/>
+       SELECT DISTINCT  ?pdgmLabel ?nmorphClass ?property 
+       WHERE{
+         {   
+          GRAPH aamag:{{language}} {
+        	?s ?p ?o ;
+        	     aamas:memberOf ?pdgm ;
+	             {{lpref}}:nmorphClass  ?QnmorphClass .
+                ?pdgm rdfs:label ?pdgmLabel .
+                ?QnmorphClass rdfs:label ?nmorphClass . 
+                ?p rdfs:label ?property .
+  	        FILTER (?p NOT IN ( aamas:lang, aamas:muterm, {{lpref}}:pos,  {{lpref}}:nmorphClass, aamas:pdgmType, rdf:type, {{lpref}}:token))
+       }}
+       }
+       ORDER BY ASC(?nmorphClass) ASC(?property) ")
+      {:language language
+       :lpref lpref})))
 
 (defn lgvl-sparql [ldomain lval]
   (let [ldoms (split ldomain #",")]

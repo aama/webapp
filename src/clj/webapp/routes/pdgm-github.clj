@@ -26,9 +26,7 @@
              [:tr [:td "PDGM Type: "]
               [:td [:select#pos.required
                     {:title "Choose a pdgm type.", :name "pos"}
-                    [:option {:value "fv" :label "Finite Verb"}]
-                    [:option {:value "nfv" :label "Other Verb"}]
-                    [:option {:value "sel" :label "Selector"}]
+                    [:option {:value "verb" :label "Verb"}]
                     [:option {:value "pro" :label "Pronoun"}]
                     [:option {:value "noun" :label "Noun"}]
                     ]]]
@@ -147,26 +145,23 @@
         langkey (read-string (str ":" language))
         lpref (langkey lprefmap)
         vcs (split valstring #"," 2)
-        ;; Note, for fv this IS pdgmType, for rest is XmorphClass
         pdgmType (first vcs)
         pvalcluster (last vcs)
-        ;;valstrng (clojure.string/replace valstring #",*person|,*gender|,*number" "")
-        valstr (clojure.string/replace valstring #":," ":")
+        valstrng (clojure.string/replace valstring #",*person|,*gender|,*number" "")
+        valstr (clojure.string/replace valstrng #":," ":")
         ;; In single pdgm query only, asking for note (9/29/15) and lex (10/9/15)
-        query-sparql-forms (cond 
+        query-sparql-form (cond 
                            (= pos "pro")
                            (sparql/pdgmqry-sparql-pro language lpref valstr)
-                           (= pos "sel")
-                           (sparql/pdgmqry-sparql-sel language lpref valstr)
                            (= pos "noun")
                            (sparql/pdgmqry-sparql-noun language lpref valstring)
-                           (re-find #"Finite" pdgmType)
+                           (= pdgmType "Finite")
                            (sparql/pdgmqry-sparql-fv language lpref pvalcluster)
                            :else (sparql/pdgmqry-sparql-nfv language lpref valstring))
-        query-sparql-forms-pr (replace query-sparql-forms #"<" "&lt;")
+        query-sparql-form-pr (replace query-sparql-form #"<" "&lt;")
         req-form (http/get aama
                       {:query-params
-                       {"query" query-sparql-forms ;;generated sparql
+                       {"query" query-sparql-form ;;generated sparql
                         ;;"format" "application/sparql-results+json"}})]
                         "format" "csv"}})
         ;; find and eliminate single-value columns
@@ -190,24 +185,26 @@
         header (first psplit)
         pdgmrows (rest psplit)
         pheads (split header #",")
-        ;; from here to 'pdgmcmmt', steps to obtain pdgmLabel (dataID) 
-        ;; and pdgmcmmt
-        pdgmmap (if (re-find #"Finite" pdgmType)
+        ;; from here to 'comment', steps to obtain pdgmLabel (dataID) 
+        ;; and comment
+        pdgmmap (cond
+                 (= pdgmType "Finite")
                  (read-string (slurp (str "pvlists/vlcl-dataID-" language "-fv.edn")))
-                 (read-string (slurp (str "pvlists/vlcl-dataID-" language "-" pos ".edn"))))
-        vlcllistkey (if (re-find #"Finite" pdgmType)
-                 (read-string (str ":" (replace valstring #"," "_")))
-                 (read-string (str ":" pdgmType)))
+                 (= pos "verb")
+                 (read-string (slurp (str "pvlists/vlcl-dataID-" language "-nfv.edn")))
+                 :else (read-string (slurp (str "pvlists/vlcl-dataID-" language "-" pos ".edn"))))
+        vlcllistID (replace valstring #"," "_")
+        vlcllistkey (read-string (str ":" vlcllistID))
         ;; or simply include this in the previous, or next, query?
         dataID (read-string (vlcllistkey pdgmmap))
-        query-sparql-pdgmcmmt (sparql/pdgmqry-sparql-comment dataID)
-        query-sparql-pdgmcmmt-pr (replace query-sparql-pdgmcmmt #"<" "&lt;")
-        req-pdgmcmmt (http/get aama
+        query-sparql-comment (sparql/pdgmqry-sparql-comment dataID)
+        query-sparql-comment-pr (replace query-sparql-comment #"<" "&lt;")
+        req-comment (http/get aama
                       {:query-params
-                       {"query" query-sparql-pdgmcmmt ;;generated sparql
+                       {"query" query-sparql-comment ;;generated sparql
                         ;;"format" "application/sparql-results+json"}})]
                         "format" "csv"}})
-        pdgmcmmt (last (split (:body req-pdgmcmmt) #"\n" 2))
+        comment (last (split (:body req-comment) #"\n" 2))
         ]
          (log/info "sparql result status: " (:status req-form))
          (layout/common
@@ -276,19 +273,19 @@
            ;;[:hr]
            [:p]
            [:p "Paradigm Label: "] [:ul [:li dataID]]
-           [:p "Pdgmcmmt: "] [:ul [:li pdgmcmmt]]
+           [:p "Comment: "] [:ul [:li comment]]
            [:p "  "]
            [:hr]
            [:h3#clickable "Query:"]
-           [:pre query-sparql-forms-pr]
+           [:pre query-sparql-form-pr]
            [:div [:h4 "======= Debug Info: ======="]
             [:h4 "Query Response:"]
             [:pre (:body req-form)]
             [:p "language: " language]
             [:p "lang: " lang]
             [:p "lpref: " lpref]
-            [:p "pdgmType: " pdgmType]
             [:p "valstring: "  valstring]
+            [:p "vlcllistID: "  vlcllistID]
             [:p "vlcllistkey: "  vlcllistkey]
             [:p "pdgmmap: " [:pre pdgmmap]]
             [:p ": " ]
