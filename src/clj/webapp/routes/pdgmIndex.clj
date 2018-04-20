@@ -48,7 +48,8 @@
 (defn makeplist
   [termclusters]
     (for [termcluster termclusters]
-      (let [terms (termcluster :terms)
+      (let [label (termcluster :label)
+            terms (termcluster :terms)
             schema (pop (first terms))
             common (into (sorted-map) (termcluster :common))
             posval (common :pos)
@@ -65,7 +66,7 @@
             pvstring1 (clojure.string/replace pvstring #"(\w) :" "$1=")
             pvstring2 (clojure.string/replace pvstring1 #"[/{/}\s]" "")
             schemastr (clojure.string/replace (apply str schema) #":" ",")
-            pindex1 (str posval "," morphClassval "," pvstring2 "%" schemastr )
+            pindex1 (str label "," posval "," morphClassval "," pvstring2 "%" schemastr )
             ;;pindex2 (clojure.string/replace pindex1 #":" "")
             ;; if want to take :lexeme out of common
             pindex2 (str (clojure.string/replace pindex1 #":" "") lexval)
@@ -77,6 +78,13 @@
             ]
             (clojure.string/replace pindex2 #",*%,*" "%"))))
 
+(defn csv2map
+  "Maps the content of the label+pdgmValueCluster vector into a (keywordized) pdgmVC to label map"
+  [vlclvec]
+  (let [csvmap1 (for [vlcl vlclvec] (hash-map (replace (last (split vlcl #"," 2)) #"," "_") (first (split vlcl #"," 2))))
+        csvmap2 (into (sorted-map) (clojure.walk/keywordize-keys csvmap1))]
+        (join ",\n" (split (str csvmap2) #", "))))
+
 (defn handle-pdgmIndex-gen
   [ldomain]
   ;;[:h3#clickable "Value-clusters used in " pos " pdgms for: " ldomain]
@@ -84,19 +92,23 @@
         pdgmstring (slurp inputfile)
         pdgm-map (read-string pdgmstring)
         ;; The following are possible lists and tables of pdgm values
-        vlcllist (str "pvlists/pdgm-index-" ldomain ".txt")
+        vlclindex (str "pvlists/pdgm-index-" ldomain ".txt")
+        labellist (str "pvlists/label-index-" ldomain ".edn")
         termclusters (:termclusters pdgm-map)
         vlclvec1 (makeplist termclusters)
-        vlclvec2 (join "\n" (into (sorted-set) vlclvec1))
+        vlcllist1 (for [vlcl vlclvec1] (last (split vlcl #"," 2))) 
+        vlcllist2 (join "\n" (into (sorted-set) vlcllist1))
+        labelmap (csv2map vlclvec1)
         ]
-    (spit vlcllist vlclvec2)
+    (spit vlclindex vlcllist2)
+    (spit labellist labelmap)
     (layout/common
      [:body
       [:div 
        [:p [:b "Ldomain: "] ldomain]
-       [:p [:b "File vlcllist:    "] [:pre vlcllist]]
-       [:p [:b "File vlclvec1:    "] [:p vlclvec1]]
-       [:p [:b "File vlclvec2:    "] [:p vlclvec2]]
+       [:p [:b "File vlcllist:    "] [:pre vlcllist2]]
+       [:p [:b "File vlclvec1n:    "] [:p vlclvec1]]
+       [:p [:b "File labelmap:    "] [:p labelmap]]
        [:p "==========================="]]
      [:script {:src "js/goog/base.js" :type "text/javascript"}]
      [:script {:src "js/webapp.js" :type "text/javascript"}]

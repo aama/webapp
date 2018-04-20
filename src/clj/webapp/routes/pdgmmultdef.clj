@@ -93,7 +93,7 @@
             req (http/get aama
                       {:query-params
                        {"query" query-sparql ;;generated sparql
-                        ;;"format" "application/sparql-results+json"}})]
+                        ;;"format" "application/sparql-results+json"}})
                         "format" "text"}})
             req2 (clojure.string/replace (:body req) #"%%" " + ")
             ]

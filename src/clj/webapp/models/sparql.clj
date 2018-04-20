@@ -59,11 +59,11 @@
               rdfs:comment ?comment . } ")
         {:label dataID}))))
             
-(defn pdgmqry-sparql-gen-vrbs [valcluster]
+(defn pdgmqry-sparql-gen-vrbs [lvalcluster]
   "This version, is to be called for all archive pdgm types. Presumes verbose version of pdgm index (all pdgm values, except lex, have 'prop=val')." 
   (let [lprefmap (read-string (slurp "pvlists/lprefs.clj"))
         ;; parse valcluster
-        vals (split valcluster #"," 2)
+        vals (split lvalcluster #"," 2)
         language (first vals)
         vcs (split (last vals) #"," 2)
         pos (first vcs)
