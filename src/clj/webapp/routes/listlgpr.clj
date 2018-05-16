@@ -42,7 +42,7 @@
               [:td [:select#pos.required
                     {:title "Choose a pdgm type.", :name "pos"}
                     [:option {:value "fv" :label "Finite Verb"}]
-                    [:option {:value "nfv" :label "Non-finite Verb"}]
+                    [:option {:value "nfv" :label "Other Verb"}]
                     [:option {:value "pro" :label "Pronoun"}]
                     [:option {:value "noun" :label "Noun"}]
                     [:option {:value "all" :label "Schemata Property Check"}]

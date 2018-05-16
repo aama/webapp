@@ -38,8 +38,11 @@
                   (let [lang (read-string (str ":" (lower-case language)))
                         lpref (lang lprefmap)]
                   [:div {:class "form-group"}
-                   [:label 
+                   [:label
                     (check-box {:name "languages[]" :value (lower-case language)}language) language " (" lpref ")"]]))]]
+                   ;;[:p
+ 
+                    ;; language " (" lpref ")"]]))]]
               ;; from https://groups.google.com/forum/#!topic/compojure/5Vm8QCQLsaQ
               ;; (check-box "valclusters[]" false valcluster) (str valcluster)]]
               ;;(submit-button "Get pdgm")

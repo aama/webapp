@@ -79,22 +79,21 @@
         [:li (link-to "/bibInfoMaster" "General Bibliography")]
         [:li (link-to "/bibInfoSpecial" "Bibliography by Key Word")]
         ]]]]
-    [:li (link-to "#" "Search")
+    [:li (link-to "#" "Search/Display")
      [:ul
-      [:li (link-to "/formsearch" "User-specified Form/Paradigm Search")]
-      [:li (link-to "#" "Archived Paradigm Search")
+      [:li (link-to "/formsearch" "User-specified Form/Paradigm Display")]
+      [:li (link-to "#" "Archived Paradigm Search/Display")
        [:ul
-        [:li (link-to "/pdgmindiv" "Single Paradigm")]
-        [:li (link-to "/pdgmmultdef" "Multiple Paradigm               (Default Format) ")]
-        [:li (link-to "/pdgmmultmod" "Multiple Paradigm               (Modify/Combine)")]
-        [:li (link-to "/multipdgmsort" "From Sortable Table (FV Only)")]]]
+        [:li (link-to "/pdgmindiv" "Single Paradigm Display")]
+        [:li (link-to "/pdgmmultdef" "Multiple Paradigm Display (Default Format) ")]
+        [:li (link-to "/pdgmcomblist" "Combine/Modify Paradigm (From List)")]
+        [:li (link-to "/pdgmcombtabl" "Combine/modify Paradigm (From Table)")]]]
       [:li (link-to "#" "Morphosyntactic Category Search")
        [:ul
         [:li (link-to "/pvlgpr" "Morphosyntactic Properties")]
         [:li (link-to "/pvlgvl" "Morphosyntactic Values")]
         [:li (link-to "/listlgpr"  "Properties by Language and POS")]
-        [:li (link-to "/listlpv" "Morphological Prop-Val Indices by Language")]
-        [:li (link-to "/listptype" "Paradigm-Type Indices by Language")]]]]]
+        [:li (link-to "/listlpv" "Morphological Prop-Val Indices by Language")]]]]]
     [:li (link-to "#" "Utilities")
      [:ul 
       [:li (link-to "#" "List and Index Generation:")

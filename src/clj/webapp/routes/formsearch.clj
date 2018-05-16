@@ -58,8 +58,8 @@
         [:th [:div {:class "some-handle"}[:br] (upper-case head)]])]]
     [:tbody 
      (for [formrow formrows]
-       (let [formrow1 (clojure.string/replace formrow #"(.*),(.*?,.*?)$" "$1%%$2")
-             formrow2 (split formrow1 #"%%")
+       (let [formrow1 (clojure.string/replace formrow #"(.*),(.*?,.*?)$" "$1%%%$2")
+             formrow2 (split formrow1 #"%%%")
              qprops (split (first formrow2) #",")
              language (first qprops)
              tokenID (last formrow2)
@@ -86,8 +86,8 @@
         req (http/get aama
                       {:query-params
                        {"query" query-sparql ;;generated sparql
-                        ;;"format" "application/sparql-results+json"}})]
-                        ;;"format" "text"}})]
+                        ;;"format" "application/sparql-result
+                       ;;"format" "text"}})]
                         "format" "csv"}})
         csvstring (:body req)
         csvstr (split csvstring #"\r\n" 2)
@@ -139,10 +139,11 @@
               [:thead
                [:tr
                 [:th  [:br] "LANGUAGE"]
-                [:th  [:br] "PDGM-TYPE" ]
+                [:th  [:br] "POS"]
+                [:th  [:br] "MORPHEME CLASS" ]
+                [:th  [:br]  "MS VALUES" ]
                 [:th  [:br] "TOKEN" ]
                 [:th  [:br]  "DATA ID" ]
-                [:th  [:br]  "MS VALUES" ]
                 [:th  [:br]  "PARADIGMS" ]
                 ;;[:th "qtype1"] [:th "pos1" ] [:th "ptype"]
                 ;;[:th  [:br]  "query"]
@@ -162,47 +163,44 @@
                                         "format" "csv"}})
                         pos (clojure.string/replace (:body req-pos) #"^.*?\r\n" "")
                         pos1 (clojure.string/replace pos #"\r\n" "")
-                        query-sparql-ptype (sparql/formptype-sparql tknID)
-                        req-ptype (http/get aama
-                                            {:query-params
-                                             {"query" query-sparql-ptype
-                                              "format" "csv"}})
-                        qptype (clojure.string/replace (:body req-ptype) #"^.*?\r\n" "")
-                        qptype1 (clojure.string/replace (:body req-ptype) #"\r\n" "")
-                        ptype (cond
+                        morphprop (cond
                                (= pos1 "Pronoun")
-                               "pro"
+                               "proClass"
                                (= pos1 "Noun")
-                               "noun"
+                               "nmorphClass"
                                (= pos1 "Verb")
-                               (if (= qptype1 "_askResulttrue")
-                                 "fv"
-                               "nfv")
+                               "vmorphClass"
                                )
+                        query-sparql-mclass (sparql/formmclass-sparql tknID morphprop)
+                        req-mclass (http/get aama
+                                            {:query-params
+                                             {"query" query-sparql-mclass
+                                              "format" "csv"}})
+                        mclass (clojure.string/replace (:body req-mclass) #"^.*?\r\n" "")
+                        mclass1 (clojure.string/replace mclass #"\r\n" "")
                         query-sparql-pv (sparql/formpv-sparql tknID)
                         req-pv (http/get aama
                                       {:query-params
                                        {"query" query-sparql-pv ;;generated sparql
                                         "format" "text"}})
-                        pdgmmap (read-string (slurp (str "pvlists/dataID-vlcl-" (lower-case language) "-" ptype ".edn")))
+                        pdgmmap (read-string (slurp (str "pvlists/pdgm-label-" (lower-case language) ".edn")))
                         dataIDkey (read-string (str ":" dataID))
                         pdgmstr (dataIDkey pdgmmap)
                         pdgms (split pdgmstr #" ")
                         ]
                     [:div
                      [:td language]
-                     [:td ptype]
+                     [:td pos1]
+                     [:td mclass1]
+                     [:td [:pre (:body req-pv)]]
                      [:td token]
                      [:td dataID] 
-                     [:td [:pre (:body req-pv)]]
                      [:td 
                       (for [pdgm pdgms]
-                       [:label (str pdgm ": ") (check-box {:class "checkbox1" :name "pdgms[]" :value (str language "+" ptype "%%" pdgm)} pdgm)])]
-                    ;;[:td [:pre qptype1]]
-                    ;;[:td [:pre pos1]]
-                    ;;[:td [:pre ptype ]] 
+                       [:label 
+                        (check-box {:class "checkbox1" :name "pdgms[]" :value (str (lower-case language) "," pdgm)} pdgm) pdgm])]
                      ])])
-               [:tr [:td ][:td][:td][:td][:td]
+               [:tr [:td ][:td][:td][:td][:td][:td]
                 [:td [:input#submit
                       {:value "Display pdgms", :name "submit", :type "submit"}]]]]])
     [:hr]
@@ -222,83 +220,26 @@
   (let 
       [lprefmap (read-string (slurp "pvlists/lprefs.clj"))]
     (for [pdgm pdgms]
-      (let [vals (split pdgm #"%%")
-            lgptype (split (first vals) #"\+")
-            language (lower-case (first lgptype))
-            ptype (last lgptype)
-            vcluster (last vals)
-            lang (read-string (str ":" language))
-            lpref (lang lprefmap)
-            valstrng (clojure.string/replace vcluster #",*person|,*gender|,*number" "")
-            valstr (clojure.string/replace valstrng #":," ":")
-            query-sparql (cond 
-                          (= ptype "pro")
-                          (sparql/pdgmqry-sparql-pro language lpref valstr)
-                          (= ptype "nfv")
-                          (sparql/pdgmqry-sparql-nfv language lpref vcluster)
-                          (= ptype "noun")
-                          (sparql/pdgmqry-sparql-noun language lpref vcluster)
-                          :else (sparql/pdgmqry-sparql-fv language lpref vcluster))
+      (let  [language (first (split pdgm #"," 2))
+             vcluster (last (split pdgm #"," 2))
+             query-sparql (sparql/pdgmqry-sparql-gen-vrbs pdgm)
             query-sparql-pr (clojure.string/replace query-sparql #"<" "&lt;")
             req (http/get aama
                       {:query-params
                        {"query" query-sparql ;;generated sparql
                         ;;"format" "application/sparql-results+json"}})]
                         "format" "text"}})
-            req2 (clojure.string/replace (:body req) #"%%" " + ")
+            ;;req2 (clojure.string/replace (:body req) #"%%" " + ")
             ]
         [:div
          [:hr]
          [:h4 "Pdgm: "]
          [:p (str language ": " vcluster )]
-         ;;[:pre (:body req)]
-         [:pre req2]
+         [:pre (:body req)]
+         ;;[:pre req2]
          [:hr]
          [:h3#clickable "Query:"]
          [:pre query-sparql-pr]
-        ])))
-        [:script {:src "js/goog/base.js" :type "text/javascript"}]
-        [:script {:src "js/webapp.js" :type "text/javascript"}]
-        [:script {:type "text/javascript"}
-         "goog.require('webapp.core');"]))
-
-(defn handle-multiseqdisplay-org
- [valclusters pos]
- (layout/common
-  (let 
-      [lprefmap (read-string (slurp "pvlists/lprefs.clj"))]
-    (for [valcluster valclusters]
-      (let [vals (split valcluster #"," 2)
-            language (first vals)
-            vcluster (last vals)
-            lang (read-string (str ":" language))
-            lpref (lang lprefmap)
-            valstrng (clojure.string/replace vcluster #",*person|,*gender|,*number" "")
-            valstr (clojure.string/replace valstrng #":," ":")
-            query-sparql (cond 
-                          (= pos "pro")
-                          (sparql/pdgmqry-sparql-pro language lpref valstr)
-                          (= pos "nfv")
-                          (sparql/pdgmqry-sparql-nfv language lpref vcluster)
-                          (= pos "noun")
-                          (sparql/pdgmqry-sparql-noun language lpref vcluster)
-                          :else (sparql/pdgmqry-sparql-fv language lpref vcluster))
-            query-sparql-pr (clojure.string/replace query-sparql #"<" "&lt;")
-            req (http/get aama
-                      {:query-params
-                       {"query" query-sparql ;;generated sparql
-                        ;;"format" "application/sparql-results+json"}})]
-                        "format" "text"}})
-            req2 (clojure.string/replace (:body req) #"%%" " + ")
-            ]
-        [:div
-         [:hr]
-         [:h4 "Valcluster: " valcluster]
-         ;;[:pre (:body req)]
-         [:pre req2]
-         ;;[:hr]
-         ;;[:h3#clickable "Query:"]
-         ;;[:pre query-sparql-pr]
         ])))
         [:script {:src "js/goog/base.js" :type "text/javascript"}]
         [:script {:src "js/webapp.js" :type "text/javascript"}]

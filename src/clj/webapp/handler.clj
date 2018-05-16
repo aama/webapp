@@ -13,10 +13,10 @@
             [webapp.routes.bibIndexGen :refer [bibIndexGen-routes]]
             [webapp.routes.bibInfoSpecial :refer [bibInfoSpecial-routes]]
             [webapp.routes.bibInfoMaster :refer [bibInfoMaster-routes]]
-            [webapp.routes.pdgm :refer [pdgm-routes]]            
             [webapp.routes.pdgmindiv :refer [pdgmindiv-routes]]            
             [webapp.routes.pdgmmultdef :refer [pdgmmultdef-routes]]
-            [webapp.routes.pdgmmultmod :refer [pdgmmultmod-routes]]
+            [webapp.routes.pdgmcomblist :refer [pdgmcomblist-routes]]
+            [webapp.routes.pdgmcombtabl :refer [pdgmcombtabl-routes]]
             [webapp.routes.multipdgmsort :refer [multipdgmsort-routes]]
             [webapp.routes.pvlgpr :refer [pvlgpr-routes]]
             [webapp.routes.formsearch :refer [formsearch-routes]]
@@ -29,7 +29,6 @@
             [webapp.routes.listvlcl :refer [listvlcl-routes]]
             [webapp.routes.pdgmIndex :refer [pdgmIndex-routes]]
             [webapp.routes.listlpv :refer [listlpv-routes]]
-            [webapp.routes.listptype :refer [listptype-routes]]
             [webapp.routes.makeschemata :refer [makeschemata-routes]]
             [webapp.routes.helpaamaversions :refer [helpaamaversions-routes]]
             [webapp.routes.helpinitializeapp :refer [helpinitializeapp-routes]]
@@ -51,7 +50,7 @@
   (route/not-found "Not Found"))
 
 (def app
-  (-> (routes home-routes  aamaApp-routes langInfo-routes langInfoTree-routes bibIndexGen-routes bibInfoSpecial-routes bibInfoMaster-routes pdgm-routes pvlgpr-routes pvlgvl-routes formsearch-routes listmenulpv-routes listmenulang-routes update-routes pdgmindiv-routes upload-routes listlgpr-routes listvlcl-routes pdgmIndex-routes listlpv-routes listptype-routes makeschemata-routes pdgmmultdef-routes pdgmmultmod-routes multipdgmsort-routes helpaamaversions-routes helpinitializeapp-routes helppdgms-routes helpformsearch-routes helppvdisp-routes helplistgen-routes helpwebupdate-routes helpclupdate-routes app-routes)
+  (-> (routes home-routes  aamaApp-routes langInfo-routes langInfoTree-routes bibIndexGen-routes bibInfoSpecial-routes bibInfoMaster-routes pvlgpr-routes pvlgvl-routes formsearch-routes listmenulpv-routes listmenulang-routes update-routes pdgmindiv-routes upload-routes listlgpr-routes listvlcl-routes pdgmIndex-routes listlpv-routes  makeschemata-routes pdgmmultdef-routes pdgmcomblist-routes pdgmcombtabl-routes multipdgmsort-routes helpaamaversions-routes helpinitializeapp-routes helppdgms-routes helpformsearch-routes helppvdisp-routes helplistgen-routes helpwebupdate-routes helpclupdate-routes app-routes)
       (handler/site)
       (wrap-base-url)))
 

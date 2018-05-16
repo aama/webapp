@@ -26,11 +26,14 @@ h1 {
     float:left;
 }*/
 
+label {
+    float:left;
+}
 
 .info-page {
     font-weight:normal;
     height:20px;
-    width:500px;
+    width:100px;
     cursor:move;
 }
 

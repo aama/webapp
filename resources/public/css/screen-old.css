@@ -1,3 +1,4 @@
+
 /*##### the main stuff #####*/
 body {
     font-size: 12px;
@@ -21,11 +22,10 @@ h1 {
     text-align: left;
 }
 
-/**label {
+label {
     width:500px;
     float:left;
-}*/
-
+}
 
 .info-page {
     font-weight:normal;
@@ -100,7 +100,6 @@ input[type=submit] {
     
 td {
     vertical-align: top;
-
 }
 */
 

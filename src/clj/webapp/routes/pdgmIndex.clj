@@ -47,74 +47,107 @@
 
 (defn makeplist
   [termclusters]
-    (for [termcluster termclusters]
-      (let [label (termcluster :label)
-            terms (termcluster :terms)
-            schema (pop (first terms))
-            common (into (sorted-map) (termcluster :common))
-            posval (common :pos)
-            lexval (common :lexeme)
-            commonVSet (vals common)
-            morphClassval (cond 
-                           (= posval :Pronoun) 
-                            (common :proClass) 
-                            (= posval :Noun)
-                            (common :nmorphClass)
-                            :else
-                            (common :vmorphClass))
-            pvstring (str (dissoc common :pos :lexeme :vmorphClass :nmorphClass :proClass))
-            pvstring1 (clojure.string/replace pvstring #"(\w) :" "$1=")
-            pvstring2 (clojure.string/replace pvstring1 #"[/{/}\s]" "")
-            schemastr (clojure.string/replace (apply str schema) #":" ",")
-            pindex1 (str label "," posval "," morphClassval "," pvstring2 "%" schemastr )
-            ;;pindex2 (clojure.string/replace pindex1 #":" "")
-            ;; if want to take :lexeme out of common
-            pindex2 (str (clojure.string/replace pindex1 #":" "") lexval)
-            ;; for next two, adjust N on pindexN acc. to choice
-            ;; if want to have Prop:Val in schema
-            ;;pindex3 (clojure.string/replace pindex2 #",(\w*?)=" ",$1:")
-            ;; if want only Val in schema
-            ;;pindex3 (clojure.string/replace pindex2 #",\w*?=" ",")
-            ]
-            (clojure.string/replace pindex2 #",*%,*" "%"))))
+  (for [termcluster termclusters]
+    (let [label (termcluster :label)
+          terms (termcluster :terms)
+          schema (pop (first terms))
+          common (into (sorted-map) (termcluster :common))
+          posval (common :pos)
+          lexval (common :lexeme)
+          commonVSet (vals common)
+          ;; combine proClass nmorphClass vmorphClass into single category morphClass
+          morphClassval (cond 
+                         (= posval :Pronoun) 
+                         (common :proClass) 
+                         (= posval :Noun)
+                         (common :nmorphClass)
+                         :else
+                         (common :vmorphClass))
+          ;;pmorphTypeval (common :pmorphType) 
+          pvstring (str (dissoc common :pos :lexeme :vmorphClass :nmorphClass :proClass))
+          pvstring1 (clojure.string/replace pvstring #"(\w) :" "$1=")
+          pvstring2 (clojure.string/replace pvstring1 #"[/{/}\s]" "")
+          schemastr (clojure.string/replace (apply str schema) #":" ",")
+          pindex1 (str label "," posval "," morphClassval "," pvstring2 "%" schemastr )
+          ;;pindex2 (clojure.string/replace pindex1 #":" "")
+          ;; if want to take :lexeme out of common
+          pindex2 (str (clojure.string/replace pindex1 #":" "") lexval)
+          ;; for next two, adjust N on pindexN acc. to choice
+          ;; if want to have Prop:Val in schema
+          ;;pindex3 (clojure.string/replace pindex2 #",(\w*?)=" ",$1:")
+          ;; if want only Val in schema
+          ;;pindex3 (clojure.string/replace pindex2 #",\w*?=" ",")
+          ]
+      (clojure.string/replace pindex2 #",*%,*" "%"))))
 
 (defn csv2map
   "Maps the content of the label+pdgmValueCluster vector into a (keywordized) pdgmVC to label map"
   [vlclvec]
-  (let [csvmap1 (for [vlcl vlclvec] (hash-map (replace (last (split vlcl #"," 2)) #"," "_") (first (split vlcl #"," 2))))
+  (let [csvmap1 (for [vlcl vlclvec] (hash-map (replace (first (split vlcl #"," 2)) #"," "_") (last (split vlcl #"," 2))))
         csvmap2 (into (sorted-map) (clojure.walk/keywordize-keys csvmap1))]
-        (join ",\n" (split (str csvmap2) #", "))))
+    (join ",\n" (split (str csvmap2) #", "))))
+
 
 (defn handle-pdgmIndex-gen
   [ldomain]
-  ;;[:h3#clickable "Value-clusters used in " pos " pdgms for: " ldomain]
-  (let [inputfile ( str "../aama-data/data/" ldomain "/" ldomain "-pdgms.edn")
-        pdgmstring (slurp inputfile)
-        pdgm-map (read-string pdgmstring)
-        ;; The following are possible lists and tables of pdgm values
-        vlclindex (str "pvlists/pdgm-index-" ldomain ".txt")
-        labellist (str "pvlists/label-index-" ldomain ".edn")
-        termclusters (:termclusters pdgm-map)
-        vlclvec1 (makeplist termclusters)
-        vlcllist1 (for [vlcl vlclvec1] (last (split vlcl #"," 2))) 
-        vlcllist2 (join "\n" (into (sorted-set) vlcllist1))
-        labelmap (csv2map vlclvec1)
-        ]
-    (spit vlclindex vlcllist2)
-    (spit labellist labelmap)
-    (layout/common
-     [:body
-      [:div 
-       [:p [:b "Ldomain: "] ldomain]
-       [:p [:b "File vlcllist:    "] [:pre vlcllist2]]
-       [:p [:b "File vlclvec1n:    "] [:p vlclvec1]]
-       [:p [:b "File labelmap:    "] [:p labelmap]]
-       [:p "==========================="]]
-     [:script {:src "js/goog/base.js" :type "text/javascript"}]
-     [:script {:src "js/webapp.js" :type "text/javascript"}]
-     [:script {:type "text/javascript"}
-      "goog.require('webapp.core');"]])
-    ))
+  (layout/common
+   [:body
+    ;;[:h3#clickable "Value-clusters used in " pos " pdgms for: " ldomain]
+    (let [languages (split ldomain #",")]
+      (for [language languages]
+        (let [inputfile ( str "../aama-data/data/" language "/" language "-pdgms.edn")
+              pdgmstring (slurp inputfile)
+              pdgm-map (read-string pdgmstring)
+              ;; The following are possible lists and tables of pdgm values
+              vlclindex (str "pvlists/pdgm-index-" language ".txt")
+              labellist (str "pvlists/pdgm-label-" language ".edn")
+              proptable (str "pvlists/pdgm-table-" language ".txt")
+              termclusters (:termclusters pdgm-map)
+              ;; get set of all :common props, plus label
+              vlclvec (makeplist termclusters)
+              ;;get rid of label for pdgm index
+              vlcllist1 (for [vlcl vlclvec] 
+               (last (split vlcl #"," 2))) 
+              vlcllist (join "\n" (into (sorted-set) vlcllist1))
+              ;; map label to value cluster
+              labelmap (csv2map vlclvec)
+              headprops (join "," 
+                              (for [termcluster termclusters] 
+                                (join "," (keys (termcluster :common)))))
+              ;; then disj props from pos, v/nmorphClass, proClass, lexeme
+              headpropvec1 (into (sorted-set) (split headprops #","))
+              headpropvec2 (disj headpropvec1 ":pos" ":lexeme" ":nmorphClass" ":proClass" ":vmorphClass")
+              headpropstr (join "," headpropvec2)
+              ;;headpropkeys (for [headprop headpropvec2] 
+              ;;               (clojure.string/replace headprop #":" ""))
+              ;;make pdgm property csv
+              ;;pdgmtablerows (makeproptablerows vlcllist headpropkeys)
+              pdgmtableheads (str ":pdgm,:pos,:morphClass," headpropstr ",:lexeme")
+              pdgmtable (apply str pdgmtableheads)
+              ]
+          (spit vlclindex vlcllist)
+          (spit proptable pdgmtable)
+          (spit labellist labelmap)
+          [:div 
+           [:p [:b "Ldomain: "] [:pre language]]
+           [:p [:b "pdgm-index:    "] [:pre vlcllist]]
+           [:p [:b "pdgm-table:  "] [:pre pdgmtable]]
+           [:p [:b "label-index:    "] [:pre labelmap]]
+           [:p " "]
+           [:h4 "======= Debug Info: ======="]
+           [:p [:b "Prop table heads1:  "] [:pre headprops]]
+           [:p [:b "Sorted Prop head set:  "] [:pre headpropvec2]]
+           [:p [:b "Prop head string:  "] [:pre headpropstr]]
+           ;;[:p [:b "Prop head keys:  "] [:pre headpropkeys]]
+           [:p [:b "Pdgmtable Heads:  "] [:pre pdgmtableheads]]
+           ;;[:p [:b "Pdgmtable Rows:  "] [:pre pdgmtablerows]]
+           [:p [:b "File vlclvec:    "] [:p vlclvec]]
+           [:p "==========================="]])))
+    [:script {:src "js/goog/base.js" :type "text/javascript"}]
+    [:script {:src "js/webapp.js" :type "text/javascript"}]
+    [:script {:type "text/javascript"}
+     "goog.require('webapp.core');"]]))
+
 
 (defroutes pdgmIndex-routes
   (GET "/pdgmIndex" [] (pdgmIndex))
