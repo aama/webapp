@@ -37,7 +37,7 @@
      [:li [:h4 "Remote Working Versions"]
       [:p "In order not to interfere with the data pulled from the github repository, we have found it more feasible for remote working versions to index, inspect, manipulate (and eventually edit) data from a separate working version, usually in local \"aama/data/LANG\" directories, automatically copied from the \"aama/data-repo/LANG\" directories by the \"aama-pulldata.sh\" script."]]]]
    [:HR]
-   [:h5 "[For more detail on the above, cf. " (link-to "http://aama.github.io" "aama.github.io") "; some older information is also available in the github aama-data/bin " (link-to "https://github.com/gbgg/aama-data/blob/master/bin/README.md" "README")"]"]]))
+   [:h5 "[For more detail on the above, cf. " (link-to "http://aama.github.io" "aama.github.io") "; some older information is also available in the github aama-data/bin " (link-to "https://github.com/gbgg/aama-data" "README")"]"]]))
 
 (defroutes helpaamaversions-routes
   (GET "/helpaamaversions" [] (helpaamaversions)))

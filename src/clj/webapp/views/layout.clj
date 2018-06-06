@@ -57,7 +57,18 @@
        ;;            "/js/colors.js"
        ;;            "/js/site.js")
        ]
-      [:body content]))))
+      [:body content]
+         ;;   <!-- FOOTER  -->
+      ;;<div id="footer_wrap" class="outer">
+;;	<footer class="inner">
+;;          <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+;;	</footer>
+;;      </div>
+;;    </body>
+;;  </html>
+
+
+      ))))
 
 (defn base [& content]
   (RenderablePage. content
@@ -70,24 +81,26 @@
     [:li (link-to "#" "Home")
      [:ul
       [:li (link-to "/aamaApp" "The AAMA Application")]
-      [:li (link-to "#" "The Languages")
+      [:li (link-to "/aamapdgmdata" "AAMA Paradigm Data")]
+      [:li (link-to "#" "AAMA Languages")
        [:ul
         [:li (link-to "/langInfo" "Alphabetic")]
         [:li (link-to "/langInfoTree" "By Family")]]]
-      [:li (link-to "#" "Bibliography")
+      [:li (link-to "#" "AAMA Bibliography")
        [:ul
         [:li (link-to "/bibInfoMaster" "General Bibliography")]
         [:li (link-to "/bibInfoSpecial" "Bibliography by Key Word")]
         ]]]]
     [:li (link-to "#" "Search/Display")
      [:ul
-      [:li (link-to "/formsearch" "User-specified Form/Paradigm Display")]
-      [:li (link-to "#" "Archived Paradigm Search/Display")
+      [:li (link-to "#" "Archive Paradigm Search/Display")
        [:ul
         [:li (link-to "/pdgmindiv" "Single Paradigm Display")]
         [:li (link-to "/pdgmmultdef" "Multiple Paradigm Display (Default Format) ")]
         [:li (link-to "/pdgmcomblist" "Combine/Modify Paradigm (From List)")]
         [:li (link-to "/pdgmcombtabl" "Combine/modify Paradigm (From Table)")]]]
+      [:li (link-to "/formsearch" "User-specified Form/Paradigm Display")]
+
       [:li (link-to "#" "Morphosyntactic Category Search")
        [:ul
         [:li (link-to "/pvlgpr" "Morphosyntactic Properties")]
@@ -101,24 +114,30 @@
         [:li (link-to "/listmenulang" "Language Lists")]
         [:li (link-to "/bibIndexGen" "Bibliography Indices")]
         [:li (link-to "/listmenulpv" "Property/Value Lists")]
-        [:li (link-to "/pdgmIndex" "Index Archive Paradigms")]
-        [:li (link-to "/makeschemata" "Make New Schemata Section for LANG-pdgms.edn")]]]
+        [:li (link-to "/pdgmIndex" "Paradigm Lists")]
+        [:li (link-to "/makeschemata" "New Schemata Section for LANG-pdgms.edn")]]]
       [:li (link-to "#" "Update:")
        [:ul 
         [:li (link-to "/update" "Update Local Datastore [Under Development]")]
         [:li (link-to "/upload" "Upload to Remote Repository [Under Development")]]]]]
     [:li (link-to "#" "Help")
      [:ul
+      [:li (link-to "#" "The AAMA Application:")
+       [:ul 
       [:li (link-to "/helpaamaversions" "AAMA Versions")]
-      [:li (link-to "/helpinitializeapp" "Initialize Application")]
-      [:li (link-to "/helpformsearch" "Form Search")]
-      [:li (link-to "/helppdgms" "Paradigm Search")]
-      [:li (link-to "/helppvdisp" "Morphosyntactic Category Search")]
-      [:li (link-to "/helplistgen" "List Generation")]
-      [:li (link-to "#" "Update/Upload")
+      [:li (link-to "/helpinitializeapp" "How to Initialize A Local Application")]]]
+      [:li (link-to "#" "Search/Display")
        [:ul
-        [:li (link-to "/helpwebupdate" "Webapp")]
-        [:li (link-to "/helpclupdate" "Command Line")]]]]]]
+        [:li (link-to "/helpformsearch" "User-specified Form(set) Search")]
+        [:li (link-to "/helppdgms" "Archive Paradigm Search")]
+        [:li (link-to "/helppvdisp" "Morphosyntactic Category Search")]]]
+      [:li (link-to "#" "Utilities")
+       [:ul
+        [:li (link-to "/helplistgen" "List Generation")]
+        [:li (link-to "#" "Update/Upload")
+         [:ul
+          [:li (link-to "/helpwebupdate" "Webapp")]
+          [:li (link-to "/helpclupdate" "Command Line")]]]]]]]]
    [:div.content content]))
 
 ;;(defn common [& content]

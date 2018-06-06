@@ -26,7 +26,7 @@
        [:p
        [:ul
       [:li (link-to "/multipdgmseq"  "Multiparadigm Sequential Fixed Display")
-       [:ul [:li [:p "A first checkbox allows the selection of one or more languages, and a second the selection of one or more paradigms from each of these languages. A sequence of table-formatted displays of the selected paradigms is returned."]
+       [:ul [:li [:p "A first checkbox allows the selection of one or more languages, and a second the selection of one or more paradigms from each of these languages. A sequence of default table-formatted displays of the selected paradigms is returned."]
              [:p "NB: The \"Select All\" option is principally to allow print-outs for proof-reading purposes."]]]
       [:li [:p  "Multiparadigm Combined Modifiable Display. Thereare two sub-possibilities:"]
        [:ol [:li [:p (link-to "/multipdgmmod"  "Multiparadigm Display from \"Value-Cluster\" list.") " A first checkbox allows the selection of one or more languages, and a second the selection of one or more paradigms (\"value-clusters\") from each of these languages. The routine first returns a single sortable table display of the selected paradigm(s) with draggable columns. A selection button permits the reformatting of this table into a (sortable, draggable) table with the paradigms in parallel columns. (Defined currently only for finite-verb and pronominal Number-Person-Gender-Token paradigms.) "]]

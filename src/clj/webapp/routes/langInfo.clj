@@ -124,6 +124,10 @@
              ;;[:pre query-sparql-pr]
             ;;[:h4 "============================="]]
            ]))]
+       [:div
+       [:footer
+        [:p "AAMA Webapp"]]]
+
         [:script {:src "js/goog/base.js" :type "text/javascript"}]
         [:script {:src "js/webapp.js" :type "text/javascript"}]
         [:script {:type "text/javascript"}

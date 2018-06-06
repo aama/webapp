@@ -23,7 +23,7 @@
    [:h3 "Language-Property-Value Cooccurrences"]
    [:h4 "Choose Language Domain and Enter qstring: prop=Val,...prop=?prop,..."]
    (form-to [:post "/formdisplay"]
-            [:table
+            [:table 
              [:tr [:td "Language(s) to be Queried: " ]
               [:td 
                {:title "Choose one or more languages.", :name "language"}
@@ -35,11 +35,11 @@
              [:tr [:td "Query List: " ]
               [:td 
                (text-field 
-                {:placeholder "person=Person2,gender=Fem,pos=?pos,number=?number"} 
+                {:size "100" :placeholder "person=Person2,gender=Fem,pos=?pos,number=?number"} 
                 "qstring") ]]
              [:tr [:td "RE Form Filter: " ]
               [:td
-               (text-field {:placeholder ""} "filter")]]
+               (text-field {:size "50" :placeholder ""} "filter")]]
               ;;(submit-button "Get values")
              [:tr [:td ]
               [:td [:input#submit

@@ -21,7 +21,7 @@
         ldomlist (slurp "pvlists/ldomainlist.txt")
         ldoms (split ldomlist #"\n")]
     (layout/common 
-     [:h3 "Create value-cluster lists"]
+     [:h3 "Create Paradigm Lists"]
      (form-to [:post "/pdgmIndex-gen"]
               [:table
                [:tr [:td "PDGM Language Domain: " ]
@@ -53,25 +53,25 @@
           schema (pop (first terms))
           common (into (sorted-map) (termcluster :common))
           posval (common :pos)
-          lexval (common :lexeme)
+          ;;lexval (common :lexeme)
           commonVSet (vals common)
           ;; combine proClass nmorphClass vmorphClass into single category morphClass
           morphClassval (cond 
                          (= posval :Pronoun) 
-                         (common :proClass) 
+                         (common :pmorphClass) 
                          (= posval :Noun)
                          (common :nmorphClass)
                          :else
                          (common :vmorphClass))
           ;;pmorphTypeval (common :pmorphType) 
-          pvstring (str (dissoc common :pos :lexeme :vmorphClass :nmorphClass :proClass))
+          pvstring (str (dissoc common :pos :vmorphClass :nmorphClass :pmorphClass))
           pvstring1 (clojure.string/replace pvstring #"(\w) :" "$1=")
           pvstring2 (clojure.string/replace pvstring1 #"[/{/}\s]" "")
           schemastr (clojure.string/replace (apply str schema) #":" ",")
           pindex1 (str label "," posval "," morphClassval "," pvstring2 "%" schemastr )
-          ;;pindex2 (clojure.string/replace pindex1 #":" "")
+          pindex2 (clojure.string/replace pindex1 #":" "")
           ;; if want to take :lexeme out of common
-          pindex2 (str (clojure.string/replace pindex1 #":" "") lexval)
+          ;;pindex2 (str (clojure.string/replace pindex1 #":" "") lexval)
           ;; for next two, adjust N on pindexN acc. to choice
           ;; if want to have Prop:Val in schema
           ;;pindex3 (clojure.string/replace pindex2 #",(\w*?)=" ",$1:")
@@ -116,7 +116,7 @@
                                 (join "," (keys (termcluster :common)))))
               ;; then disj props from pos, v/nmorphClass, proClass, lexeme
               headpropvec1 (into (sorted-set) (split headprops #","))
-              headpropvec2 (disj headpropvec1 ":pos" ":lexeme" ":nmorphClass" ":proClass" ":vmorphClass")
+              headpropvec2 (disj headpropvec1 ":pos" ":lexeme" ":nmorphClass" ":pmorphClass" ":vmorphClass")
               headpropstr (join "," headpropvec2)
               ;;headpropkeys (for [headprop headpropvec2] 
               ;;               (clojure.string/replace headprop #":" ""))

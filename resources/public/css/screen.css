@@ -26,6 +26,9 @@ h1 {
     float:left;
 }*/
 
+.text-field {
+    width: 500px;
+    }
 
 .info-page {
     font-weight:normal;

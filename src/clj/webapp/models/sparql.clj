@@ -385,7 +385,7 @@ ORDER BY ASC(?language) ")))
                  ?val
                 ) AS ?value
              ) .
- 	FILTER (?p NOT IN ( aamas:lang, aamas:lexeme, aamas:memberOf, rdf:type ) )
+ 	FILTER (?p NOT IN ( aamas:lang, aamas:memberOf, rdf:type ) )
         FILTER (!CONTAINS (str(?p), \"token\" ))
 
      }}}

@@ -56,7 +56,34 @@
                     [:option {:value "lang-prop-val-modifiable" :label "Drag/Sort Language-Property-Value [work in progress!]"}]
                     ]]]
              ;;(submit-button "Get values")
-             [:tr [:td ](let  [curcat1 (atom "")
+             [:tr [:td ]
+              [:td [:input#submit
+                    {:value "Make Language-Property-Value Lists", :name "submit", :type "submit"}]]]]))))
+
+(defn csv2tablemod
+"Takes sorted 3-col csv list and outputs sortable, draggable html table."
+ [header lpvs]
+(let  [curcat1 (atom "")
+      curcat2 (atom "")
+       heads (split header #",")]
+  ;; For visible borders set {:border "1"}.
+  [:div [:h4 "[NB: Work in Progress!]"]
+  [:table {:id "handlerTable" :class "tablesorter sar-table"}
+   [:thead
+    (for [head heads]
+      [:th [:div {:class "some-handle"}] head])]
+   [:tbody
+    (for [lpv lpvs]
+      [:tr
+      (let [cats (split lpv #",")]
+        (for [cat cats]
+          [:td cat]))])]]]))
+
+
+(defn csv2cpvl
+"Takes sorted 3-col csv list and outputs 4-col html table with empty col1 for prop-class and string of col4 vals for repeated col3. [ONLY RELEVANT WHEN PROPERTY CLASSES HAVE BEEN ESTABLISHED.]"
+ [header lpvs]
+(let  [curcat1 (atom "")
        curcat2 (atom "")
        curcat3 (atom "")
        heads (split header #",")]
