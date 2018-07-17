@@ -73,10 +73,10 @@
               mvalsprops (split (last vcs) #"%" 2)
               mv (first mvalsprops)
               morphclass (first (split mv #"," 2))
-              proplex (last mvalsprops)
-              lex (if (re-find #":" proplex)
-                    (last (split proplex #":" 2))
-                    "-")
+              ;;proplex (last mvalsprops)
+              ;;lex (if (re-find #":" proplex)
+              ;;      (last (split proplex #":" 2))
+              ;;      "-")
               props (if (re-find #"," mv)
                       (last (split mv #"," 2))
                       "")
@@ -94,10 +94,11 @@
                              (for [combtablehead combtableheads] 
                                (if ( (keyword combtablehead) propmap)
                                  ( str "," ( (keyword combtablehead) propmap))
-                                 ( str ",-" ))))
+                                 ( str ", " ))))
               ]
           ;; make sure no redundant commas
-          (str language "," vlcl "&&"  pos "," morphclass   propseq  "%%" lex  "\r\n"))))))
+          ;;(str language "," vlcl "&&"  pos "," morphclass   propseq  "%%" lex  "\r\n"))))))
+          (str language "," vlcl "&&"  pos "," morphclass   propseq  "\r\n"))))))
                       
 (defn handle-pdgmcombtablqry
   [languages]
@@ -105,7 +106,8 @@
         propheads (reduce concat combtableheads)
         propheadset1 (into (sorted-set) propheads)
         ;; limit propheadset to prop=val components
-        propheadset2 (disj propheadset1 "pos" "morphClass" "pdgm" "lexeme")
+        ;;propheadset2 (disj propheadset1 "pos" "morphClass" "pdgm" "lexeme")
+        propheadset2 (disj propheadset1 "pos" "morphClass" "pdgm" )
         propheadvec (into [] propheadset2)
         combtablerows (makecombtablerows languages propheadvec)
         tablerows (reduce concat combtablerows)
@@ -129,7 +131,7 @@
                  (for [prophead propheadvec]
                    [:th [:div {:class "some-handle"} [:br] (capitalize prophead)]]
                  )
-                 [:th [:div {:class "some-handle"} [:br] "Lexeme"]]
+                 ;;[:th [:div {:class "some-handle"} [:br] "Lexeme"]]
                 ]]]
                [:tbody 
                 ;;(str language "," vlcl "&&"  pos "," morphclass ","  propseq  "%%" lex  "\r\n")
@@ -139,9 +141,11 @@
                         langPname (first tablecells)
                         language (first (split langPname #"," 2 ))
                         pdgmname (last (split langPname #"," 2 ))
-                        propsLex (last tablecells)
-                        pdgmprops (first (split propsLex #"%%"))
-                        lexeme (last (split propsLex #"%%"))
+                        ;; old
+                        ;;propsLex (last tablecells)
+                        ;;pdgmprops (first (split propsLex #"%%"))
+                        ;;lexeme (last (split propsLex #"%%"))
+                        pdgmprops (last tablecells)
                         propcells (split pdgmprops #",")
                         ;;pos (first (split pdgmprops #"," 2))
                         ;;morphprops (next (split pdgmprops #"," 2 ))
@@ -162,7 +166,8 @@
                      (for [propcell propcells]
                        [:td propcell]
                      )
-                     [:td lexeme]])])
+                     ;;[:td lexeme]
+                     ])])
                     ;;(if (re-find #"EmptyList" valclusterlist)
                     ;; [:div (str "There are no " pos " paradigms in the " language " archive.")]
                     ;;(submit-button "Get p/dgm")

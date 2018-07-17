@@ -20,12 +20,13 @@
 
     [:h2 "Note on Paradigm Data"]
     [:p
-     "\"Paradigm\" is here taken in its simplest and most  obvious sense as any presentation of 
+    [:em  "\"Paradigm\""]" is here taken in its simplest and most  obvious sense as"
+[:em " any presentation of 
 one or more linguistic forms (\"tokens\": words, affixes, clitics, stems, etc.), along with a 
 set of its morphological properties and values. Typically the shared property=value features of
  the set of forms in a paradigm are given in some string/label form (technically an indexed 
 list or \"hash-map\"), while the property=value features in which they differ are presented in 
-table-format with property-defined columns and and value-defined rows:"]
+table-format with property-defined columns and and value-defined rows:"]]
 
     [:p "Thus, in informal notation, the paradigm: "] 
 

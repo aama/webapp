@@ -80,6 +80,7 @@
    [:ul {:class "sm sm-simple"}
     [:li (link-to "#" "Home")
      [:ul
+      [:li (link-to "/aamaTitle" "AAMA")]
       [:li (link-to "/aamaApp" "The AAMA Application")]
       [:li (link-to "/aamapdgmdata" "AAMA Paradigm Data")]
       [:li (link-to "#" "AAMA Languages")
@@ -93,20 +94,20 @@
         ]]]]
     [:li (link-to "#" "Search/Display")
      [:ul
-      [:li (link-to "#" "Archive Paradigm Search/Display")
+      [:li (link-to "#" "Archive Paradigm")
        [:ul
-        [:li (link-to "/pdgmindiv" "Single Paradigm Display")]
-        [:li (link-to "/pdgmmultdef" "Multiple Paradigm Display (Default Format) ")]
+        [:li (link-to "/pdgmindiv" "Single Paradigm")]
+        [:li (link-to "/pdgmmultdef" "Multiple Paradigm (Default Format) ")]
         [:li (link-to "/pdgmcomblist" "Combine/Modify Paradigm (From List)")]
         [:li (link-to "/pdgmcombtabl" "Combine/modify Paradigm (From Table)")]]]
-      [:li (link-to "/formsearch" "User-specified Form/Paradigm Display")]
+      [:li (link-to "/formsearch" "User-specified Form/Paradigm")]
 
-      [:li (link-to "#" "Morphosyntactic Category Search")
+      [:li (link-to "#" "Morphosyntactic Category")
        [:ul
         [:li (link-to "/pvlgpr" "Morphosyntactic Properties")]
         [:li (link-to "/pvlgvl" "Morphosyntactic Values")]
         [:li (link-to "/listlgpr"  "Properties by Language and POS")]
-        [:li (link-to "/listlpv" "Morphological Prop-Val Indices by Language")]]]]]
+        [:li (link-to "/listlpv" "Property-Value Indices by Language")]]]]]
     [:li (link-to "#" "Utilities")
      [:ul 
       [:li (link-to "#" "List and Index Generation:")
@@ -118,8 +119,8 @@
         [:li (link-to "/makeschemata" "New Schemata Section for LANG-pdgms.edn")]]]
       [:li (link-to "#" "Update:")
        [:ul 
-        [:li (link-to "/update" "Update Local Datastore [Under Development]")]
-        [:li (link-to "/upload" "Upload to Remote Repository [Under Development")]]]]]
+        [:li (link-to "/update" "Update Local Datastore ")]
+        [:li (link-to "/upload" "Upload to Remote Repository ")]]]]]
     [:li (link-to "#" "Help")
      [:ul
       [:li (link-to "#" "The AAMA Application:")

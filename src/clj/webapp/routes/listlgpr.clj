@@ -59,14 +59,14 @@
          langs (split ldomain #",")]
      [:body
       [:h3#clickable "Properties used in " pos " pdgms for: " ldomain]
-      ;;[:table
-      ;; [:tr
-        ;;(for [language langs]
-          ;;[:th
-          ;; [:div (str (capitalize language) " ")]])]
-       ;;[:tr
+      [:table
+       [:tr
+        (for [language langs]
+          [:th
+           [:div (str (capitalize language) " ")]])]
+       [:tr
       (for [language langs]
-         ;; [:td
+          [:td
         (let [lang (read-string (str ":" language))
               lpref (lang lprefmap)
               ;; send SPARQL over HTTP request
@@ -91,21 +91,22 @@
               proplist (split props #"\r\n") ]
           ;;(log/info "sparql result status: " (:status req))
           [:div
-          [:h3 language]
+           
+          ;;[:h3 language]
             (for [prop proplist]
               [:p prop])
-             ;;[:hr]
-             [:h3#clickable "Query:"]
-             [:pre query-sparql-pr]
-            [:pre (:body req)]
-            ;;[:pre props]
-            [:hr]]
-            ))
+         ;;[:h4 "======= Debug Info: ======="]
+         ;;[:h3#clickable "Query:"]
+         ;;[:pre query-sparql-pr]
+         ;;[:pre (:body req)]
+         ;;[:p "==========================="]
+            [:hr]])])]]
+            ])
             ;;)])]]
       [:script {:src "js/goog/base.js" :type "text/javascript"}]
       [:script {:src "js/webapp.js" :type "text/javascript"}]
       [:script {:type "text/javascript"}
-       "goog.require('webapp.core');"]])))
+       "goog.require('webapp.core');"]))
 
 (defroutes listlgpr-routes
   (GET "/listlgpr" [] (listlgpr))

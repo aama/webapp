@@ -8,6 +8,7 @@
             [compojure.route :as route]
             [webapp.routes.home :refer [home-routes]]
             [webapp.routes.aamaApp :refer [aamaApp-routes]]
+            [webapp.routes.aamaTitle :refer [aamaTitle-routes]]
             [webapp.routes.aamapdgmdata :refer [aamapdgmdata-routes]]
             [webapp.routes.langInfo :refer [langInfo-routes]]
             [webapp.routes.langInfoTree :refer [langInfoTree-routes]]
@@ -51,7 +52,7 @@
   (route/not-found "Not Found"))
 
 (def app
-  (-> (routes home-routes  aamaApp-routes aamapdgmdata-routes langInfo-routes langInfoTree-routes bibIndexGen-routes bibInfoSpecial-routes bibInfoMaster-routes pvlgpr-routes pvlgvl-routes formsearch-routes listmenulpv-routes listmenulang-routes update-routes pdgmindiv-routes upload-routes listlgpr-routes listvlcl-routes pdgmIndex-routes listlpv-routes  makeschemata-routes pdgmmultdef-routes pdgmcomblist-routes pdgmcombtabl-routes multipdgmsort-routes helpaamaversions-routes helpinitializeapp-routes  helppdgms-routes helpformsearch-routes helppvdisp-routes helplistgen-routes helpwebupdate-routes helpclupdate-routes app-routes)
+  (-> (routes home-routes  aamaApp-routes aamaTitle-routes aamapdgmdata-routes langInfo-routes langInfoTree-routes bibIndexGen-routes bibInfoSpecial-routes bibInfoMaster-routes pvlgpr-routes pvlgvl-routes formsearch-routes listmenulpv-routes listmenulang-routes update-routes pdgmindiv-routes upload-routes listlgpr-routes listvlcl-routes pdgmIndex-routes listlpv-routes  makeschemata-routes pdgmmultdef-routes pdgmcomblist-routes pdgmcombtabl-routes multipdgmsort-routes helpaamaversions-routes helpinitializeapp-routes  helppdgms-routes helpformsearch-routes helppvdisp-routes helplistgen-routes helpwebupdate-routes helpclupdate-routes app-routes)
       (handler/site)
       (wrap-base-url)))
 

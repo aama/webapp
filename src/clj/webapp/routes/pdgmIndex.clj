@@ -134,15 +134,16 @@
            [:p [:b "pdgm-table:  "] [:pre pdgmtable]]
            [:p [:b "label-index:    "] [:pre labelmap]]
            [:p " "]
-           [:h4 "======= Debug Info: ======="]
-           [:p [:b "Prop table heads1:  "] [:pre headprops]]
-           [:p [:b "Sorted Prop head set:  "] [:pre headpropvec2]]
-           [:p [:b "Prop head string:  "] [:pre headpropstr]]
+           ;;[:h4 "======= Debug Info: ======="]
+           ;;[:p [:b "Prop table heads1:  "] [:pre headprops]]
+           ;;[:p [:b "Sorted Prop head set:  "] [:pre headpropvec2]]
+           ;;[:p [:b "Prop head string:  "] [:pre headpropstr]]
            ;;[:p [:b "Prop head keys:  "] [:pre headpropkeys]]
-           [:p [:b "Pdgmtable Heads:  "] [:pre pdgmtableheads]]
+           ;;[:p [:b "Pdgmtable Heads:  "] [:pre pdgmtableheads]]
            ;;[:p [:b "Pdgmtable Rows:  "] [:pre pdgmtablerows]]
-           [:p [:b "File vlclvec:    "] [:p vlclvec]]
-           [:p "==========================="]])))
+           ;;[:p [:b "File vlclvec:    "] [:p vlclvec]]
+           ;;[:p "==========================="]
+           ])))
     [:script {:src "js/goog/base.js" :type "text/javascript"}]
     [:script {:src "js/webapp.js" :type "text/javascript"}]
     [:script {:type "text/javascript"}
