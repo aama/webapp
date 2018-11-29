@@ -444,9 +444,19 @@ ORDER BY ASC(?language) ")))
                (str "
     {GRAPH <http://oi.uchicago.edu/aama/2013/graph/{{language}}> {
 	?s aamas:lexeme ?lexeme .
-         MINUS {?lexeme a aamas:Lexeme } 
-           }}}
-            ORDER BY ASC(?lexeme)")
+
+        ?lexeme a aamas:Lexeme .
+            aamas:memberOf ?pdgm ;
+            aamas:lang  ?language .
+	?language rdfs:label ?lang .
+        OPTIONAL {?o rdfs:label ?val . }
+        BIND (IF(!bound(?val) ,
+                 str(?o), 
+                  ?v
+                ) AS ?value
+             ) .
+     }}}
+   ORDER BY ASC(?value)")
                {:language lang}))))
 
 (defn makelexemes-sparql [lang]

@@ -116,7 +116,7 @@
            [:p "lpvscheme3: " [:pre lpvscheme3]]
            ;;[:p "pdgmstring: " [:pre pdgmstring]]
            ;[:p "pdgmstring2: " [:pre pdgmstring2]]
-           [:p "pdgmstring3: " [:pre pdgmstring3]]
+           ;;[:p "pdgmstring3: " [:pre pdgmstring3]]
            [:hr]
            [:h3 "Response:"]
            [:pre (:body req)]

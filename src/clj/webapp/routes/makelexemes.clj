@@ -1,0 +1,124 @@
+(ns webapp.routes.makelexemes
+ (:refer-clojure :exclude [filter concat group-by max min count replace])
+  (:require [clojure.edn :as edn]
+           [compojure.core :refer :all]
+            [webapp.views.layout :as layout]
+            [webapp.models.sparql :as sparql]
+            [compojure.handler :as handler]
+            [compojure.route :as route]
+            [clojure.string :refer [split lower-case replace join]]
+            [stencil.core :as tmpl]
+            [clj-http.client :as http]
+            ;;[boutros.matsu.sparql :refer :all]
+            ;;[boutros.matsu.core :refer [register-namespaces]]
+            [clojure.tools.logging :as log]
+            [hiccup.form :refer :all]
+            ;;[clojure-csv.core :as csv]
+            ))
+
+(def aama "http://localhost:3030/aama/query")
+
+(defn makelexemes []
+  (let [langlist (slurp "pvlists/menu-langs.txt")
+        languages (split langlist #"\n")]
+  (layout/common 
+   [:h3 "Make new lexemes section."]
+   ;;[:p "Will write requested Language-Property-Value co-occurrence list to file(s) pvlists/pname-POS-LANG.txt for selected language(s)."] 
+   ;;[:hr]
+   (form-to [:post "/makelexemes-gen"]
+            [:table
+             [:tr [:td "Language: " ]
+              [:td 
+               [:select#lang.required
+                {:title "Choose a language.", :name "language"}
+                [:optgroup {:label "Languages"} 
+                 (for [language languages]
+                   [:option {:value (lower-case language)} language])]]]]
+             ;;(submit-button "Get values")
+             [:tr [:td ]
+              [:td [:input#submit
+                    {:value "Make Lexemes Section", :name "submit", :type "submit"}]]]]))))
+(defn checklex
+  "Checks to see if every :lexeme listed in :termclusters has an entry in :lexemes."
+  [language]
+  (let [
+  query-sparql (sparql/checklexemes-sparql language)
+  ;;query-sparql-pr (replace query-sparql #"<" "&lt;")
+  req (http/get aama
+                {:query-params
+                 {"query" query-sparql ;;generated sparql
+                  ;;"format" "application/sparql-results+json"}})]
+                  ;;"format" "text"}})
+                  "format" "csv"}})
+  reqvec  (split (:body req) #"\r\n")
+  ;;header (first reqvec)
+  ;;addlex (rest reqvec)
+        ]
+    (str reqvec)))
+ 
+
+(defn newlex
+  "Rearranges lexemes section with pos, lemma, gloss  at begining of each entry"
+  [lexmap]
+  ;;(str ":lexemes {")
+  (for [lexeme (sort lexmap)]
+    (let [lexitem (key lexeme)
+          featuremap (val lexeme)
+          featuremap2 (dissoc featuremap :pos :lemma :gloss)
+          featuremap3 (replace (str featuremap2) #"[{}]" "")
+          posval (if (:pos featuremap) (:pos featuremap) (str ":z"))
+          lemmaval (if (:lemma featuremap)  (:lemma featuremap) (str "[y]"))
+          glossval (if (:gloss featuremap) (:gloss featuremap) (str "[x]"))
+          ]
+      (str lexitem  "   {:pos " posval ", :lemma \"" lemmaval "\", :gloss \"" glossval "\", " featuremap3 "}, ")))
+  ;;(str "}\n\r")
+  )
+(defn handle-makelexemes-gen
+  [language]
+  (layout/common
+   (let [inputfile (str "../aama-data/data/" language "/" language "-pdgms.edn")
+         ;; -pdgms.edn file will contain the final updated version
+         ;; -pdgms-bck.edn will contain original, pre-final (but with pmorphClass
+         bckfile (str "../aama-data/data/" language "/" language "-pdgms-bck.edn")
+         lexemesfile (str "pvlists/lexemes/" language "-lexemes.edn")
+         newlexfile (str "pvlists/lexemes/" language "-newlexemes.edn")
+         newlexemes (checklex language)
+         pdgmstring (str (slurp inputfile))
+         pdgm-map (edn/read-string pdgmstring)
+         lexmap (:lexemes pdgm-map)
+         lexmap2 (newlex lexmap)
+         ;; not clear why I can't combine lexmap3-5 w/o getting lazy sequence in file
+         lexmap3 (apply str  lexmap2)
+         lexmap4 (replace lexmap3 #"}, " "},\n")
+         lexmap5 (str ":lexemes {\n" lexmap4 "}" )
+         ;; following uses pattern flag (?s) [= 'make dot all'] 
+         ;; to get rid of multiline :schemata contents
+         ;; (cf. https://clojuredocs.org/clojure.core/re-pattern, also
+         ;; https://stackoverflow.com/questions/15020669/clojure-multiline-regular-expression/15021171)
+         pdgmstring2 (replace pdgmstring #"(?s):lexemes\s*\{.*?\}\,*\s*\}" ":lexemes")
+         ;; following puts lpvscheme4 in right place
+         pdgmstring3 (replace pdgmstring2 #":lexemes" lexmap5)
+         ]
+          (spit lexemesfile lexmap5)
+          (spit bckfile pdgmstring)
+          (spit inputfile pdgmstring3)
+          (spit newlexfile newlexemes)
+          [:div
+           [:p "Language:      " language ]
+           [:p "Lexemes File: " lexemesfile]
+           [:p "Lexmap: " lexmap]
+           [:p "New Lexemes: " newlexemes]
+           ;;[:p "Pdgmstring2: " pdgmstring2]
+           [:p "Lexmap2: " lexmap5]
+           [:hr]
+           ])
+          [:script {:src "js/goog/base.js" :type "text/javascript"}]
+          [:script {:src "js/webapp.js" :type "text/javascript"}]
+          [:script {:type "text/javascript"}
+           "goog.require('webapp.core');"]))
+
+(defroutes makelexemes-routes
+  (GET "/makelexemes" [] (makelexemes))
+  (POST "/makelexemes-gen" [language] (handle-makelexemes-gen language)))
+
+
