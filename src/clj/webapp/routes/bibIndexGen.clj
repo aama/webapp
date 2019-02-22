@@ -24,7 +24,8 @@
       [:ol 
        [:li [:em "pvlists/bibkwindex.edn"]": a map linking each keyword used in  bibrefs.edn, with a list of the associated bibref IDs."]
        [:li [:em "pvlists/bibref-master-list.txt"]": a sorted list of all the bibref IDs [used in the general bibliography menu checkbox list]."]
-       [:li [:em "pvlists/bibref-keyword-list.txt"]": a sorted list of all the keywords [used in the keyword menu selection list]."]]]
+       [:li [:em "pvlists/bibref-keyword-list.txt"]": a sorted list of all the keywords [used in the keyword menu selection list]."]
+       [:li [:em "resources/public/bibrefs-back.edn"]": a new sorted file of bibrefs [to be substituted for old bibrefs.edn after proof-reading]."]]]
      [:p (form-to [:post "/bibIndexGen"]
               [:table
                [:tr 

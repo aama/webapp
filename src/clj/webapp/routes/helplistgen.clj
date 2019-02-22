@@ -31,7 +31,11 @@
       [:ol 
        [:li [:em "pvlists/bibkwindex.edn"]": a map linking each keyword used in  bibrefs.edn, with a list of the associated bibref IDs."]
        [:li [:em "pvlists/bibref-master-list.txt"]": a sorted list of all the bibref IDs [used in the general bibliography menu checkbox list]."]
-       [:li [:em "pvlists/bibref-keyword-list.txt"]": a sorted list of all the keywords [used in the keyword menu selection list]."]]]]
+       [:li [:em "pvlists/bibref-keyword-list.txt"]": a sorted list of all the keywords [used in the keyword menu selection list]."]
+       [:li [:em "resources/public/bibrefs-back.edn"]": a new sorted file of bibrefs -- to be substituted for old bibrefs.edn after proof-reading and emacs substitute:"
+             [:ol
+              [:li "'{ }' for '([ ])'"]
+              [:li "']^J:' for ']] [:'"]]]]]]
      [:li (link-to "/listmenulpv" "Generate Property/Value Lists") "."
       [:p "Lists all morphosyntactic properties and values in the data store; for search for specific properties and values."]]
      [:li (link-to "/pdgmIndex" "Paradigm Value-Cluster Lists")
