@@ -115,64 +115,51 @@
     (layout/common
      [:h3 "Combined PDGM Property Table For: "]
      [:ul (for [lang languages]
-     [:li (capitalize lang)])] 
-     ;;[:pre valrows]
+            [:li (capitalize lang)])] 
      (form-to [:post "/pdgmcombtabldisplay"]
               [:table {:id "handlerTable" :class "tablesorter sar-table"}
                [:thead
                 [:tr
                  [:th [:div {:class "some-handle"} [:br] "Choose" ]
-                 ;;[:th [:div {:class "some-handle"} [:br] "Pdgmprops"]]
-                 [:th [:div {:class "some-handle"} [:br] "Pos"]]
-                 ;;[:th [:div {:class "some-handle"} [:br] "Morphprops"]]
-                 [:th [:div {:class "some-handle"} [:br] "MorphClass"]]
-                 ;;[:th [:div {:class "some-handle"} [:br] "Propcells"]]
-                 (for [prophead propheadvec]
-                   [:th [:div {:class "some-handle"} [:br] (capitalize prophead)]]
-                 )
-                 ;;[:th [:div {:class "some-handle"} [:br] "Lexeme"]]
-                ]]]
+                  [:th [:div {:class "some-handle"} [:br] "Source"]]
+                  [:th [:div {:class "some-handle"} [:br] "Pos"]]
+                  (for [prophead propheadvec]
+                    [:th [:div {:class "some-handle"} [:br] (capitalize prophead)]]
+                    )
+                  ]]]
                [:tbody 
-                ;;(str language "," vlcl "&&"  pos "," morphclass ","  propseq  "%%" lex  "\r\n")
                 (for [valrow valrows]
                   [:tr
-                  (let [tablecells (split valrow #"&&" 2)
-                        langPname (first tablecells)
-                        language (first (split langPname #"," 2 ))
-                        pdgmname (last (split langPname #"," 2 ))
-                        ;; old
-                        ;;propsLex (last tablecells)
-                        ;;pdgmprops (first (split propsLex #"%%"))
-                        ;;lexeme (last (split propsLex #"%%"))
-                        pdgmprops (last tablecells)
-                        propcells (split pdgmprops #",")
-                        ;;pos (first (split pdgmprops #"," 2))
-                        ;;morphprops (next (split pdgmprops #"," 2 ))
-                        ;;morphclass (first (split morphprops #"," ))
-                        ;;propcells (next (split morphprops #"," ))
-                        ]
-                    [:div
-                     [:td 
-                      [:div {:class "form-group"}
-                       [:label 
-                        (check-box {:name "lvalclusters[]" :value (str language ","  pdgmname) }  language) language ]]]
-                        ;;(check-box {:name "lvalclusters[]" :value "PDGM"} "PDGM") "PDGM" ]]]
-                     ;;[:td pdgmprops]
-                     ;;[:td pos]
-                     ;;[:td morphprops]
-                     ;;[:td morphclass]
-                     ;;[:td propcells]
-                     (for [propcell propcells]
-                       [:td propcell]
-                     )
-                     ;;[:td lexeme]
-                     ])])
-                    ;;(if (re-find #"EmptyList" valclusterlist)
-                    ;; [:div (str "There are no " pos " paradigms in the " language " archive.")]
-                    ;;(submit-button "Get p/dgm")
-                    [:tr 
-                     [:td [:input#submit
-                           {:value "Disnplay pdgms", :name "submit", :type "submit"}]]]]])
+                   (let [tablecells (split valrow #"&&" 2)
+                         langPname (first tablecells)
+                         language (first (split langPname #"," 2 ))
+                         pdgmname (last (split langPname #"," 2 ))
+                         pdgmprops (last tablecells)
+                         propcells (split pdgmprops #",")
+                         ]
+                     [:div
+                      [:td 
+                       [:div {:class "form-group"}
+                        [:label 
+                         (check-box {:name "lvalclusters[]" :value (str language ","  pdgmname) }  language) language ]]]
+                      (for [propcell propcells]
+                        [:td propcell])])])
+                ;;(if (re-find #"EmptyList" valclusterlist)
+                ;; [:div (str "There are no " pos " paradigms in the " language " archive.")]
+                ;;(submit-button "Get p/dgm")
+                [:tr 
+                 [:td [:input#submit
+                       {:value "Disnplay pdgms", :name "submit", :type "submit"}]]]]]
+              [:hr]
+              [:div [:h4 "======= Debug Info: ======="]
+               [:p "combtableheads: " [:p combtableheads]] 
+               [:p "propheads: " [:p propheads]] 
+               [:p "propheadset1: " [:p propheadset1]] 
+               [:p "propheadvec: " [:p propheadvec]]
+               [:p "combtablerows: " [:p combtablerows]]
+               [:p "tablerows: " [:p tablerows]]
+               [:p "valrows: " [:p valrows]]  
+               [:h4 "==========================="]])
      [:script {:src "js/goog/base.js" :type "text/javascript"}]
      [:script {:src "js/webapp.js" :type "text/javascript"}]
      [:script {:type "text/javascript"}
@@ -180,14 +167,14 @@
 
 
 (defn vc2req
-"Makes the requests that output a vector of csv string representing each of the pdgms."
+  "Makes the requests that output a vector of csv string representing each of the pdgms."
   [pdgmclusters]
   (let [lprefmap (read-string (slurp "pvlists/lprefs.clj"))]
     (for [pdgmcluster pdgmclusters]
       (let [vals (split pdgmcluster #"-" 2)
             pnum (first vals)
             lvalcluster (last vals)
-            query-sparql (sparql/pdgmqry-sparql-gen-vrbs lvalcluster)
+            query-sparql (sparql/pdgmqry-sparql-gen-tokenmerge lvalcluster)
             req (http/get aama
                           {:query-params
                            {"query" query-sparql ;;generated sparql
@@ -202,13 +189,13 @@
 
 (defn csv2pmap
   "Takes vector of pdgm strings and returns unified pmap of vector by splitting off header from rows, and then interleaving headervec and rowvec."
-    [pdgmstrvec]
+  [pdgmstrvec]
   (for [pdgmstr pdgmstrvec]
     (let [headerstr (first (split pdgmstr #"\r\n" 2))
           headervec (for [header (split headerstr #",")] (keyword header))
           rows (last (split pdgmstr  #"\r\n" 2))
           rowvec (split rows #"\r\n")]
-       (for [row rowvec] (apply assoc {} (interleave headervec (split row #",")))))))
+      (for [row rowvec] (apply assoc {} (interleave headervec (split row #",")))))))
 
 (defn csvcombine
   "Takes vector of combined pdgm heads (pheads), a poperty-map of pdgm rows (pmap) and vector of value keys (keyvec), and outputs combined row-value csv, with '_' for properties not represented in source pdgm. (the 'join' - 'vec' combined functions keeps output from being LazySequence -- IS THERE A BETTER WAY?)."
@@ -242,7 +229,7 @@
               [:td cell]))])]]]))
 
 (defn addpnum
-"Provides for convenience of reference in table an index number for each of the pdgms." 
+  "Provides for convenience of reference in table an index number for each of the pdgms." 
   [pnames]
   (for [pname pnames]
     (str "P" (.indexOf pnames pname) "-" pname)))
@@ -283,15 +270,23 @@
      [:h3#clickable "Combined Paradigms: Sequential Display " ]
      [:p "Click on column to sort (multiple sort by holding down shift key). Columns can be dragged by clicking and holding on 'drag-bar' at top of column."]
      [:hr]
-     [:p "Paradigm Names:"
+     [:p "Paradigms:"
       [:ul
        (for [pname pdgmclusters]
-         [:li pname])]]
-     [:p "Paradigm Heads:"
-      [:ul
-       (for [pdgm pdgmvec]
-         [:li (first (split pdgm #"\r\n" 2))])]]
-     [:p "Headerset: " [:pre headerset]]
+         ;; make pnamemap of this so as to be able to pass it to different functions
+         ;; USE RECORDS?
+         (let [pnumber (first (split pname #"-" 2))
+               values1 (last (split pname #"-" 2))
+               language (first (split values1 #"," 2))
+               values2 (last (split values1 #"," 2))
+               srce (first (split values2 #"," 2))
+               values3 (last (split values2 #"," 2))
+               propsstr (first (split values3 #"%" 2))
+               valstr (last (split values3 #"%" 2))]
+           [:li (str pnumber ": ") 
+            [:ul [:li  (str language " (" srce ")")]
+             [:li propsstr]
+             [:li valstr]]]))]]
      [:hr]
      pdgmtable
      [:hr]
@@ -314,14 +309,14 @@
                [:tr [:td "Pivots: "]
                 [:td
                  ;;[:div {:class "form-group"}
-                  [:p
-                   (for [head pivots]
-                     [:span
-                      (check-box {:name "pivotlist[]" :value (.indexOf pivots head)} head) head])]]]
-;;               [:tr [:td "PString: "]
-;;                 [:td [:select#pdgms.required
-;;                      {:title "PDGMS", :name "pdgmstrvec2"}
-;;                      [:option {:value pdgmstrvec2} "Paradigm Forms (as above)"]]]]
+                 [:p
+                  (for [head pivots]
+                    [:span
+                     (check-box {:name "pivotlist[]" :value (.indexOf pivots head)} head) head])]]]
+               ;;               [:tr [:td "PString: "]
+               ;;                 [:td [:select#pdgms.required
+               ;;                      {:title "PDGMS", :name "pdgmstrvec2"}
+               ;;                      [:option {:value pdgmstrvec2} "Paradigm Forms (as above)"]]]]
                [:tr [:td "Newpdgmstr: "]
                 [:td [:select#npdgms.required
                       {:title "NPDGMS", :name "newpdgmstr"}
@@ -332,18 +327,18 @@
                       {:value "Display Paradigms in Parallel", :name "submit", :type "submit"}]]]])
      [:hr]
      [:div [:h4 "======= Debug Info: ======="]
-     [:p "lvalclusters: " [:p pnamestr2]]
-     [:p "pdgmclusters: " [:p pdgmclusters]]
-     [:p "pdgmvec: " [:pre pdgmvec]]
-     [:p "pmap: " [:pre pmap]]
-     [:p "pmapstr: " [:p pmapstr]]
-     [:p "pivots: " [:pre pivots]]
-     [:p "pdgmstrvec2: " [:pre pdgmstrvec2]]
-     [:p "newpdgm: " [:pre newpdgm]]
-     [:p "newpdgmvec: " [:pre newpdgmvec]]
-     [:p "newpdgmstr: " [:pre newpdgmstr]]
-     [:p "header: " [:p (first newpdgmvec)]]
-     [:p "rows: "  (str (rest newpdgmvec)) [:pre (rest newpdgmvec)]]
+      [:p "lvalclusters: " [:p pnamestr2]]
+      [:p "pdgmclusters: " [:p pdgmclusters]]
+      [:p "pdgmvec: " [:pre pdgmvec]]
+      [:p "pmap: " [:pre pmap]]
+      [:p "pmapstr: " [:p pmapstr]]
+      [:p "pivots: " [:pre pivots]]
+      [:p "pdgmstrvec2: " [:pre pdgmstrvec2]]
+      [:p "newpdgm: " [:pre newpdgm]]
+      [:p "newpdgmvec: " [:pre newpdgmvec]]
+      [:p "newpdgmstr: " [:pre newpdgmstr]]
+      [:p "header: " [:p (first newpdgmvec)]]
+      [:p "rows: "  (str (rest newpdgmvec)) [:pre (rest newpdgmvec)]]
       [:h4 "==========================="]]
      [:script {:src "js/goog/base.js" :type "text/javascript"}]
      [:script {:src "js/webapp.js" :type "text/javascript"}]
@@ -451,8 +446,19 @@
       [:p "Paradigms:"
        [:ul
         (for [pname pnames]
-          [:li pname])]
-       ]
+         ;; make pnamemap of this so as to be able to pass it to different functions
+         ;; USE RECORDS
+         (let [pnumber (first (split pname #"-" 2))
+               values1 (last (split pname #"-" 2))
+               language (first (split values1 #"," 2))
+               values2 (last (split values1 #"," 2))
+               srce (first (split values2 #"," 2))
+               values3 (last (split values2 #"," 2))
+               propsstr (first (split values3 #"\." 2))
+               valstr (last (split values3 #"\." 2))]
+           [:li (str pnumber ": ")[:ul [:li  (str language " (" srce ")")]
+                 [:li propsstr]
+                 [:li valstr]]]))]]
       [:hr]
       [:table {:id "handlerTable" :class "tablesorter sar-table"}
        [:thead

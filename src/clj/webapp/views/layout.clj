@@ -66,8 +66,6 @@
 ;;      </div>
 ;;    </body>
 ;;  </html>
-
-
       ))))
 
 (defn base [& content]
@@ -99,7 +97,8 @@
         [:li (link-to "/pdgmindiv" "Single Paradigm")]
         [:li (link-to "/pdgmmultdef" "Multiple Paradigm (Default Format) ")]
         [:li (link-to "/pdgmcomblist" "Combine/Modify Paradigm (From List)")]
-        [:li (link-to "/pdgmcombtabl" "Combine/modify Paradigm (From Table)")]]]
+        [:li (link-to "/pdgmcombtabl" "Combine/modify Paradigm (From Table)")]
+        [:li (link-to "/pdgmtableindex" "Display Source Index Table")]]]
       [:li (link-to "/formsearch" "User-specified Form/Paradigm")]
       [:li (link-to "#" "Morphosyntactic Category")
        [:ul
@@ -117,6 +116,7 @@
         [:li (link-to "/bibIndexGen" "Bibliography Indices")]
         [:li (link-to "/listmenulpv" "Property/Value Lists")]
         [:li (link-to "/pdgmIndex" "Paradigm Lists")]
+        [:li (link-to "/pdgmSource" "Paradigm Sources")]
         [:li (link-to "/makelexemes" "New Lexemes Section for LANG-pdgms.edn")]
         [:li (link-to "/makeschemata" "New Schemata Section for LANG-pdgms.edn")]]]
       [:li (link-to "#" "Update:")
@@ -128,6 +128,7 @@
       [:li (link-to "#" "The AAMA Application:")
        [:ul 
       [:li (link-to "/helpaamaversions" "AAMA Versions")]
+      [:li (link-to "/helpaddnewlanguage" "How to Add a New Language to the Datastore")]
       [:li (link-to "/helpinitializeapp" "How to Initialize A Local Application")]]]
       [:li (link-to "#" "Search/Display")
        [:ul

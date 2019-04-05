@@ -49,7 +49,7 @@
   [languages]
   (layout/common
    [:h3 "PDGM Property List"]
-   [:p "NB: For the moment, in order to combine paradigms, the columns must contain values of identical properties (altough not necessarily identical terminology), and be in the same order ."] 
+   [:p "The list of values to be displayed is given in brackets after the paradigm property list. Note that for the moment, in order to combine paradigms, the value lists must contain values of identical properties (although not necessarily identical terminology), and be in the same order."] 
    [:p "Choose PDGM"] 
    (form-to [:post "/pdgmcomblistdisplay"]
             [:table
@@ -67,10 +67,12 @@
                      (if (re-find #"EmptyList" valclusterlist)
                        [:div (str "There are no  paradigms in the " language " archive.")]
                        (for [valcluster valclusterset]
+                         (let [propscluster (first (split valcluster #"%"))
+                               values (last (split valcluster #"%"))
+                               selitem (str propscluster " [" values "]")]
                          [:div {:class "form-group"}
                           [:label
-                           (check-box {:class "checkbox1" :name "lvalclusters[]" :value (str language "," valcluster) } valcluster) valcluster]]))
-                     )])]
+                           (check-box {:class "checkbox1" :name "lvalclusters[]" :value (str language "," valcluster) } selitem) selitem]]))))])]
              ;;(submit-button "Get pdgm")
              [:tr [:td ]
               [:td [:input#submit
@@ -78,14 +80,14 @@
 
 
 (defn vc2req
-"Makes the requests that output a vector of csv string representing each of the pdgms."
+"Makes the requests that output a vector of csv string representing each of the pdgms. For comparability, multiple-token token sections are reduced to one (presupposes that suitable boundary marker included in each token category."
   [pdgmclusters]
   (let [lprefmap (read-string (slurp "pvlists/lprefs.clj"))]
     (for [pdgmcluster pdgmclusters]
       (let [vals (split pdgmcluster #"-" 2)
             pnum (first vals)
             lvalcluster (last vals)
-            query-sparql (sparql/pdgmqry-sparql-gen-vrbs lvalcluster)
+            query-sparql (sparql/pdgmqry-sparql-gen-tokenmerge lvalcluster)
             req (http/get aama
                           {:query-params
                            {"query" query-sparql ;;generated sparql
@@ -150,7 +152,7 @@
   [lvalclusters]
   (let [;; note problem with using atom for addpnum: gives LazySequence
         pdgmclusters (addpnum lvalclusters)
-        ;; make string of pnames
+        ;; make string of pnames to pass to parallel display
         pdgmnames (apply pr-str pdgmclusters)
         pnamestr1 (clojure.string/replace pdgmnames #"[\[\]\"]" "")
         pnamestr2 (clojure.string/replace pnamestr1 #"%" ".")
@@ -181,15 +183,22 @@
      [:h3#clickable "Combined Paradigms: Sequential Display " ]
      [:p "Click on column to sort (multiple sort by holding down shift key). Columns can be dragged by clicking and holding on 'drag-bar' at top of column."]
      [:hr]
-     [:p "Paradigm Names:"
+     [:p "Paradigms:"
       [:ul
        (for [pname pdgmclusters]
-         [:li pname])]]
-     [:p "Paradigm Heads:"
-      [:ul
-       (for [pdgm pdgmvec]
-         [:li (first (split pdgm #"\r\n" 2))])]]
-     [:p "Headerset: " [:pre headerset]]
+         ;; make pnamemap of this so as to be able to pass it to different functions
+         ;; USE RECORDS?
+         (let [pnumber (first (split pname #"-" 2))
+               values1 (last (split pname #"-" 2))
+               language (first (split values1 #"," 2))
+               values2 (last (split values1 #"," 2))
+               srce (first (split values2 #"," 2))
+               values3 (last (split values2 #"," 2))
+               propsstr (first (split values3 #"%" 2))
+               valstr (last (split values3 #"%" 2))]
+           [:li (str pnumber ": ")[:ul [:li  (str language " (" srce ")")]
+                 [:li propsstr]
+                 [:li valstr]]]))]]
      [:hr]
      pdgmtable
      [:hr]
@@ -229,20 +238,21 @@
                 [:td [:input#submit
                       {:value "Display Paradigms in Parallel", :name "submit", :type "submit"}]]]])
      [:hr]
-     ;;[:div [:h4 "======= Debug Info: ======="]
+     [:div [:h4 "======= Debug Info: ======="]
      ;;[:p "lvalclusters: " [:p pnamestr2]]
-     ;;[:p "pdgmclusters: " [:p pdgmclusters]]
+     [:p "pdgmclusters: " [:p pdgmclusters]]
      ;;[:p "pdgmvec: " [:pre pdgmvec]]
      ;;[:p "pmap: " [:pre pmap]]
      ;;[:p "pmapstr: " [:pre pmapstr]]
-     ;;[:p "pivots: " [:pre pivots]]
+     [:p "pivots: " [:pre pivots]]
      ;;[:p "pdgmstrvec2: " [:pre pdgmstrvec2]]
      ;;[:p "newpdgm: " [:pre newpdgm]]
      ;;[:p "newpdgmvec: " [:pre newpdgmvec]]
-     ;;[:p "newpdgmstr: " [:pre newpdgmstr]]
-     ;;[:p "header: " [:p (first newpdgmvec)]]
+      [:p "pdgmnames: " [:pre pdgmnames]]
+     [:p "newpdgmstr: " [:pre newpdgmstr]]
+     [:p "header: " [:p (first newpdgmvec)]]
      ;;[:p "rows: "  (str (rest newpdgmvec)) [:pre (rest newpdgmvec)]]
-     ;; [:h4 "==========================="]]
+     [:h4 "==========================="]]
      [:script {:src "js/goog/base.js" :type "text/javascript"}]
      [:script {:src "js/webapp.js" :type "text/javascript"}]
      [:script {:type "text/javascript"}
@@ -310,7 +320,7 @@
         pnamestr3 (clojure.string/replace  pnamestr2 #"\w(P\d+-)" " $1")
         pnames (split pnamestr3 #" " )
         pivots (map read-string pivotlist)
-        newpdgmstr2 (clojure.string/replace newpdgmstr #"P(\d)," "\\\\r\\\\nP$1,")
+        newpdgmstr2 (clojure.string/replace newpdgmstr #"P(\d+)," "\\\\r\\\\nP$1,")
         ;; get rid of spurious line-feeds
         pdgmstr3 (cleanpdgms newpdgmstr2)
         ;; map each 'val-string-w/o-pivot-val token' to token
@@ -349,8 +359,22 @@
       [:p "Paradigms:"
        [:ul
         (for [pname pnames]
-          [:li pname])]
-       ]
+         ;; make pnamemap of this so as to be able to pass it to different functions
+         ;; USE RECORDS
+         (let [pnumber (first (split pname #"-" 2))
+               values1 (last (split pname #"-" 2))
+               language (first (split values1 #"," 2))
+               values2 (last (split values1 #"," 2))
+               srce (first (split values2 #"," 2))
+               values3 (last (split values2 #"," 2))
+               propsstr (first (split values3 #"\." 2))
+               valstr (last (split values3 #"\." 2))]
+           [:li (str pnumber ": ")[:ul [:li  (str language " (" srce ")")]
+                 [:li propsstr]
+                 [:li valstr]]]))]]
+      [:p "o "]
+      [:p "o "]
+      [:p "o "]
       [:hr]
       [:table {:id "handlerTable" :class "tablesorter sar-table"}
        [:thead
@@ -375,9 +399,7 @@
                 ;; following creates problems for forms w/o '_'
                 ;;(let [pmap1 (clojure.string/replace (kstrkey pmap) #"_" " ")] 
                 [:td (kstrkey pmap)])])]) ]]
-      [:p " "]
-      [:p " "]
-      ;;[:div [:h4 "======= Debug Info: ======="]
+          ;;[:div [:h4 "======= Debug Info: ======="]
        ;;[:p "pdgmnames: " [:pre pdgmnames]]
        ;;[:p "pnamestr3: " [:pre pnamestr3]]
        ;;[:p "pnames: " [:pre pnames]]

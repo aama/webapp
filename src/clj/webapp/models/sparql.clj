@@ -3,7 +3,7 @@
   (:require [compojure.core :refer :all]
             ;;[compojure.handler :as handler]
             ;;[compojure.route :as route]
-            [clojure.string :refer [capitalize split]]
+            [clojure.string :refer [capitalize join split]]
             [stencil.core :as tmpl]
             ;;[clj-http.client :as http]
             ;;[boutros.matsu.sparql :refer :all]
@@ -66,53 +66,36 @@
           )
          )))
 
-(defn pdgmqry-sparql-comment [dataID]
-  "Query to retrieve comment from any term-cluster whose edn-file ':label' is known"
-  (let [dataIDstr (str "/"" dataID "/"")]
-    (str PREFIXES
-         (tmpl/render-string
-          (str "
-          SELECT ?comment
-          WHERE
-          {
-      	   ?s rdfs:label \"{{label}}\" ;
-              rdfs:comment ?comment . } ")
-          {:label dataID}))))
-
-(defn pdgmqry-sparql-gen-vrbs [lvalcluster]
-  "This version, is to be called for all archive pdgm types. Presumes verbose version of pdgm index (all pdgm values, except lex, have 'prop=val')." 
+(defn pdgmqry-sparql-comment [lvalcluster]
+  "Query to retrieve comment from the term-cluster satisfying lvalcluster. For the moment, have to reconstruct/get-back-to the pdgm to get the comment."
   (let [lprefmap (read-string (slurp "pvlists/lprefs.clj"))
         ;; parse valcluster
-        vals (split lvalcluster #"," 2)
-        language (first vals)
-        vcs (split (last vals) #"," 2)
-        pos (first vcs)
-        mvalsprops (split (last vcs) #"%" 2)
-        mv (first mvalsprops)
-        proplex (last mvalsprops)
-        morphclass (first (split mv #"," 2))
-        props (if (re-find #"," mv)
-                (last (split mv #"," 2))
-                "")
-        valsLex (split proplex #":" 2)
-        valstr (first valsLex)
-        lex (if (re-find #":" proplex)
-              (last (split proplex #":" 2))
-              "")
-        valvec (split valstr #",")
-        selection1 (str "?" (clojure.string/replace valstr #"," " ?"))
-        selection2 (clojure.string/replace selection1 #"-" "")
-        selection3 (clojure.string/replace selection2 #"tokennote" "")
-        selOrder (clojure.string/replace selection2 #"\?number|\?gender|\?nmbObj|\?gndObj" {"?number" "DESC(?number)" "?gender" "DESC(?gender)" "?nmbObj" "DESC(?nmbObj)" "?gndObj" "DESC(?gndObj)"})
+         values (split lvalcluster #"," 2)
+         language (first values)
+         Language (capitalize language)
+         sourcevcs (split (last values) #"," 2)
+         vcs (last sourcevcs)
+         pos (first (split vcs #"," 2))
+         mpropsvals1 (last (split vcs #"," 2))
+         mpropsvals2 (split mpropsvals1 #"%" 2)
+         mprops (first mpropsvals2)
+         morphclass (first (split mprops #"," 2))
+         propstr (last (split mprops #"," 2))
+         props (if (re-find #"=" propstr) 
+                 (split propstr #"," ) 
+                 "")
+         lexeme (if (re-find #"lexeme=" propstr) 
+                  (first (split (last (split propstr #"lexeme=" 2)) #",")) 
+                  (str ""))
         lang (read-string (str ":" language))
         lpref (lang lprefmap)
-        Language (capitalize language)
         ]
     (str PREFIXES
+         ;; Handle initial section
          (tmpl/render-string 
           (str "
 	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
-	SELECT {{selection}} ?token
+	SELECT DISTINCT ?comment 
 	WHERE
         { 
 	 { 
@@ -123,20 +106,14 @@
 	   ?s aamas:lang / rdfs:label ?langLabel .
            ?s ?QmorphClass {{lpref}}:{{morphclass}}. ")
           {:lpref lpref
-           :selection selection2
            :pos pos
            :morphclass morphclass
            :language language
            :Language Language})
-         ;;(if (re-find #"\w" lex)
-         ;;  (tmpl/render-string 
-         ;;   (str "
-         ;;  ?s aamas:lexeme ?lexeme .
-         ;;  ?lexeme rdfs:label \"{{lex}}\" .")
-         ;;   {:lex lex}))
-         (if (re-find #"\w"  props)
+         ;; Handle props
+         (if (re-find #"="  propstr)
            (apply str  
-                  (for [prop (split props #",")]
+                  (for [prop (split propstr #",")]
                     (let [pv (split prop #"=")
                           property (first pv)
                           value (last pv)]
@@ -144,51 +121,254 @@
                         (let [lex (clojure.string/replace value #".*?:" "")]
                           (tmpl/render-string 
                            (str "
-           ?s aamas:lexeme ?lexeme .
-           ?lexeme rdfs:label \"{{lex}}\" .")
+                            ?s aamas:lexeme ?lexeme .
+                            ?lexeme rdfs:label \"{{lex}}\" .")
                            {:lex lex}))
-                        (tmpl/render-string 
-                         (str "
-           ?s {{lpref}}:{{property}}  {{lpref}}:{{value}} .  ")
-                         {:lpref lpref
-                          :property property
-                          :value value} ))))))
+                      (tmpl/render-string 
+                       (str "
+                          ?s {{lpref}}:{{property}}  {{lpref}}:{{value}} .  ")
+                       {:lpref lpref
+                        :property property
+                        :value value} ))))))
+         ;; Handle comment
          (apply str
-               (for [val valvec]
-                 ;; (let [qval (clojure.string/replace val #"-" "")]
-                  (if
-                     (= val "lexeme")
-                     (tmpl/render-string
-                      (str "
-                 ?s aamas:{{val}} / rdfs:label ?{{val}} .  " )
-                      {:val val})
-                      ;; :qval qval})
-                 (if-not (re-find #"token" val)
-                     (tmpl/render-string
-                      (str "
-	   ?s {{lpref}}:{{val}} / rdfs:label ?{{val}} .")
-                      {:lpref lpref
-                       :val val}))))
-                       ;;:qval qval}))
-                    ;;)
-                  )
-                (tmpl/render-string
-                 (str "
-           OPTIONAL { ?s {{lpref}}:token-note ?tokennote .}
-	   ?s {{lpref}}:token ?token .
-           #OPTIONAL { ?s ?t ?o . FILTER (CONTAINS(str(?t), \"token-note\"))}
-           #BIND((IF(BOUND(?o),
-           #         CONCAT(?tkn, \"  [\", ?o, \"]\"),
-           #         ?tkn))
-           #        AS ?token) .
-	  } 
-	 } 
-	} 
-	ORDER BY {{selOrder}} ")
-                 {:lpref lpref
-                  :selOrder selOrder})
-                );;str
-         ))
+                (str "
+           ?s aamas:memberOf ?pdgm .  
+           ?pdgm rdfs:comment ?comment . 
+           }
+          }
+         }" ))
+         );;str PREFIXES
+    ))
+
+(defn pdgmqry-sparql-gen-vrbs [lvalcluster]
+  "This version, is to be called for all archive pdgm types. Presumes verbose version of pdgm index (all pdgm values have 'prop=val'). This sparql template is used for all pdgm queries, even if it repeats the lvalcluster parsing of some of the routes/pdgm* sNS. [MAKE UTILITY FUNCTION parselvalcluster!]" 
+  (let [lprefmap (read-string (slurp "pvlists/lprefs.clj"))
+        ;; parse valcluster
+         values (split lvalcluster #"," 2)
+         language (first values)
+         Language (capitalize language)
+         sourcevcs (split (last values) #"," 2)
+         vcs (last sourcevcs)
+         pos (first (split vcs #"," 2))
+         mpropsvals1 (last (split vcs #"," 2))
+         mpropsvals2 (split mpropsvals1 #"%" 2)
+         mprops (first mpropsvals2)
+         morphclass (first (split mprops #"," 2))
+         propstr (last (split mprops #"," 2))
+         props (if (re-find #"=" propstr) 
+                 (split propstr #"," ) 
+                 "")
+         lexeme (if (re-find #"lexeme=" propstr) 
+                  (first (split (last (split propstr #"lexeme=" 2)) #",")) 
+                  (str ""))
+         valstr (last mpropsvals2)
+        ;; e.g. 'number,person,gender,token'
+
+        ;; make selection string
+        selection1 (str "?" (clojure.string/replace valstr #"," " ?"))
+        selection2 (clojure.string/replace selection1 #"-" "")
+        ;;selection3 (clojure.string/replace selection2 #"tokennote" "")
+        selOrder (clojure.string/replace selection2 #"\?number|\?gender|\?nmbObj|\?gndObj" {"?number" "DESC(?number)" "?gender" "DESC(?gender)" "?nmbObj" "DESC(?nmbObj)" "?gndObj" "DESC(?gndObj)"})
+        lang (read-string (str ":" language))
+        lpref (lang lprefmap)
+        ]
+    (str PREFIXES
+         ;; Handle initial section
+         (tmpl/render-string 
+          (str "
+	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
+	SELECT {{selection}} 
+	WHERE
+        { 
+	 { 
+	  GRAPH aamag:{{language}}  
+          { 
+	   #?s {{lpref}}:source {{lpref}}:{{source}} .  
+	   ?s {{lpref}}:pos {{lpref}}:{{pos}} .  
+	   ?s aamas:lang aama:{{Language}} . 
+	   ?s aamas:lang / rdfs:label ?langLabel .
+           ?s ?QmorphClass {{lpref}}:{{morphclass}}. ")
+          {:lpref lpref
+           :selection selection2
+           ;;:source srce
+           :pos pos
+           :morphclass morphclass
+           :language language
+           :Language Language})
+         ;; Handle props
+         (if (re-find #"="  propstr)
+           (apply str  
+                  (for [prop (split propstr #",")]
+                    (let [pv (split prop #"=")
+                          property (first pv)
+                          value (last pv)]
+                      (if (re-find #"lexeme" property)
+                        (let [lex (clojure.string/replace value #".*?:" "")]
+                          (tmpl/render-string 
+                           (str "
+                            ?s aamas:lexeme ?lexeme .
+                            ?lexeme rdfs:label \"{{lex}}\" .")
+                           {:lex lex}))
+                      (tmpl/render-string 
+                       (str "
+                          ?s {{lpref}}:{{property}}  {{lpref}}:{{value}} .  ")
+                       {:lpref lpref
+                        :property property
+                        :value value} ))))))
+    ;; Handle valstr
+    (if (re-find #"\w" valstr)
+      (apply str
+             (for [val (split valstr #",")]
+               (if (= val "lexeme")
+                 (tmpl/render-string
+                  (str "
+                       ?s aamas:{{val}} / rdfs:label ?{{val}} .  " )
+                  {:val val})
+                 (if  (re-find #"token" val)
+                   (tmpl/render-string
+                    (str "
+                        ?s {{lpref}}:{{val}}  ?{{val2}} .")
+                    {:lpref lpref
+                     :val val
+                     :val2 (clojure.string/replace val #"-" "")})
+                   (tmpl/render-string
+                    (str"
+                        ?s {{lpref}}:{{val}} / rdfs:label  ?{{val}} .")
+                    {:lpref lpref
+                     :val val
+                     :val2 (clojure.string/replace val #"-" "")}))))))
+    ;; Handle ORDER BY
+    (apply str
+           (tmpl/render-string
+            (str "
+	      } 
+	     } 
+            } 
+            ORDER BY {{selOrder}} ")
+            {:lpref lpref
+             :selOrder selOrder}))
+    );;str PREFIXES
+  ))
+
+(defn pdgmqry-sparql-gen-tokenmerge [lvalcluster]
+  "This version, is to be called for all archive pdgm types in combination  displays, where pdgms might differ in number of :token- categories. Merges all token values into a single string. NOTE: tokens to be merged need their own boundary markers.  Presumes verbose version of pdgm index (all pdgm values have 'prop=val'). This sparql template is used for all pdgm queries, even if it repeats the lvalcluster parsing of some of the routes/pdgm* sNS. [MAKE UTILITY FUNCTION parselvalcluster!]" 
+  (let [lprefmap (read-string (slurp "pvlists/lprefs.clj"))
+        ;; parse valcluster
+         values (split lvalcluster #"," 2)
+         language (first values)
+         Language (capitalize language)
+         sourcevcs (split (last values) #"," 2)
+         vcs (last sourcevcs)
+         pos (first (split vcs #"," 2))
+         mpropsvals1 (last (split vcs #"," 2))
+         mpropsvals2 (split mpropsvals1 #"%" 2)
+         mprops (first mpropsvals2)
+         morphclass (first (split mprops #"," 2))
+         propstr (last (split mprops #"," 2))
+         props (if (re-find #"=" propstr) 
+                 (split propstr #"," ) 
+                 "")
+         lexeme (if (re-find #"lexeme=" propstr) 
+                  (first (split (last (split propstr #"lexeme=" 2)) #",")) 
+                  (str ""))
+         valstr (last mpropsvals2)
+        ;; e.g. 'number,person,gender,token-prefix,token-stem,token-suffix'
+
+        ;; make selection string with all :token-TYPE merged into ?token-merge
+        selection1 (str "?" (clojure.string/replace valstr #"," " ?"))
+        selection2 (clojure.string/replace selection1 #"-" "")
+        selection3 (str (first (split selection2 #" \?token" 2)) " ?tokenmerge")
+        tokensel (str "?token" (last (split selection2 #" ?token" 2)))
+        tokenselvec (split tokensel #" ")
+        mergetokenstr (join "," tokenselvec)
+        selOrder (clojure.string/replace selection2 #"\?number|\?gender|\?nmbObj|\?gndObj" {"?number" "DESC(?number)" "?gender" "DESC(?gender)" "?nmbObj" "DESC(?nmbObj)" "?gndObj" "DESC(?gndObj)"})
+        lang (read-string (str ":" language))
+        lpref (lang lprefmap)
+        ]
+    (str PREFIXES
+         ;; Handle initial section
+         (tmpl/render-string 
+          (str "
+	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
+	SELECT {{selection}} 
+	WHERE
+        { 
+	 { 
+	  GRAPH aamag:{{language}}  
+          { 
+	   #?s {{lpref}}:source {{lpref}}:{{source}} .  
+	   ?s {{lpref}}:pos {{lpref}}:{{pos}} .  
+	   ?s aamas:lang aama:{{Language}} . 
+	   ?s aamas:lang / rdfs:label ?langLabel .
+           ?s ?QmorphClass {{lpref}}:{{morphclass}}. ")
+          {:lpref lpref
+           :selection selection3
+           ;;:source srce
+           :pos pos
+           :morphclass morphclass
+           :language language
+           :Language Language})
+         ;; Handle props
+         (if (re-find #"="  propstr)
+           (apply str  
+                  (for [prop (split propstr #",")]
+                    (let [pv (split prop #"=")
+                          property (first pv)
+                          value (last pv)]
+                      (if (re-find #"lexeme" property)
+                        (let [lex (clojure.string/replace value #".*?:" "")]
+                          (tmpl/render-string 
+                           (str "
+                            ?s aamas:lexeme ?lexeme .
+                            ?lexeme rdfs:label \"{{lex}}\" .")
+                           {:lex lex}))
+                      (tmpl/render-string 
+                       (str "
+                          ?s {{lpref}}:{{property}}  {{lpref}}:{{value}} .  ")
+                       {:lpref lpref
+                        :property property
+                        :value value} ))))))
+    ;; Handle valstr with ?token 
+    (if (re-find #"\w" valstr)
+      (apply str
+             (for [val (split valstr #",")]
+               (if (= val "lexeme")
+                 (tmpl/render-string
+                  (str "
+                       ?s aamas:{{val}} / rdfs:label ?{{val}} .  " )
+                  {:val val})
+                 (if  (re-find #"token" val)
+                   (tmpl/render-string
+                    (str "
+                        ?s {{lpref}}:{{val}}  ?{{val2}} .")
+                    {:lpref lpref
+                     :val val
+                     :val2 (clojure.string/replace val #"-" "")})
+                   (tmpl/render-string
+                    (str"
+                        ?s {{lpref}}:{{val}} / rdfs:label  ?{{val}} .")
+                    {:lpref lpref
+                     :val val
+                     :val2 (clojure.string/replace val #"-" "")}))))))
+    ;; Handle merge
+    (apply str
+           (tmpl/render-string
+            (str "
+              BIND (CONCAT ({{mergedtokens}}) AS ?tokenmerge) ")
+            {:mergedtokens mergetokenstr}))
+    ;; Handle ORDER BY
+    (apply str
+           (tmpl/render-string
+            (str "
+	      } 
+	     } 
+            } 
+            ORDER BY {{selOrder}} ")
+            {:lpref lpref
+             :selOrder selOrder}))
+    );;str PREFIXES
+  ))
 
 (defn lgpr-sparql [ldomain prop]
   (let [ldoms (split ldomain #",")]

@@ -17,7 +17,7 @@
 (defn helpinitializeapp []
   (layout/common 
    [:div {:class "info-page"}
-    [:h3 "Help: Initialize Application"]
+    [:h3 "Help: Initialize Application On Remote Machine"]
     [:p "This application presupposes that the Fuseki AAMA data server has been installed, and launched through the invocation of the shell-script " [:em "bin/fuseki.sh"] ", as described in the " (link-to "http://aama.github.io" "AAMA github") " page."]
     [:p "In order to work properly, the application needs to find in its home directory a directory " [:em "pvlists"] " with application-specific lists and indices used in menus, queries and displays. In fact wihtout these, most menu-options will simply show a blank page. The following steps will properly set up the application:"]
     [:ol

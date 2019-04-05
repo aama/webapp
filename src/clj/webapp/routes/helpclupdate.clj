@@ -1,3 +1,4 @@
+
 (ns webapp.routes.helpclupdate
  (:refer-clojure :exclude [filter concat group-by max min count])
   (:require [compojure.core :refer :all]
@@ -18,7 +19,7 @@
   (layout/common 
    [:div {:class "info-page"}
      [:h3 "Help: Update [Command-line]"]
-    [:p "There are two scenarios:"]
+    [:p "There are two " [:em "update"] " scenarios: [For new language see " (link-to "/helpaddnewlanguage" "Add New Language to Datastore.") ]
     [:ol
      [:li [:h4 "Datastore Update/Upload From Development Version:"]
       [:ul [:li [:h4 "Datastore Update In Development Version"] 

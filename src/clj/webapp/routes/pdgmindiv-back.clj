@@ -60,9 +60,7 @@
                 [:td [:select#lvalcluster.required
                       {:title "Choose a value.", :name "lvalcluster"}
                       (for [valcluster valclusterset]
-                        (let [propscluster1 (first (split valcluster #"%"))
-                              propscluster2 (last (split propscluster1 #"," 2))]
-                        [:option {:value (str language "," valcluster)} propscluster2]))]]]
+                        [:option {:value (str language "," valcluster)} valcluster])]]]
                ;;(submit-button "Get pdgm")
                [:tr [:td]
                 [:td [:input#submit

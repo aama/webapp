@@ -85,21 +85,36 @@
                     {:value "Display pdgms", :name "submit", :type "submit"}]]]])))
 
 (defn handle-pdgmdefdisplay
- [valclusters]
- (layout/common
-    (for [valcluster valclusters]
-      (let [query-sparql (sparql/pdgmqry-sparql-gen-vrbs valcluster)
-            query-sparql-pr (clojure.string/replace query-sparql #"<" "&lt;")
-            req (http/get aama
-                      {:query-params
-                       {"query" query-sparql ;;generated sparql
-                        ;;"format" "application/sparql-results+json"}})
-                        "format" "text"}})
-            req2 (clojure.string/replace (:body req) #"%%" " + ")
-            ]
+  [valclusters]
+  (layout/common
+   (for [lvalcluster valclusters]
+     (let [;; (partially) parse lvalcluster
+           values (split lvalcluster #"," 2)
+           language (first values)
+           Language (capitalize language)
+           sourcevcs (split (last values) #"," 2)
+           srce (first sourcevcs)
+           vcs (last sourcevcs)
+           pos (first (split vcs #"," 2))
+           mpropsvals1 (last (split vcs #"," 2))
+           mpropsvals2 (split mpropsvals1 #"%" 2)
+           mprops (first mpropsvals2)
+           morphclass (first (split mprops #"," 2))
+           propstr (last (split mprops #"," 2))
+           ;; form query
+           query-sparql (sparql/pdgmqry-sparql-gen-vrbs lvalcluster)
+           query-sparql-pr (clojure.string/replace query-sparql #"<" "&lt;")
+           req (http/get aama
+                         {:query-params
+                          {"query" query-sparql ;;generated sparql
+                           ;;"format" "application/sparql-results+json"}})
+                           "format" "text"}})
+           req2 (clojure.string/replace (:body req) #"%%" " + ")
+           ]
         [:div
          [:hr]
-         [:h4 "Valcluster: " valcluster]
+         [:h4  "Valcluster: " Language "(" srce ")"]
+         [:p propstr]
          [:pre (:body req)]
          ;;[:h4 "======= Debug Info: ======="]
          ;;[:h3#clickable "Query:"]

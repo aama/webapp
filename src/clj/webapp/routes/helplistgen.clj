@@ -45,8 +45,16 @@
  entry format is explained in the " (link-to "/helppdgmdata" "Paradigm Data") " help section."]
        [:li "A text file, pvlists/pdgm-table-LANG.txt, which gives a set of  all the morphological properties used in the paradigms of the language, to serve as a header for a table whose rows specify the combination of values used in each paradigm. To be set-united with headers of any other languages used in a combined property-value table of the paradigms of a set of languages. This is used in the \"property-value table\" option of multiple paradigm display."]
        [:li "A edn file, pvlists/pdgm-label-LANG.edn, which maps the paradigms' labels to the corresponding value-clusters -- used in 'Search > Form Search' to find the paradigm(s) associated with a queried form."]]]]
+     [:li (link-to "/pdgmSource" "Paradigm Source Index")
+      [:p "This set of queries is essentially an extension of the 'Paradigm Value-Cluster Lists', differing only by adding the 'Source' :note (for paradigm source consultation and proof-reading). It creates the following files: [THIS SHOULD BE COMBINED AS AN OPTION WITH 'Pdgm Value-Cluster Lists']"
+      [:ol
+       [:li "A text file, pvlists/pdgm-source-LANG.txt, consisting of comma-separated value combinations existing in each paradigm, with a bibliographic reference to the paradigm's source. This file is designed especially to be read into the pdgmcombtable.clj menu. List
+ entry format is explained in the " (link-to "/helppdgmdata" "Paradigm Data") " help section."]
+       [:li "A text file, pvlists/pdgm-table-LANG.txt, which gives a set of  all the morphological properties used in the paradigms of the language, to serve as a header for a table whose rows specify the combination of values used in each paradigm, plus a source indication. "]]]]
      [:li (link-to "/makeschemata" "Make a revised schemata section for a 'LANG-pdgms.edn' file:'")
-      [:p "In the course of revising property and/or value terms in the ':termclusters' section of a 'LANG-pdgms.edn' file, the data can get out of sync with the ':schemata' section. This routine gathers all the property-value pairs in the data section of the file, and presents them in the format of the sechmata section, which can then be copied and pasted into the pdgms.edn file in place of the old schemata section."]]]
+      [:p "In the course of revising property and/or value terms in the ':termclusters' section of a 'LANG-pdgms.edn' file, the data can get out of sync with the ':schemata' section. This routine gathers all the property-value pairs in the data section of the file, and presents them in the format of the sechmata section, which can then be copied and pasted into the pdgms.edn file in place of the old schemata section."]]     
+     [:li (link-to "/makelexeme" "Make a revised lexeme section for a 'LANG-pdgms.edn' file:'")
+      [:p "For adding and ordering new lexemes to :lexemes section."]]]
 ]))
 
 (defroutes helplistgen-routes
