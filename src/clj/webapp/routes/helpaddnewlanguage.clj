@@ -17,12 +17,12 @@
 (defn helpaddnewlanguage []
   (layout/common 
    [:div {:class "info-page"}
-    [:h3 "Help: Add New Language to Datastore"]
+    [:h3 "Help: Add New Language/Language-Data to Datastore"]
     [:p "This involves essentially two steps:"]
     [:ul 
      [:li [:p "First: Create a new edn file with the language data. The following short-cuts may help."
     [:ol
-     [:li "Create new directory " [:em "[LANG]"] " in  " [:em "aama-data/data-new."]]
+     [:li "If new language, create new directory " [:em "[LANG]"] " in  " [:em "aama-data/data-new."]]
      [:li "Using  " [:em "pdgm-table-templates.docx"] "  and  " [:em "data-template.edn"] "  from  " [:em "aama-data/data-new"] " , create files  " [:em "[LANG]-pdgm-table.docx"] "  and  " [:em "[LANG]-data-template.edn"] "  in  " [:em "aama-data/data-new[LANG]."]]
      [:li "Using Word (or possibly other app with good table-creation routines) fill in table templates in  " [:em "docx"] "  file with data."]
       [:ul

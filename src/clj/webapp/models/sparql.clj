@@ -178,7 +178,7 @@
          (tmpl/render-string 
           (str "
 	PREFIX {{lpref}}:   <http://id.oi.uchicago.edu/aama/2013/{{language}}/> 
-	SELECT {{selection}} 
+	SELECT DISTINCT {{selection}} 
 	WHERE
         { 
 	 { 

@@ -152,14 +152,14 @@ table.linfo-table th {
     color:#000;
     font-weight:normal;
     height:20px;
-    width:100px;
+    width:600px;
     cursor:move;
 }
 
 table.linfo-table td {
     font-weight:normal;
     height:20px;
-    width:400px;
+    width:600px;
     cursor:move;
 }
 

@@ -94,8 +94,8 @@
      [:ul
       [:li (link-to "#" "Archive Paradigm")
        [:ul
-        [:li (link-to "/pdgmindiv" "Single Paradigm")]
-        [:li (link-to "/pdgmmultdef" "Multiple Paradigm (Default Format) ")]
+        [:li (link-to "/pdgmindiv" "Paradigms: Full Format")]
+        [:li (link-to "/pdgmmultdef" "Paradigms: Default Format")]
         [:li (link-to "/pdgmcomblist" "Combine/Modify Paradigm (From List)")]
         [:li (link-to "/pdgmcombtabl" "Combine/modify Paradigm (From Table)")]
         [:li (link-to "/pdgmtableindex" "Display Source Index Table")]]]
@@ -128,7 +128,7 @@
       [:li (link-to "#" "The AAMA Application:")
        [:ul 
       [:li (link-to "/helpaamaversions" "AAMA Versions")]
-      [:li (link-to "/helpaddnewlanguage" "How to Add a New Language to the Datastore")]
+      [:li (link-to "/helpaddnewlanguage" "How to Add a New Language/Language-Data to the Datastore")]
       [:li (link-to "/helpinitializeapp" "How to Initialize A Local Application")]]]
       [:li (link-to "#" "Search/Display")
        [:ul

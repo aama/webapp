@@ -24,7 +24,7 @@
   (let [langlist (slurp "pvlists/menu-langs.txt")
         languages (split langlist #"\n")]
   (layout/common 
-   [:h3 "Multi-Paradigm: Default Display"]
+   [:h3 "Paradigm: Default Display"]
      ;;[:p "Use this option to pick one or more  paradigms from a given language or set of languages to be displayed in fixed format vertical succession."]
    [:p "Choose Languages and Type"]
    ;; [:p error]
@@ -76,9 +76,11 @@
                    (if (re-find #"EmptyList" valclusterlist)
                      [:div (str "There are no  paradigms in the " language " archive.")]
                      (for [valcluster valclusterset]
+                       (let [propscluster1 (first (split valcluster #"%"))
+                             propscluster2 (last (split propscluster1 #"," 2))]
                          [:div {:class "form-group"}
                           [:label
-                           (check-box {:class "checkbox1" :name "valclusters[]" :value (str language "," valcluster) } valcluster) valcluster]])))])]
+                           (check-box {:class "checkbox1" :name "valclusters[]" :value (str language "," valcluster) } propscluster2) propscluster2]]))))])]
              ;;(submit-button "Get pdgm")
              [:tr [:td ]
               [:td [:input#submit
@@ -116,11 +118,11 @@
          [:h4  "Valcluster: " Language "(" srce ")"]
          [:p propstr]
          [:pre (:body req)]
-         ;;[:h4 "======= Debug Info: ======="]
-         ;;[:h3#clickable "Query:"]
-         ;;[:pre query-sparql-pr]
-         ;;[:p "req2: " [:pre req2]]
-         ;;[:p "==========================="]
+         [:h4 "======= Debug Info: ======="]
+         [:h3#clickable "Query:"]
+         [:pre query-sparql-pr]
+         [:p "req2: " [:pre req2]]
+         [:p "==========================="]
          ]))
         [:script {:src "js/goog/base.js" :type "text/javascript"}]
         [:script {:src "js/webapp.js" :type "text/javascript"}]
