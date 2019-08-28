@@ -97,7 +97,7 @@ will have downloaded both the source-code and a stand-alone jar file.
     Enter the following Leiningen command in a shell (terminal session) 
     to launch the app in a local webserver:
     ```clojure
-    aama/webapp $ lein ring server-headless
+    aama/webapp $ lein ring server
     ```
 
     [Note that at present use of 
