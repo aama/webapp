@@ -30,7 +30,7 @@ has been downloaded from one or more of the aama language repositories,
 2.   transformed into [ttl/rdf-xml](http://www.w3.org/TR/turtle/) format
 using the appropriate shell script in ``aama/tools/bin``, and
 3.   loaded into the Fuseki datastore;
-4.   and that the Fuseki server has been launched (by default on localhost:3030)
+4.   and that the Fuseki server has been launched (by default on ``localhost:3030``)
  by running the shell script:
  ```
 aama $ tools/bin/fuseki.sh
