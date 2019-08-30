@@ -86,7 +86,7 @@ of Hiccup by a templating approach to HTML such as
 The organization of the application code itself follows a rather consistent 
 pattern. As usual in a Clojure application, each namespace is in a file 
 NS.clj, and all these files are placed in directories and subdirectories
-under src/clj/webapp (where ``/clj`` vs ``/cljs`` distinguishes the Clojure
+under ``src/clj/webapp`` (where ``/clj`` vs ``/cljs`` distinguishes the Clojure
 vs the ClojureScript files). And as usual in a Compojure-based web application, 
 the various parts are held together by a small set of functions in a 
 ``webapp.handler`` namespace file. The application background menu,
