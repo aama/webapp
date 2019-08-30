@@ -21,20 +21,18 @@ essentially the same basic functionality could be achieved
 by any software framework which can provide a web interface for handling
 SPARQL queries submitted to an  RDF datastore.
 
-The application  uses "live" aama data. It assumes that: 
+The application  uses "live" aama data. It assumes that, following the 
+process described in [aama.github.io](http://aama.github.io): 
 
 1.   language data in
 [Extensible Data Notation (edn)](https://github.com/edn-format/edn) format
 has been downloaded from one or more of the aama language repositories, 
 2.   transformed into [ttl/rdf-xml](http://www.w3.org/TR/turtle/) format
 using the appropriate shell script in ``aama/tools/bin``, and
-3.   loaded into the Fuseki datastore, 
-
-following the process described in [aama.github.io](http://aama.github.io); 
-and that the Fuseki server has been launched (by default on localhost:3030)
+3.   loaded into the Fuseki datastore;
+4.   and that the Fuseki server has been launched (by default on localhost:3030)
  by running the shell script:
- 
-```
+ ```
 aama $ tools/bin/fuseki.sh
 ``` 
 
@@ -50,11 +48,7 @@ directory, can be run directly against the datastore
 ```
 localhost:3030/dataset.html
 ``` 
-page (select the
-```
-/aama/
-```
-dataset when prompted). 
+page (select the ``/aama/`` dataset when prompted). 
 
 
 ## Organization of the Web Application
