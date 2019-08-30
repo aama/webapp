@@ -37,7 +37,7 @@ aama $ tools/bin/fuseki.sh
 ``` 
 
 Note that after Fuseki has been launched, the Apache Jena Fuseki interface 
-can be consulted directly on the browser at localhost:3030. 
+can be consulted directly on the browser at ``localhost:3030``. 
 SPARQL queries, for example, those contained in the
 
 ```
@@ -141,7 +141,7 @@ directory, with the command:
     aama/webapp $ java -jar aama-webapp.jar
     ```
 
-In either case,  you can then open localhost:3000 in your browser, 
+In either case,  you can then open ``localhost:3000`` in your browser, 
 and you will see the application's main menu. Go immediately to the
 ```html
 Help > Initialize Application
@@ -154,9 +154,9 @@ most pages you will not see anything).
 
 For the Clojure REPL see `lein repl`,
 [tools.nrepl](https://github.com/clojure/tools.nrepl), and
-[cider](NNNNhttps://github.com/clojure-emacs/cider).
+[cider](https://github.com/clojure-emacs/cider).
 
-You do not have to use emacs.  Many Clojure hackers do, but recently
+You do not have to use emacs.  Many Clojure hackers do, but
 [Lighttable](http://www.chris-granger.com/lighttable/) has also become
 quite popular.
 
