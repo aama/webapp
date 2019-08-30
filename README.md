@@ -2,7 +2,7 @@
 
 ## Web Application
 
-This is a skeletal Clojure webapp  demonstrating access to an 
+This is an experimental Clojure webapp  demonstrating access to an 
 [Resource Description Framework (RDF)](https://www.w3.org/RDF/) dataset
 of  paradigmatic and other morphological data via a local RDF server, 
 in our case [Apache Jena Fuseki](http://jena.apache.org/index.html).
@@ -31,12 +31,33 @@ using the appropriate shell script in ``aama/tools/bin``, and
 3.   loaded into the Fuseki datastore, 
 
 following the process described in [aama.github.io](http://aama.github.io); 
-and that the Fuseki server has been launched by the 
-command: 
-```clojure
+and that the Fuseki server has been launched (by default on localhost:3030)
+ by running the shell script:
+ 
+```
 aama $ tools/bin/fuseki.sh
 ``` 
-## Organization of the Code
+
+Note that after Fuseki has been launched, the Apache Jena Fuseki interface 
+can be consulted directly on the browser at localhost:3030. 
+SPARQL queries, for example, those contained in the
+
+```
+tools/sparql/rq-ru/
+```
+directory, can be run directly against the datastore 
+ in the Fuseki Control Panel on the 
+```
+localhost:3030/dataset.html
+``` 
+page (select the
+```
+/aama/
+```
+dataset when prompted). 
+
+
+## Organization of the Web Application
 
 ### Clojure Libraries
 
@@ -49,34 +70,39 @@ web application library, complemented by the
 
 [Hiccup](https://github.com/weavejester/hiccup) is used here to represent
  HTML directly in Clojure. However, although
-a similar direct representation of SPARQL queries in Clojure could be accomplished
-by libraries such as [Matsu](https://github.com/boutros/matsu),
+a similar direct representation of SPARQL queries in Clojure could be 
+accomplished by libraries such as [Matsu](https://github.com/boutros/matsu),
  we have preferred to handle these queries as
 a collection of SPARQL templates, using the library
  [Stencil](https://github.com/davidsantiago/stencil) to instantiate
 the values referenced in the templates. This makes it easier for
  someone familiar with 
 the querying of RDF datasets, but not necessariy with Clojure, to inspect the
-SPARQL query templates, and suggest and even effect extensions and modifications to them.
+SPARQL query templates, and suggest and even effect extensions and
+ modifications to them.
  
-(Analogous considerations, i.e., input from someone familiar with webpage design 
-but not with Clojure, may eventually motivate the replacement of Hiccup by
-a templating approach to HTML such as [Enlive](https://github.com/cgrand/enlive) or 
+(Analogous considerations, e.g., obtaining input from someone familiar with
+ webpage design but not with Clojure, may eventually motivate the replacement 
+of Hiccup by a templating approach to HTML such as 
+[Enlive](https://github.com/cgrand/enlive) or 
 [Selmer](https://github.com/yogthos/Selmer).)
 
 ### Application Code [src/clj/webapp/]
 
-The organization of the application code itself follows a rather consistent pattern.
-As usual in a Compojure-based application,  the various parts are held together
-by a small set of functions in a ``webapp.handler`` namespace file. 
-The application background menu, as well as the basic page layout and invocation 
-of the various javascript 
+The organization of the application code itself follows a rather consistent 
+pattern. As usual in a Clojure application, each namespace is in a file 
+NS.clj, and all these files are placed in directories and subdirectories
+under src/clj/webapp (where ``/clj`` vs ``/cljs`` distinguishes the Clojure
+vs the ClojureScript files). And as usual in a Compojure-based web application, 
+the various parts are held together by a small set of functions in a 
+``webapp.handler`` namespace file. The application background menu,
+as well as the basic page layout and  invocation of the various javascript 
 and css resources are taken care of in ``webapp.views.layout``.
 
-The very large number of help, utility, and information-requesting pages are each
-represented by a ``webapp.routes.[NS]`` file. These information-requesting
-files are of a very uniform structure, familiar to almost any database application
-in whatever context: almost every one presents an HTML form, with 
+The very large number of help, utility, and information-requesting pages are 
+each represented by a ``webapp.routes.[NS]`` file. These information-requesting
+files are of a very uniform structure, familiar to almost any database 
+application in whatever context: almost every one presents an HTML form, with 
 information (language, morphosyntactic categories, etc.) to be supplied by 
 selection-lists, check-boxes, and text-input areas. The requested information
 is passed to a handler function, which uses it to formulate a SPARQL query 
@@ -90,14 +116,15 @@ response, formats it, and displays both it, and, where feasible, the query,
 Cloning the aama/webapp repository, 
 as per [aama.github.io](http://aama.github.io), 
 will have downloaded both the source-code and a stand-alone jar file.
- The application can be run in the webapp directory either:
+ Presuming that the Fuseki server has been launched (cfs. above) the 
+application can be run in the webapp directory either:
 
 1. From the downloaded sorce-code,  using [Leiningen](http://leiningen.org):
 
     Enter the following Leiningen command in a shell (terminal session) 
     to launch the app in a local webserver:
-    ```clojure
-    aama/webapp $ lein ring server
+    ```
+    aama/webapp $ lein ring server-headless
     ```
 
     [Note that at present use of 
@@ -114,8 +141,8 @@ will have downloaded both the source-code and a stand-alone jar file.
     details.]
 
 
-2. As a Java application from the jar file to be  found in the webapp directory, 
-with the command: 
+2. As a Java application from the jar file to be  found in the webapp 
+directory, with the command: 
     ```java
     aama/webapp $ java -jar aama-webapp.jar
     ```
@@ -140,5 +167,8 @@ You do not have to use emacs.  Many Clojure hackers do, but recently
 quite popular.
 
 For the Clojurescript REPL, See
-* [The REPL and Evaluation Environments](https://github.com/clojure/clojurescript/wiki/The-REPL-and-Evaluation-Environments)
-* [REPL Support](https://github.com/emezeske/lein-cljsbuild/blob/1.0.3/doc/REPL.md) for lein cljsbuild
+* [The REPL and Evaluation Environments]
+(https://github.com/clojure/clojurescript/wiki/
+The-REPL-and-Evaluation-Environments)
+* [REPL Support](https://github.com/emezeske/lein-cljsbuild/blob/1.0.3/doc/
+REPL.md) for lein cljsbuild
