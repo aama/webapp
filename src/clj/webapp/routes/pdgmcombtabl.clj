@@ -98,7 +98,8 @@
               ]
           ;; make sure no redundant commas
           ;;(str language "," vlcl "&&"  pos "," morphclass   propseq  "%%" lex  "\r\n"))))))
-          (str language "," vlcl "&&"  pos "," morphclass   propseq  "\r\n"))))))                      
+          (str language "," vlcl "&&"  pos "," morphclass   propseq  "\r\n"))))))  
+                    
 (defn handle-pdgmcombtablqry
   [languages]
   (let [combtableheads (makecombtableheads languages)
@@ -400,7 +401,10 @@
 ;;(prmap))))
 
 (defn handle-pdgmcombtablplldisplay
-  "In this version pivot/keyset can be generalized beyond png any col (eventually any sequence of cols) between col-1 and token column. (Need to find out how to 'presort' cols before initial display?) [Current version has very ugly string=>list pdgms=>pnames. Simplify?]"
+  "In this version pivot/keyset can be generalized beyond png any 
+col (eventually any sequence of cols) between col-1 and token column.
+ (Need to find out how to 'presort' cols before initial display?) 
+[Current version has very ugly string=>list pdgms=>pnames. Simplify?]"
   [pdgmnames header pivotlist newpdgmstr]
   (let [pnamestr1 (clojure.string/replace pdgmnames #"[\[\]\"]" "")
         pnamestr2 (clojure.string/replace pnamestr1 #"%" ".")

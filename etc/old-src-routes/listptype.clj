@@ -14,6 +14,7 @@
             [hiccup.form :refer :all]
             ;;[clojure-csv.core :as csv]
             ))
+;; ns not used in current [10/31/20] app as reflected in layout menu:
 
 (def aama "http://localhost:3030/aama/query")
 
@@ -81,6 +82,8 @@
          domain (first opts)
          langs (last opts)
          ;; send SPARQL over HTTP request"
+	 ;; [NB 10/31/20: listlptype-sparql, listlptypepdgm-sparql, and 
+	 ;;  listptypelpdgm-sparql do not exist in current sparql.clj]
          query-sparql (cond 
                        (= colorder "lang-pdgmType")
                        (sparql/listlptype-sparql langs)
@@ -105,14 +108,15 @@
       [:h3#clickable "List Type: " colorder]
       [:h3#clickable "Language Domain: " domain]
       [:p (str "(Languages: " langs ")")]
-      [:p "Column Order: " colorder]
-      [:hr]
+      ;;[:p "Column Order: " colorder]
+      ;;[:p "PTypes: " [:pre lpvs]]
+      ;;[:hr]
       lpvtable
-      [:hr]
-      [:h3 "Response:"]
-      [:pre (:body req)]
-      [:h3#clickable "Query:"]
-      [:pre query-sparql-pr]
+      ;;[:hr]
+      ;;[:h3 "Response:"]
+      ;;[:pre (:body req)]
+      ;;[:h3#clickable "Query:"]
+      ;;[:pre query-sparql-pr]
       ])
    [:script {:src "js/goog/base.js" :type "text/javascript"}]
    [:script {:src "js/webapp.js" :type "text/javascript"}]

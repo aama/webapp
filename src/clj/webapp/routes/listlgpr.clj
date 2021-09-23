@@ -15,7 +15,14 @@
 
 (def aama "http://localhost:3030/aama/query")
 
-(defn listlgpr []
+(defn listlgpr 
+"Given language(s) and POS, list (in a col) properties for that POS.
+ (sparql/listlgpr-sparql-pro language lpref)
+ (sparql/listlgpr-sparql-nfv language lpref)
+ (sparql/listlgpr-sparql-noun language lpref)
+ (sparql/listlgpr-sparql-fv language lpref)
+ (sparql/listlgpr-sparql-checkall language lpref))"
+ []
   (let [langlist (slurp "pvlists/menu-langs.txt")
         languages (split langlist #"\n")
         ldomlist (slurp "pvlists/ldomainlist.txt")

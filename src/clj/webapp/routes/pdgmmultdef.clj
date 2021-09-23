@@ -20,7 +20,11 @@
 
 (def aama "http://localhost:3030/aama/query")
 
-(defn pdgmmultdef []
+(defn pdgmmultdef 
+"Given language(s) [checkbox] pick paradigm(s) [checkbox]; pdgm csv(s) [i.e. ':body req']  to be displayed in fuseki default format in vertical succession.
+ (sparql/pdgmqry-sparql-gen-vrbs lvalcluster)
+" 
+[]
   (let [langlist (slurp "pvlists/menu-langs.txt")
         languages (split langlist #"\n")]
   (layout/common 

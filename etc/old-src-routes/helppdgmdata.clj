@@ -1,4 +1,4 @@
-(ns webapp.routes.aamapdgmdata
+(ns webapp.routes.helppdgmdata
  (:refer-clojure :exclude [filter concat group-by max min count])
   (:require [compojure.core :refer :all]
             [webapp.views.layout :as layout]
@@ -14,7 +14,7 @@
             [hiccup.element :refer [link-to]]
             [hiccup.form :refer :all]))
 
-(defn aamapdgmdata []
+(defn helppdgmdata []
   (layout/common 
    [:div {:class "info-page"}
 
@@ -113,7 +113,7 @@ Verb,Finite,lex=:xaw,polarity=Affirmative,stemClass=GlideStem,tam=Subjunctive%nu
         [:p "AAMA Webapp Help"]]]]
 ))
 
-(defroutes aamapdgmdata-routes
-  (GET "/aamapdgmdata" [] (aamapdgmdata)))
+(defroutes helppdgmdata-routes
+  (GET "/helppdgmdata" [] (helppdgmdata)))
 
 

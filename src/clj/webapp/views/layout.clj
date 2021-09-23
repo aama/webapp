@@ -1,4 +1,3 @@
-
 (ns webapp.views.layout
   (:require [hiccup.page :refer [html5 include-css include-js]]
             [hiccup.element :refer [link-to]]
@@ -18,36 +17,7 @@
        [:title "Welcome to the Afroasiatic Morphological Archive"]
        (include-css "/css/screen.css")
        (include-css "/css/sm-core.css")
-       (include-css "/css/sm-simple.css")
-       (include-css "/css/dragtable.css")
-       (include-js "/js/jquery-1.11.3.min.js")
-       (include-js "/js/jquery-ui.min.js")
-       (include-js "/js/jquery.smartmenus.min.js")
-       (include-js "/js/jquery.dragtable.js")
-       (include-js "/js/jquery.tablesorter.min.js")
-       [:script {:type "text/javascript"}
-        (str 
-         "$(document).ready(function() {
-            $('.sm').smartmenus({
-              showFunction: function($ul, complete) {
-                $ul.slideDown(250, complete);
-              },
-              hideFunction: function($ul, complete) {
-                $ul.slideUp(250, complete);
-              }
-             }); 
-             $('#handlerTable').dragtable({dragHandle:'.some-handle'});
-             $('#handlerTable').tablesorter();
-             // http://www.sanwebe.com/2014/01/how-to-select-all-deselect-checkboxes-jquery
-             $('#selectall').click(function(event) {
-               if(this.checked) {
-                 $('.checkbox1').each(function() {
-                  this.checked = true;               
-                 });
-               }else{
-                 $('.checkbox1').each(function() {
-                   this.checked = false;                       
-                 });         
+       (include-css "/css/sm-simple.css")                 });         
                }
              });
            });")]

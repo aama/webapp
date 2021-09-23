@@ -23,9 +23,9 @@
   (let [langlist (slurp "pvlists/menu-langs.txt")
         languages (split langlist #"\n")]
     (layout/common 
-     [:h3 "Checkbox: Multilingual Display"]
-     ;;[:p "Use this option to pick one or more  paradigms from a given language or set of languages to be displayed as a single paradigm. (NB: Will only combine paradigms with identical headers.)"]
-     [:p "Choose Languages and Type"]
+     [:h3 " PDGM Property-Value Table"]
+     ;;[:p "Use this option to pick one or more  paradigms from a given language or set of languages to be displayed as a single paradigm. (NB: Will only combine finite verb paradigms with identical morphological columns.)"]
+     [:p "Choose POS and Languages"]
      (form-to [:post "/multisortqry"]
               [:table
                [:tr [:td "PDGM Type: "]
@@ -54,6 +54,8 @@
 (defn handle-multisortqry
   [languages pos]
   (layout/common 
+   [:h3 "PDGM Property-Value Table"]
+   [:p "Choose PDGM"] 
    (form-to [:post "/multisortdisplay"]
             [:table
              [:tr [:td "PDGM Type: " ]
@@ -66,58 +68,58 @@
                  [:div (str (capitalize language) " ")]])]
              [:tr [:td "PDGM Value Clusters: " ]
               ;;[:div
-                 (for [language languages]
-                  [:td 
-                   {:title "Choose a value.", :name "valcluster"}
-                   (let [valclusterfile (str "pvlists/vlcl-table-" language "-" pos ".txt")
-                         valclustertable (slurp valclusterfile)
-                         brows (split valclustertable #"\r\n")
-                         header (first brows)
-                         headers (split header #",")
-                         valrows (rest brows)]
-                     [:div
-                     ;;[:h4  "Value Clusters: " ]
-                     [:table {:id "handlerTable" :class "tablesorter sar-table"}
-                      [:thead
-                       [:tr
-                        ;;[:th [:div {:class "some-handle"} [:br] "Choose"]]
-                        (for [head headers]
-                          [:th [:div {:class "some-handle"} [:br] head]])]]
-                      [:tbody 
-                       (for [valrow valrows]
-                         [:tr
-                          (let [valcells (split valrow #",")
-                                pcell (clojure.string/replace (first valcells) #"\+" ",")
-                                vcells (rest valcells)]
-                            [:div
+              (for [language languages]
+                [:td 
+                 {:title "Choose a value.", :name "valcluster"}
+                 (let [valclusterfile (str "pvlists/vlcl-table-" language "-" pos ".txt")
+                       valclustertable (slurp valclusterfile)
+                       brows (split valclustertable #"\r\n")
+                       header (first brows)
+                       headers (split header #",")
+                       valrows (rest brows)]
+                   [:div
+                    ;;[:h4  "Value Clusters: " ]
+                    [:table {:id "handlerTable" :class "tablesorter sar-table"}
+                     [:thead
+                      [:tr
+                       ;;[:th [:div {:class "some-handle"} [:br] "Choose"]]
+                       (for [head headers]
+                         [:th [:div {:class "some-handle"} [:br] head]])]]
+                     [:tbody 
+                      (for [valrow valrows]
+                        [:tr
+                         (let [valcells (split valrow #",")
+                               pcell (clojure.string/replace (first valcells) #"\+" ",")
+                               vcells (rest valcells)]
+                           [:div
                             [:td 
                              [:div {:class "form-group"}
                               [:label 
                                (check-box {:name "valclusters[]" :value (str language "," pcell) }  (str language "," pcell)) (str language "," pcell) ]]]
                             (for [vcell vcells]
                               [:td vcell])])])
-                       ;;(if (re-find #"EmptyList" valclusterlist)
-                       ;; [:div (str "There are no " pos " paradigms in the " language " archive.")]
-                       ;;(submit-button "Get pdgm")
-                       [:tr 
-                        [:td [:input#submit
-                              {:value "Disnplay pdgms", :name "submit", :type "submit"}]]]]]
-                     ;;[:div
-                      ])])]])
+                      ;;(if (re-find #"EmptyList" valclusterlist)
+                      ;; [:div (str "There are no " pos " paradigms in the " language " archive.")]
+                      ;;(submit-button "Get pdgm")
+                      [:tr 
+                       [:td [:input#submit
+                             {:value "Disnplay pdgms", :name "submit", :type "submit"}]]]]]
+                    ;;[:div
+                    ])])]])
    [:script {:src "js/goog/base.js" :type "text/javascript"}]
    [:script {:src "js/webapp.js" :type "text/javascript"}]
    [:script {:type "text/javascript"}  "goog.require('webapp.core');"]))
 
 
 (defn vc2req
-  [valclusters pos]
-  (let [vcvec (split valclusters #" ")
-        lprefmap (read-string (slurp "pvlists/lprefs.clj"))]
-    (for [valcluster vcvec]
-      (let [vals (split valcluster #"," 2)
+  [pnames pos]
+  (let [lprefmap (read-string (slurp "pvlists/lprefs.clj"))]
+    (for [pname pnames]
+      (let [vals (split pname #"," 2)
             plang (first vals)
-            ;;pnum (clojure.string/replace plang #"%.*" "")
-            language (clojure.string/replace plang #"^P.*?%" "")
+            pnlng (split plang #"-", 2)
+            pnum (first pnlng)
+            language (last pnlng)
             lang (read-string (str ":" language))
             lpref (lang lprefmap)
             vcluster (last vals)
@@ -132,7 +134,7 @@
                           (sparql/pdgmqry-sparql-pro language lpref pvalcluster)
                           (= pos "noun")
                           (sparql/pdgmqry-sparql-noun language lpref vcluster)
-                          (= pdgmType "Finite")
+                          (re-find #"Finite" pdgmType)
                           (sparql/pdgmqry-sparql-fv language lpref pvalcluster)
                           :else (sparql/pdgmqry-sparql-nfv language lpref vcluster))
             req (http/get aama
@@ -140,25 +142,16 @@
                            {"query" query-sparql ;;generated sparql
                             ;;"format" "application/sparql-results+json"}})]
                             "format" "csv"}})
-            ;; get rid of header
             pbody1 (:body req)
-            ;;pbody1 (clojure.string/replace (:body req) #"^.*?\r\n" "\r\n")
             pbody2 (clojure.string/replace pbody1 #" " "_")
             ]
-        ;;(clojure.string/replace pbody1 #" " "_")
         ;; add pdgm name to each row of pbody as first value
-        (clojure.string/replace pbody2 #"\r\n(\S)" (str "\r\n" lpref "." pvlcl  ",$1"))
-        ;;(str vcluster " +1 " pdgmType " +2 " pvalcluster " +3 " (:body req) " +4 " query-sparql)
-        ))))
+        (clojure.string/replace pbody2 #"\r\n(\S)" (str "\r\n" pnum ",$1"))))))
 
 (defn csv2pdgm
   "Takes sorted n-col csv list with vectors of pnames and headers, and outputs n+1-col html table with first col for pname ref; cols are draggable and sortable."
-  [pdgmstr2 valclusters]
-  (let  [pdgms (str valclusters)
-         pnamestr1 (clojure.string/replace pdgms #"[\[\]\"]" "")
-         pnamestr2 (clojure.string/replace pnamestr1 #"%" ".")
-         pnames (split pnamestr2 #" ")
-         ;; pdgmstr2 is a string of space-separated pdgmstrings, whose rows are
+  [pdgmstr2 pnames]
+  (let  [;; pdgmstr2 is a string of space-separated pdgmstrings, whose rows are
          ;; separated by \r\n and cells separated by ","
          ;; Take off the top header
          ;; If pdgms are to be comparable
@@ -198,28 +191,29 @@
            ))]]]))
 
 (defn addpnum
-  [pdgmvec]
-  (let [pnum (atom 0)]
-    (for [pdgmrow pdgmvec]
-      (let [pnum (swap! pnum inc)]
-        (clojure.string/replace pdgmrow #"\r\n(\S)" (str "\r\nP-"  pnum  "-$1"))))))
+  [pnames]
+  (for [pname pnames]
+    (str "P" (.indexOf pnames pname) "-" pname)))
 
 (defn handle-multisortdisplay
   [valclusters pos]
   (let [headerset1 (str "Paradigm " "Number " "Person " "Gender " "Token ")
         headerset2 (str "pdgm " "num " "pers " "gen ")
         headers (split headerset2 #" ")
-        pdgmvec (map #(vc2req  % pos) valclusters)
-        ;;pdgmvec (vc2req valclusters pos)
-        ;;pdgmvec2 (map #(addpnum % ) pdgmvec)
+        pdgmnames (str valclusters)
+        pnamestr1 (clojure.string/replace pdgmnames #"[\[\]\"]" "")
+        pnamestr2 (clojure.string/replace pnamestr1 #"%" ".")
+        pnames (split pnamestr2 #" ")
+        ;; problem: addpnum gives LazySequence
+        pnames2 (addpnum pnames)
+        pdgmvec (vc2req  pnames2 pos) 
         ;;vheader (first pdgmvec)
         pdgmstr1 (apply pr-str pdgmvec)
         pdgmstr2 (clojure.string/replace pdgmstr1 #"[\(\)\"]" "")
-        pdgmtable (csv2pdgm pdgmstr2 valclusters)
-        pdgms (str valclusters)
+        pdgmtable (csv2pdgm pdgmstr2 pnames2)
         ]
     (layout/common
-     [:h3#clickable "Paradigms " pos ": "  ]
+     [:h3#clickable "Paradigms: Sequential Display "  ]
      [:p "Click on column to sort (multiple sort by holding down shift key). Columns can be dragged by clicking and holding on 'drag-bar' at top of column."]
      [:hr]
      pdgmtable
@@ -227,13 +221,15 @@
      [:h3 "Parallel Display of Paradigms"]
      [:p "At present only accommodates parallel display of pronominal and verbval paradigms where merged paradigms have same number of columns -- to be generalized."]         
      [:hr]
+     [:h3 "PDGM Property-Value Table"]
+     [:p "Choose Parallel Display Format"]
      (form-to [:post "/multisortplldisplay"]
               [:table
                [:tr [:td "PNames: "]
                 [:td 
                  [:select#names.required
                   {:title "Chosen PDGMS", :name "pdgmnames"}
-                  [:option {:value (str valclusters)} "Paradigm Names (as above)"]]]]
+                  [:option {:value (do (apply str pnames2))} "Paradigm Names (as above)"]]]]
                [:tr [:td "Header: "]
                 [:td [:select#header.required
                       {:title "Header", :name "header"}
@@ -276,7 +272,7 @@
      [:div [:h4 "======= Debug Info: ======="]
       [:p "pdgmvec: " [:pre pdgmvec]]
       [:p "pos: " [:pre pos]]
-      [:p "valclusters: " [:pre pdgms]]
+      [:p "valclusters: " [:pre pdgmnames]]
       [:p "headerset2: " [:pre headerset2]]
       [:p "pdgmstr2: " [:pre pdgmstr2]]
       [:h4 "==========================="]]
@@ -345,7 +341,8 @@
    [:body
     (let [pnamestr1 (clojure.string/replace pdgms #"[\[\]\"]" "")
           pnamestr2 (clojure.string/replace pnamestr1 #"%" ".")
-          pnames (split pnamestr2 #" ")        
+          pnamestr3 (clojure.string/replace  pnamestr2 #"\w(P\d+-)" "\n\r$1")
+          pnames (clojure.string/split-lines pnamestr3)
           pivots (map read-string pivotlist)
           ;;pivot (read-string pivotname)
           ;; get rid of spurious line-feeds
@@ -382,7 +379,7 @@
           keyset (set keyvec)
           ]
       [:div
-       [:p [:h3 "Parallel Display of Paradigms: Pivot " (str pivotnames)]]
+       [:p [:h3 "Paradigms: Parallel Display -- Pivot " (str pivotnames)]]
        [:p "Click on column to sort (multiple sort by holding down shift key). Columns can be dragged by clicking and holding on 'drag-bar' at top of column."]
        [:p "Paradigms:"
         [:ul
@@ -442,10 +439,10 @@
         [:p "keyvec: " (str keyvec)]
         [:p "keyset: " [:pre keyset]]
         [:p "==========================="]]])]
-       [:script {:src "js/goog/base.js" :type "text/javascript"}]
-       [:script {:src "js/webapp.js" :type "text/javascript"}]
-       [:script {:type "text/javascript"}
-        "goog.require('webapp.core');"]))
+   [:script {:src "js/goog/base.js" :type "text/javascript"}]
+   [:script {:src "js/webapp.js" :type "text/javascript"}]
+   [:script {:type "text/javascript"}
+    "goog.require('webapp.core');"]))
 
 
 (defroutes multipdgmsort-routes

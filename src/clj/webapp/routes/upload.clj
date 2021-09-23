@@ -17,7 +17,9 @@
 
 (def aama "http://localhost:3030/aama/query")
 
-(defn upload []
+(defn upload 
+"[This option will enable a user with access privileges to push the current state of the designated LANG-pdgms.edn file(s) to the appropriate github repository. Webapp page under construction; in the meantime cf. 'Help>Update/Upload>Command Line']"
+ []
   (layout/common [:h3 "Upload"]
     [:div {:class "info-page"}
      [:hr]

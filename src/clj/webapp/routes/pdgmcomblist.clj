@@ -196,7 +196,8 @@
                values3 (last (split values2 #"," 2))
                propsstr (first (split values3 #"%" 2))
                valstr (last (split values3 #"%" 2))]
-           [:li (str pnumber ": ")[:ul [:li  (str language " (" srce ")")]
+           [:li (str pnumber ": ")
+            [:ul [:li  (str language " (" srce ")")]
                  [:li propsstr]
                  [:li valstr]]]))]]
      [:hr]
@@ -369,7 +370,8 @@
                values3 (last (split values2 #"," 2))
                propsstr (first (split values3 #"\." 2))
                valstr (last (split values3 #"\." 2))]
-           [:li (str pnumber ": ")[:ul [:li  (str language " (" srce ")")]
+           [:li (str pnumber ": ")
+            [:ul [:li  (str language " (" srce ")")]
                  [:li propsstr]
                  [:li valstr]]]))]]
       [:p "o "]

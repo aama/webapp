@@ -88,3 +88,58 @@ user=> (nth (clojure.string/split note3 #"::", 2) 0)
 " "
 user=> (nth (clojure.string/split note3 #"::", 2) 1)
 " (cf. also 152) (iikta become frm aka,kaya ?). Tokens to be glossed: 'I will become a teacher', etc."
+
+;;NO - 17 / 19
+(def pdgm2 "Wedekind-etal2007 Table 33,Verb,Overview_Aux%lexeme,token,token-note-auxGloss")
+"Wedekind-etal2007 Table 33,Verb,Overview_Aux, , , , , , , , , , , , , , \r\n"
+"Wedekind-etal2007 Table 33,Verb,Overview_Aux, , , , , , , , , , , , , , , , \r\n"
+
+;;NO - 12 (12+13 together) / 14 (12+13 together)
+(def pdgm2 "Wedekind-etal2007 p. 103,Verb,Finite,conjClass=Prefix,lexeme=diy,polarity=Negative,rootClass=Ciy,tam=Past%number,person,gender,token")
+"Wedekind-etal2007 p. 103,Verb,Finite, , Prefix, , , , Negative, Ciy, , Pastdiy\r\n"
+"Wedekind-etal2007 p. 103,Verb,Finite, , , , Prefix, , , , Negative, Ciy, , Pastdiy\r\n"
+
+;;NO - 16 / 18
+(def pdgm2 "Wedekind-etal2007 Table 41 ,Verb,Affix_RelSuff,clauseType=Relative%caseHead,formFrequency,genHead,headPosition,token")
+"Wedekind-etal2007 Table 41 ,Verb,Affix_RelSuff, Relative, , , , , , , , , , , , \r\n"
+"Wedekind-etal2007 Table 41 ,Verb,Affix_RelSuff, , , Relative, , , , , , , , , , , , \r\n"
+
+(def tableheads [:source,:pos,:morphClass,:clauseType,:conjClass,:gender,:lexeme,:nonFiniteForm,:number,:person,:polarity,:proClass,:rootClass,:stemClass,:strength,:tam])
+
+(def headprops (for [tablehead tableheads] (clojure.string/replace tablehead #":" "")))
+
+(def vcs2 (clojure.string/split pdgm2 #"," 2))
+(def ref2 (first vcs2))
+(def mvalsprops2 (clojure.string/split (last vcs2) #"%" 2))
+(def mv2 (first mvalsprops2))
+(def pos2 (first (clojure.string/split mv2 #"," 2)))
+(def mcprop2 (last (clojure.string/split mv2 #"," 2)))
+(def morphclass2 (first (clojure.string/split mcprop2 #"," 2)))
+(def props2 (if (re-find #"," mcprop2) (last (clojure.string/split mcprop2 #"," 2)) ""))
+(def propvec2 (clojure.string/split props2 #","))
+(def propmap2 (apply merge (for [prop propvec2] (hash-map (keyword (first (clojure.string/split prop #"="))) (str (last (clojure.string/split prop #"=")))))))
+(def propmap3 (into (sorted-map) propmap2))
+(def propseq12 (apply str (for [tablehead tableheads] (if ( (keyword tablehead) propmap2) ( str  ( (keyword tablehead) propmap3) ", ") ( str ", " )))))
+(def propseq22 (last (clojure.string/split propseq12 #", , " 2)))
+(def tline2  (str ref2 "," pos2 "," morphclass2   propseq22  "\r\n"))
+
+(def tline (str  ref "," pos "," morphclass   propseq  "\r\n"))
+
+
+
+
+
+
+
+
+(def vcs (clojure.string/split pdgm1 #"," 2))
+(def ref (first vcs))
+(def mvalsprops (clojure.string/split (last vcs) #"%" 2))
+(def mv (first mvalsprops))
+(def pos (first (clojure.string/split  #"," 2)))
+(def mcprop (last (clojure.string/split mv #"," 2)))
+(def morphclass (first (clojure.string/split mcprop #"," 2)))
+(def props (if (re-find #"," mcprop) (last (split mcprop #"," 2)) ""))(def propvec (clojure.string/split props #","))
+(def propmap (apply merge (for [prop propvec] (hash-map (keyword (first (clojure.string/split prop #"="))) (str (last (clojure.string/split prop #"=")))))))
+(def propseq (apply str (for [tablehead tableheads] (if ( (keyword tablehead) propmap) ( str "," ( (keyword tablehead) propmap)) ( str ", " )))))
+

@@ -14,6 +14,8 @@
             [hiccup.element :refer [link-to]]
             [hiccup.form :refer :all]))
 
+;; whole file needs to be updated wrt current layout.clj
+
 (defn helppdgms []
   (layout/common 
    [:div {:class "info-page"}

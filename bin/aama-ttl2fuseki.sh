@@ -8,6 +8,7 @@
 # cumulative logfile written to logs/fuput.log
 
 # 07/13/13: cf. fupost-default.sh for loading data into single default graph
+# rev. 10/30/20 -- insert .ttl into fuseki
 
 
 #. bin/constants.sh

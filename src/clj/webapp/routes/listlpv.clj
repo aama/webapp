@@ -17,7 +17,16 @@
 
 (def aama "http://localhost:3030/aama/query")
 
-(defn listlpv []
+(defn listlpv 
+"For given language(s) and l~p~v col. order writes Language-Property-Value table (w. provisioal? allowance for pclass; modifiable col. order)
+(sparql/listlpv-check-sparql langs)
+(sparql/listlpv-sparql langs)
+(sparql/listvpl-sparql langs)
+(sparql/listplv-sparql langs)
+(sparql/listcpvl-sparql langs)
+(sparql/listpvl-sparql langs))
+ "
+[]
   (let [langlist (slurp "pvlists/menu-langs.txt")
         languages (split langlist #"\n")
         ldomlist (slurp "pvlists/ldomainlist.txt")
@@ -79,7 +88,7 @@
 
 
 (defn csv2cpvl
-  "Takes sorted 3-col csv list and outputs 4-col html table with empty col1 for prop-class and string of col4 vals for repeated col3. [ONLY RELEVANT WHEN PROPERTY CLASSES HAVE BEEN ESTABLISHED.]"
+  "Takes sorted 3-col csv list and outputs 4-col html table with empty col1 for prop-class and string of col4 vals for repeated col3. [ONLY RELEVANT WHEN PROPERTY CLASSES HAVE BEEN ESTABLISHED.]"c
   [header lpvs]
   (let  [curcat1 (atom "")
          curcat2 (atom "")

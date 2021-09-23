@@ -1,5 +1,5 @@
-(ns webapp.routes.pdgmcombtabl
-  (:refer-clojure :exclude [filter  group-by max min])
+(ns webapp.routes.pdgmmultmod
+  (:refer-clojure :exclude [filter concat group-by max min])
   (:require 
    ;;[clojure.core/count :as count]
    [compojure.core :refer :all]
@@ -19,22 +19,22 @@
 
 (def aama "http://localhost:3030/aama/query")
 
-(defn pdgmcombtabl []
+(defn pdgmmultmod []
   (let [langlist (slurp "pvlists/menu-langs.txt")
         languages (split langlist #"\n")]
     (layout/common 
-     [:h3 "Combine/Manipulate Paradigms: From Table"]
-     [:p "Use this option to pick from a table one or more  paradigms from a given language or set of languages to be displayed as a single paradigm."]
-     [:h3 "Multiparadigm Sortable Display"]
-     (form-to [:post "/pdgmcombtablqry"]
+     [:h3 "Multiparadigm Modifiable Display"]
+     [:p "Use this option to pick one or more  paradigms from a given language or set of languages to be displayed as a single paradigm. (NB: For the moment, will only combine paradigms with identical headers in identical order. Future version should allow for blank cols in one or more of the languages, different column orders, and identification of different terminologies.)"]
+     [:p "Choose Languages"]
+     (form-to [:post "/pdgmmultmodqry"]
               [:table
                [:tr [:td "PDGM Language(s): " ]
-                [:td
+                [:td 
                  {:title "Choose one or more languages.", :name "language"}
                  (for [language languages]
                    ;;[:option {:value (lower-case language)} language])]]]
                    [:div {:class "form-group"}
-                    [:label
+                    [:label 
                      (check-box {:name "languages[]" :value (lower-case language)} language) language]])]]
                ;; from https://groups.google.com/forum/#!topic/compojure/5Vm8QCQLsaQ
                ;; (check-box "valclusters[]" false valcluster) (str valcluster)]]
@@ -45,139 +45,36 @@
               )
      [:hr])))
 
-(defn makecombtableheads 
-  ;; Read in table heads (from pdgm-table- file or from pdgm-index?) and merge
+(defn handle-pdgmmultmodqry
   [languages]
-  (for [language languages]
-    (let [vlcltableheadsfile (str "pvlists/pdgm-table-" language ".txt")
-          vlcltableheads (slurp vlcltableheadsfile)
-          ;;headprops (split vlcltableheads #",")
-          headprops (for [tablehead (split vlcltableheads #",")]
-                         (clojure.string/replace tablehead #":" ""))
-          ]
-      (vec headprops))))
-
-(defn makecombtablerows
-  ;; Read in table rows from pdgm-index and make csv table for propvals
-  ;; Typical pdgm name:
-  ;; Verb,Finite,polarity=AffDecl,stemClass=DentalStem,tam=Imperfect%number,person,gender:qadid
-  [languages combtableheads]
-  (for [language languages]
-    (let [valclusterfile (str "pvlists/pdgm-index-" language ".txt")
-          valclusterlist (slurp valclusterfile)
-          vlclvec (split valclusterlist #"\n")]
-      ;;parse each pdgm name
-      (for [vlcl vlclvec]
-        (let [vcs (split vlcl #"," 2)
-              pos (first vcs)
-              mvalsprops (split (last vcs) #"%" 2)
-              mv (first mvalsprops)
-              morphclass (first (split mv #"," 2))
-              ;;proplex (last mvalsprops)
-              ;;lex (if (re-find #":" proplex)
-              ;;      (last (split proplex #":" 2))
-              ;;      "-")
-              props (if (re-find #"," mv)
-                      (last (split mv #"," 2))
-                      "")
-              ;; make hash-map out of props section of vlcl
-              ;; e.g. props: polarity=AffDecl,stemClass=DentalStem,tam=Imperfect
-              ;; with headpropkeys: 
-              ;;:caseSel:clauseTypeSel:derivedStem:gender:mood:number:person:polarity:proClass:prsObj:selectorCategory:stemClass:subjSel:tam:tenseSel
-              ;; want: {:polarity "AffDecl" :stemClass "DentalStem" :tam "Imperfect"}
-              propvec (split props #",")
-              propmap (apply merge 
-                             (for [prop propvec] 
-                               (hash-map (keyword (first (split prop #"="))) (str (last (split prop #"="))))))
-              ;; key to prop=val part of  table
-              propseq (apply str 
-                             (for [combtablehead combtableheads] 
-                               (if ( (keyword combtablehead) propmap)
-                                 ( str "," ( (keyword combtablehead) propmap))
-                                 ( str ", " ))))
-              ]
-          ;; make sure no redundant commas
-          ;;(str language "," vlcl "&&"  pos "," morphclass   propseq  "%%" lex  "\r\n"))))))
-          (str language "," vlcl "&&"  pos "," morphclass   propseq  "\r\n"))))))
-                      
-(defn handle-pdgmcombtablqry
-  [languages]
-  (let [combtableheads (makecombtableheads languages)
-        propheads (reduce concat combtableheads)
-        propheadset1 (into (sorted-set) propheads)
-        ;; limit propheadset to prop=val components
-        ;;propheadset2 (disj propheadset1 "pos" "morphClass" "pdgm" "lexeme")
-        propheadset2 (disj propheadset1 "pos" "morphClass" "pdgm" )
-        propheadvec (into [] propheadset2)
-        combtablerows (makecombtablerows languages propheadvec)
-        tablerows (reduce concat combtablerows)
-        valrows  (split (apply str tablerows) #"\r\n")
-        ]
-    (layout/common
-     [:h3 "Combined PDGM Property Table For: "]
-     [:ul (for [lang languages]
-     [:li (capitalize lang)])] 
-     ;;[:pre valrows]
-     (form-to [:post "/pdgmcombtabldisplay"]
-              [:table {:id "handlerTable" :class "tablesorter sar-table"}
-               [:thead
-                [:tr
-                 [:th [:div {:class "some-handle"} [:br] "Choose" ]
-                 ;;[:th [:div {:class "some-handle"} [:br] "Pdgmprops"]]
-                 [:th [:div {:class "some-handle"} [:br] "Pos"]]
-                 ;;[:th [:div {:class "some-handle"} [:br] "Morphprops"]]
-                 [:th [:div {:class "some-handle"} [:br] "MorphClass"]]
-                 ;;[:th [:div {:class "some-handle"} [:br] "Propcells"]]
-                 (for [prophead propheadvec]
-                   [:th [:div {:class "some-handle"} [:br] (capitalize prophead)]]
-                 )
-                 ;;[:th [:div {:class "some-handle"} [:br] "Lexeme"]]
-                ]]]
-               [:tbody 
-                ;;(str language "," vlcl "&&"  pos "," morphclass ","  propseq  "%%" lex  "\r\n")
-                (for [valrow valrows]
-                  [:tr
-                  (let [tablecells (split valrow #"&&" 2)
-0                        langPname (first tablecells)
-                        language (first (split langPname #"," 2 ))
-                        pdgmname (last (split langPname #"," 2 ))
-                        ;; old
-                        ;;propsLex (last tablecells)
-                        ;;pdgmprops (first (split propsLex #"%%"))
-                        ;;lexeme (last (split propsLex #"%%"))
-                        pdgmprops (last tablecells)
-                        propcells (split pdgmprops #",")
-                        ;;pos (first (split pdgmprops #"," 2))
-                        ;;morphprops (next (split pdgmprops #"," 2 ))
-                        ;;morphclass (first (split morphprops #"," ))
-                        ;;propcells (next (split morphprops #"," ))
-                        ]
-                    [:div
-                     [:td 
-                      [:div {:class "form-group"}
-                       [:label 
-                        (check-box {:name "lvalclusters[]" :value (str language ","  pdgmname) }  language) language ]]]
-                        ;;(check-box {:name "lvalclusters[]" :value "PDGM"} "PDGM") "PDGM" ]]]
-                     ;;[:td pdgmprops]
-                     ;;[:td pos]
-                     ;;[:td morphprops]
-                     ;;[:td morphclass]
-                     ;;[:td propcells]
-                     (for [propcell propcells]
-                       [:td propcell]
-                     )
-                     ;;[:td lexeme]
-                     ])])
-                    ;;(if (re-find #"EmptyList" valclusterlist)
-                    ;; [:div (str "There are no " pos " paradigms in the " language " archive.")]
-                    ;;(submit-button "Get p/dgm")
-                    [:tr 
-                     [:td [:input#submit
-                           {:value "Disnplay pdgms", :name "submit", :type "submit"}]]]]])
-     [:script {:src "js/goog/base.js" :type "text/javascript"}]
-     [:script {:src "js/webapp.js" :type "text/javascript"}]
-     [:script {:type "text/javascript"}
-      "goog.require('webapp.core');"])))
+  (layout/common
+   [:h3 "PDGM Property List"]
+   [:p "NB: For the moment, in order to combine paradigms, the columns must contain values of identical properties (altough not necessarily identical terminology), and be in the same order ."] 
+   [:p "Choose PDGM"] 
+   (form-to [:post "/pdgmmultmoddisplay"]
+            [:table
+             [:tr [:td "PDGM Language(s): " ]
+              (for [language languages]
+                [:td 
+                 [:div (str (capitalize language) " ")]])]
+             [:tr [:td "PDGM Value Clusters: " ]
+                (for [language languages]
+                  [:td 
+                   {:title "Choose a value.", :name "valcluster", :width "10"}
+                   (let [valclusterfile (str "pvlists/pdgm-index-" language ".txt")
+                         valclusterlist (slurp valclusterfile)
+                         valclusterset (into (sorted-set) (clojure.string/split valclusterlist #"\n"))]
+                     (if (re-find #"EmptyList" valclusterlist)
+                       [:div (str "There are no  paradigms in the " language " archive.")]
+                       (for [valcluster valclusterset]
+                         [:div {:class "form-group"}
+                          [:label
+                           (check-box {:class "checkbox1" :name "lvalclusters[]" :value (str language "," valcluster) } valcluster) valcluster]]))
+                     )])]
+             ;;(submit-button "Get pdgm")
+             [:tr [:td ]
+              [:td [:input#submit
+                    {:value "Display pdgms", :name "submit", :type "submit"}]]]])))
 
 
 (defn vc2req
@@ -248,7 +145,7 @@
   (for [pname pnames]
     (str "P" (.indexOf pnames pname) "-" pname)))
 
-(defn handle-pdgmcombtabldisplay
+(defn handle-pdgmmultmoddisplay
   "Takes pdgm names (with language-name added) and combines into single csv; displays as table, then asks for pivot category/ies."
   [lvalclusters]
   (let [;; note problem with using atom for addpnum: gives LazySequence
@@ -300,7 +197,7 @@
      [:hr]
      [:h3 "PDGM Value List"]
      [:p "Choose Parallel Display Format"]
-     (form-to [:post "/pdgmcombtablplldisplay"]
+     (form-to [:post "/pdgmmultmodplldisplay"]
               [:table
                [:tr [:td "PNames: "]
                 [:td 
@@ -314,11 +211,11 @@
                       ]]]
                [:tr [:td "Pivots: "]
                 [:td
-                 ;;[:div {:class "form-group"}
-                  [:p
+                 [:div {:class "form-group"}
+                  [:label 
                    (for [head pivots]
                      [:span
-                      (check-box {:name "pivotlist[]" :value (.indexOf pivots head)} head) head])]]]
+                      (check-box {:name "pivotlist[]" :value (.indexOf pivots head)} head) head])]]]]
 ;;               [:tr [:td "PString: "]
 ;;                 [:td [:select#pdgms.required
 ;;                      {:title "PDGMS", :name "pdgmstrvec2"}
@@ -405,7 +302,7 @@
       )))
 ;;(prmap))))
 
-(defn handle-pdgmcombtablplldisplay
+(defn handle-pdgmmultmodplldisplay
   "In this version pivot/keyset can be generalized beyond png any col (eventually any sequence of cols) between col-1 and token column. (Need to find out how to 'presort' cols before initial display?) [Current version has very ugly string=>list pdgms=>pnames. Simplify?]"
   [pdgmnames header pivotlist newpdgmstr]
   (let [pnamestr1 (clojure.string/replace pdgmnames #"[\[\]\"]" "")
@@ -507,7 +404,6 @@
        [:p "keystring: " [:pre keystring]]
        [:p "keyvec: " [:pre keyvec]]
        [:p "keyvec: " (str keyvec)]
-
        [:p "keyset: " [:pre keyset]]
        [:p "==========================="]]
       [:script {:src "js/goog/base.js" :type "text/javascript"}]
@@ -516,8 +412,8 @@
        "goog.require('webapp.core');"]])))
 
 
-(defroutes pdgmcombtabl-routes
-  (GET "/pdgmcombtabl" [] (pdgmcombtabl))
-  (POST "/pdgmcombtablqry" [languages] (handle-pdgmcombtablqry languages))
-  (POST "/pdgmcombtabldisplay" [lvalclusters] (handle-pdgmcombtabldisplay lvalclusters))
-  (POST "/pdgmcombtablplldisplay" [pdgmnames header pivotlist newpdgmstr] (handle-pdgmcombtablplldisplay pdgmnames header pivotlist newpdgmstr)))
+(defroutes pdgmmultmod-routes
+  (GET "/pdgmmultmod" [] (pdgmmultmod))
+  (POST "/pdgmmultmodqry" [languages] (handle-pdgmmultmodqry languages))
+  (POST "/pdgmmultmoddisplay" [lvalclusters] (handle-pdgmmultmoddisplay lvalclusters))
+  (POST "/pdgmmultmodplldisplay" [pdgmnames header pivotlist newpdgmstr] (handle-pdgmmultmodplldisplay pdgmnames header pivotlist newpdgmstr)))

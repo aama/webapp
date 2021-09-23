@@ -1,6 +1,6 @@
 (ns webapp.handler
   (:require [compojure.core :refer [defroutes routes]]
-            [noir.util.middleware :as noir-middleware]
+            ;;[noir.util.middleware :as noir-middleware]
             [ring.middleware.resource :refer [wrap-resource]]
             [ring.middleware.file-info :refer [wrap-file-info]]
             [hiccup.middleware :refer [wrap-base-url]]
@@ -38,13 +38,13 @@
             [webapp.routes.lextabledisp :refer [lextabledisp-routes]]
             [webapp.routes.helpaamaversions :refer [helpaamaversions-routes]]
             [webapp.routes.helpaddnewlanguage :refer [helpaddnewlanguage-routes]]
-            [webapp.routes.helpinitializeapp :refer [helpinitializeapp-routes]]
+            [webapp.routes.helpinitialiizeapp :refer [helpinitializeapp-routes]]
             [webapp.routes.helppdgms :refer [helppdgms-routes]]
-            [webapp.routes.helpformsearch :refer [helpformsearch-routes]]
+            [webapp.routes.helpformsearch :refer [helpormsearch-routes]]
             [webapp.routes.helppvdisp :refer [helppvdisp-routes]]
             [webapp.routes.helplistgen :refer [helplistgen-routes]]
             [webapp.routes.helpwebupdate :refer [helpwebupdate-routes]]
-            [webapp.routes.helpclupdate :refer [helpclupdate-routes]]))
+            [webapp.routes.helpclupdate-routes :refer [helpclupdate-routes]]))
 
 (defn init []
   (println "webapp is starting"))

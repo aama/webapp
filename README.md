@@ -1,3 +1,7 @@
+[NB: To run jar version of aama:
+     In webapp dir: 'java -jar aama-webapp.jar'
+        get response: 'Started server on port 3000']
+
 # Afroasiatic Morphological Archive
 
 ## Web Application

@@ -23,7 +23,7 @@ case $1 in
     *) ;;
 esac
 
-echo "fudelete.log" > logs/fudelete.log;
+# echo "fudelete.log" > logs/fudelete.log;
 for f in `find $1 -type d`
 do
     echo $f
@@ -32,5 +32,6 @@ do
     #uncapitalize_path $lang
     graph="http://oi.uchicago.edu/aama/2013/graph/${lang}"
     echo deleting $graph;
-   ../fuseki/apache-jena-fuseki-2.4.0/bin/s-delete -v http://localhost:3030/aama/data $graph 2>&1 >>logs/fudelete.log
+    ../jena/apache-jena-fuseki-3.16.0/bin/s-delete -v http://localhost:3030/aama/data $graph 2>&1
+    # >>logs/fudelete.log
 done

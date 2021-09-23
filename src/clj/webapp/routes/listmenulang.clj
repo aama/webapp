@@ -17,7 +17,13 @@
 
 (def aama "http://localhost:3030/aama/query")
 
-(defn listmenulang []
+(defn listmenulang 
+"To be run whenever a language or language-variety has been added to the archive or a language-name has been modified:
+Run SPARQL query 'sparql/listmenu-sparql-lang' massage results into:
+(1) 'pvlists/menu-langs.txt' -- a sorted list of all languages in the archive for use in language-selection menus; 
+(2) 'pvlists/lprefs.clj' -- a map linking each language name in the archive with the unique language prefix used in the RDF files and SPARQL queries;
+(3) 'pvlists/ldomainlist.txt' -- a sorted list of all the language groupings recognized by the archive user on whatever basis (genetic, geographic, typological, project-related, etc.)."
+[]
   (layout/common 
      ;;[:h1#clickable "Afroasiatic Morphological Archive"]
      [:h3 "Generate Language Indices"]
@@ -26,7 +32,7 @@
       [:ol 
        [:li [:em "pvlists/menu-langs.txt"]": a sorted list of all languages in the archive for use in language-selection menus."] 
        [:li [:em "pvlists/lprefs.clj"]": a map linking each language name in the archive with the unique language prefix used in the RDF files and SPARQL queries."]
-       [:li [:em "pvlists/ldomainlist.txt"]": a sorted list of all the language groupings recognized by the archive user on whatever basis (genetic, geographic, typological, project-related, etc.). It is up to the user to maintain and modify this list by hand; for comparison a genetic (language-tree) example of an ldomainlist.txt file can be consulted in the resources/public directory. By default the language indexing routine will simply update the final 'All' domain -- very useful when producing displays and indices ranging over the whole archive."]]]
+       [:li [:em "pvlists/ldomainlist.txt"]": a sorted list of all the language gr oupings recognized by the archive user on whatever basis (genetic, geographic, typological, project-related, etc.). It is up to the user to maintain and modify this list by hand; for comparison a genetic (language-tree) example of an ldomainlist.txt file can be consulted in the resources/public directory. By default the language indexing routine will simply update the final 'All' domain -- very useful when producing displays and indices ranging over the whole archive."]]]
      [:p (form-to [:post "/langlist-gen"]
               [:table
                [:tr 
@@ -34,6 +40,7 @@
                                      {:value "Generate Language Files: ", :name "submit", :type "submit"}]]]])]))
 
 (defn req2mlist
+"Masssagess SPARQL output."
   [mlist]
   (let [mlist1 (clojure.string/replace mlist #"\r*\n$" "")
         reqq (split mlist1 #"\r*\n")

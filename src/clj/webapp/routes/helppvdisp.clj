@@ -42,7 +42,7 @@
         [:li "drag/sort lang prop val" [:br]
          "(All the lang-prop-val triples in the language domain, displayed in a table with draggable columns and sortable rows. An eventual version of this table should be able to subsume tables 1-4, and perhaps also 5.)"]
         ]
-            [:p "These tables provide in effect a set of complete lang-prop-val indices for the language(s) in question. The scripts use a simple SPARQL ?s ?p ?o template to generate for each lang a csv/jason file which is essentially a schemata (for lang-prop-val) or schemata index for the langs in question."]]]
+            [:p "These tables provide in effect a set of complete lang-prop-val indices for the language(s) in question. The scripts use a simple SPARQL ?s ?p ?o template to generate for each lang a csv/json file which is essentially a schemata (for lang-prop-val) or schemata index for the langs in question."]]]
 ]]))
 
 (defroutes helppvdisp-routes

@@ -17,7 +17,9 @@
 
 (def aama "http://localhost:3030/aama/query")
 
-(defn listmenulpv []
+(defn listmenulpv 
+"Choose listtype 'val' or 'prop', run SPARQL queries (sparql/listmenu-sparql-prop or sparql/listmenu-sparql-val), put results in 'pvlists/menu-[listtype]s.txt'."
+[]
   (layout/common 
    [:h3 "Property Value Lists for Selection Menus"]
    ;;[:hr]

@@ -10,7 +10,7 @@
                  ;;[matsu "0.1.2"] ;; SPARQL query constructor
                  [clj-http "1.0.0"] ;; http client lib
                  [org.clojure/clojurescript "0.0-2311"]
-                 [lib-noir "0.7.6"]
+                 ;;[lib-noir "0.7.6"]
                  [ring-server "0.3.1" ]
                  [jayq "2.5.4"]
                  ;;[clojure-csv/clojure-csv "2.0.1"]
@@ -25,7 +25,7 @@
                                    :optimizations :none
                                    :source-map true}}]}
   :plugins [[lein-ring "0.8.11"]
-            [lein-cljsbuild "1.0.4-SNAPSHOT"]
+            ;;[lein-cljsbuild "1.0.4-SNAPSHOT"]
             [hiccup-bridge "1.0.0-SNAPSHOT"]]
   :ring {:handler webapp.handler/app
          :init webapp.handler/init

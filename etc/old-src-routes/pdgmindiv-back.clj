@@ -20,17 +20,11 @@
 
 (def aama "http://localhost:3030/aama/query")
 
-(defn pdgmindiv 
-"Display all information in a termcluster:
- (sparql/pdgmqry-sparql-gen-vrbs valcluster)
- (sparql/lexqry-sparql lexeme Language)
- (sparql/pdgmqry-sparql-comment valcluster)  
-"
-[]
+(defn pdgmindiv []
   (let [langlist (slurp "pvlists/menu-langs.txt")
         languages (split langlist #"\n")]
     (layout/common 
-     [:h3 "Paradigm: Detail Display"]
+     [:h3 "Individal Paradigm: Detail Display"]
      ;;[:p "Use this option to pick one or more  paradigms from a given language or set of languages to be displayed in fixed format vertical succession."]
      [:p "Choose Language"]
      ;; [:p error]
@@ -51,44 +45,35 @@
 (defn handle-pdgmindivqry
   [language]
   (layout/common 
-       [:h3 "Paradigm Detail Display"]
-       [:p "Choose Value Clusters For: " language]
-       ;;[:p error]
-       [:hr]
-   (form-to [:post "/pdgmindivdisplay"]
-            [:table  {:class "linfo-table"}
-             ;; Following :tr can be commented out if not in proof-reading mode
-             ;; selectall jQuery script from  http://www.sanwebe.com/2014/01/how-to-select-all-deselect-checkboxes-jquery
-              [:tr [:td "Scope"]
-               [:td 
-                [:div {:class "scope"} (check-box {:id "selectall"} "Select All") "Select All"]]]
-             [:tr [:td "PDGM Value Clusters: " ]
-                [:td 
-                 {:title "Choose a value.", :name "valcluster"}
-                 (let [valclusterfile (str "pvlists/pdgm-index-" language ".txt")
-                       valclusterlist (slurp valclusterfile)
-                       ;;valclusterlst (clojure.string/replace valclusterlist #":.*?\n" "\n")
-                       valclusterset (into (sorted-set) (clojure.string/split valclusterlist #"\n"))]
-                   (if (re-find #"EmptyList" valclusterlist)
-                     [:div (str "There are no  paradigms in the " language " archive.")]
-                     (for [valcluster valclusterset]
-                       (let [propscluster1 (first (split valcluster #"%"))
-                             propscluster2 (last (split propscluster1 #"," 2))]
-                         [:div {:class "form-group"}
-                          [:label
-                           (check-box {:class "checkbox1" :name "valclusters[]" :value (str language "," valcluster) } propscluster2) propscluster2]]))))]]
-             ;;(submit-button "Get pdgm")
-             [:tr [:td ]
-              [:td [:input#submit
-                    {:value "Display pdgms", :name "submit", :type "submit"}]]]])))
+   (let [valclusterfile (str "pvlists/pdgm-index-" language ".txt")
+         valclusterlist (slurp valclusterfile)
+         ;;valclusterlst (clojure.string/replace valclusterlist #":.*?\n" "\n")
+         valclusterset (into (sorted-set) (clojure.string/split valclusterlist #"\n"))]
+     [:h3 "Individual Paradigm Detail Display"]
+     [:p "Choose Value Clusters For: " language]
+     ;;[:p error]
+     [:hr]
+     (form-to [:post "/pdgmindivdisplay"]
+              [:table  {:class "linfo-table"}
+               [:tr [:td "Language: "] [:td (str "   " (capitalize language))]]
+               [:tr [:td "PDGM Value Clusters:  "]
+                [:td [:select#lvalcluster.required
+                      {:title "Choose a value.", :name "lvalcluster"}
+                      (for [valcluster valclusterset]
+                        [:option {:value (str language "," valcluster)} valcluster])]]]
+               ;;(submit-button "Get pdgm")
+               [:tr [:td]
+                [:td [:input#submit
+                      {:value "Display pdgm", :name "submit", :type "submit"}]]]]
+              )
+     )))
 
 (defn handle-pdgmindivdisplay
-  "Note that this pdgm display routine, which gives almost all the information in a :termcluster, essentially repeats the valcluster parsing which is done in models.sparql/pdgmqry-sparql-gen-vrbs."
-  [valclusters]
+  "Note that this pdgm display routine, which gives almost all the information in a :termcluster, essentially repeats the lvalcluster parsing which is done in models.sparql/pdgmqry-sparql-gen-vrbs."
+  [lvalcluster]
   (layout/common
-   (for [valcluster valclusters]
    (let [;; parse lvalcluster string (as in sparql/pdgmqry-sparql-gen-vrbs)
-         values (split valcluster #"," 2)
+         values (split lvalcluster #"," 2)
          language (first values)
          Language (capitalize language)
          sourcevcs (split (last values) #"," 2)
@@ -109,7 +94,7 @@
          valstr (last mpropsvals2)
 
          ;; get data
-         query-sparql (sparql/pdgmqry-sparql-gen-vrbs valcluster)
+         query-sparql (sparql/pdgmqry-sparql-gen-vrbs lvalcluster)
          query-sparql-pr (clojure.string/replace query-sparql #"<" "&lt;")
          req (http/get aama
                        {:query-params
@@ -143,7 +128,7 @@
          ;; clojure.lang.PersistentVector$ChunkedSeq
          lemma (first lexdata3)
          gloss (rest lexdata3)
-         query-sparql-pdgmcmmt (sparql/pdgmqry-sparql-comment valcluster)
+         query-sparql-pdgmcmmt (sparql/pdgmqry-sparql-comment lvalcluster)
          query-sparql-pdgmcmmt-pr (clojure.string/replace query-sparql-pdgmcmmt #"<" "&lt;")
          req-pdgmcmmt (http/get aama
                                 {:query-params
@@ -159,9 +144,7 @@
 
      [:div
       [:hr]
-      [:h4 "Paradigm: " mprops]
-      [:ol
-       [:li [:h4 "Paradigm Information:"]
+      [:h4 "Paradigm Properties: "]
       [:p [:em "Language: "] Language]
       [:p [:em "Source: "] srce ]
       [:p [:em "POS: "] pos ]
@@ -180,9 +163,9 @@
           (for [prop props]
               [:li (clojure.string/replace prop #"=" " = ")])]])
       [:p [:em  "Variable Properties: "] (clojure.string/replace valstr #"," ", ") ]
-      ]
+      [:hr]
       
-      [:li [:h4 "Paradigm Table: "]
+      [:h4 "Paradigm: "]
       ;;[:pre (:body req)]
       [:p [:em "Click on column to sort (multiple sort by holding down shift key)."] [:br]
        [:em  "Columns can be dragged by clicking and holding on 'drag-bar' 
@@ -206,16 +189,16 @@
       [:p]
       ;;[:p "vals: " vals] 
       [:em "Paradigm Comment: "] [:ul [:li pdgmcmmt3]]
-      [:p "  "]]
-;;     [:h4 "======= Debug Info: ======="]
-;;     [:h4#clickable "The paradigm and comment are generated by the SPARQL queries:"]
-;;      [:pre query-sparql-pr]
-;;      [:h4 "Query CSV Output:"]
-;;      [:p  [:pre req2]]
-;;      [:h4 "Comment query:"]
-;;      [:pre query-sparql-pdgmcmmt-pr]
-;;      [:h4 "======= Debug Info: ======="]
-      ]]))
+      [:p "  "]
+      [:h4 "======= Debug Info: ======="]
+      [:h4#clickable "The paradigm and comment are generated by the SPARQL queries:"]
+      [:pre query-sparql-pr]
+      [:h4 "Query CSV Output:"]
+      [:p  [:pre req2]]
+      [:h4 "Comment query:"]
+      [:pre query-sparql-pdgmcmmt-pr]
+      [:h4 "======= Debug Info: ======="]
+      ])
    [:script {:src "js/goog/base.js" :type "text/javascript"}]
    [:script {:src "js/webapp.js" :type "text/javascript"}]
    [:script {:type "text/javascript"}
@@ -224,4 +207,4 @@
 (defroutes pdgmindiv-routes
   (GET "/pdgmindiv" [] (pdgmindiv))
   (POST "/pdgmindivqry" [language] (handle-pdgmindivqry language))
-  (POST "/pdgmindivdisplay" [valclusters] (handle-pdgmindivdisplay valclusters)))
+  (POST "/pdgmindivdisplay" [lvalcluster] (handle-pdgmindivdisplay lvalcluster)))

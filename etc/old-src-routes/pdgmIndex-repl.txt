@@ -1,0 +1,111 @@
+=========================
+
+PIECES OF pdgmIndex.clj
+
+
+(ns webapp.routes.pdgmIndex 
+  (require [clojure.edn :as edn]
+           [stencil.core :as tmpl ])
+  (:gen-class :main true))
+
+;; 
+;; println output directed to output-file by either:
+;;   1) lein run [FILE].edn > [FILE].ttl {from edn2ttl directory}
+;;   2) java -jar path/to/aama-edn2ttl.jar [FILE].edn > [FILE].ttl
+;;   3) bin/aama-edn2rdf.sh ../aama-data/[LANG]/ {finds edn file and (re)places corresponding ttl file in same directory
+
+
+(defn do-termclusters
+  [termclusters]
+  (doseq [termcluster termclusters]
+    (let [terms (:terms termcluster)
+          schema (first terms)
+          common (:common termcluster)
+          morphClassval (:vmorphClass common)
+          posval (:pos common)
+          commonVSet (vals common)
+	  lexval (if (:lexeme common)
+	  	 (str (:lexeme common))
+		 (NULL))
+	  pindex (str posval "," morphClassval "," commonValSet "," schema lexval)
+          ]
+      (println "\n#TERMCLUSTER: " pindex)
+
+(defn -main
+  "Calls the functions that produces index of all pdgms in LANG-pdgms.edn"
+  [lang]
+
+  (let [inputfile (str "../aama-data/data/" lang "/" lang "-pdgms-repl.edn")
+        pdgmstring (slurp inputfile)
+        pdgm-map (read-string pdgmstring)
+        pdgmlist (str "pvlists/" lang "-pdgmlist.txt")
+        ]
+
+    (do-termclusters (pdgm-map :termclusters))
+
+    )
+  )
+
+==================================
+
+(def inputfile (str "../aama-data/data/burunge/burunge-pdgms-repl.edn"))
+(def pdgmstring (slurp inputfile))
+(def pdgm-map (read-string pdgmstring))
+(def termclusters (pdgm-map :termclusters))
+(def tc1 (first termclusters))
+(def tc2 (first (nthnext termclusters 1)))
+(def tc3 (first (nthnext termclusters 2)))
+(def tc4 (first (nthnext termclusters 3)))
+(def tc5 (first (nthnext termclusters 4)))
+(def terms (:terms tc5))
+(def schema (pop (first terms)))
+(def common (:common tc5))
+(def posval (:pos common))
+(def lexval (if (:lexeme common) (str (:lexeme common))))
+(def commonVSet (vals common))
+(def morphClassval (if (= posval :Pronoun) (:proClass common) (:vmorphClass common)))
+(def pvstring (str (dissoc common :pos :lexeme :vmorphClass :proClass)))
+(def pvstring1 (clojure.string/replace pvstring #"(\w) :" "$1%"))
+(def pvstring2 (clojure.string/replace pvstring1 #"[/{/}\s]" ""))
+(def schemastr (clojure.string/replace (apply str schema) #":" ","))
+(def pindex1 (str posval "," morphClassval "," pvstring2  schemastr ))
+(def pindex2 (str (clojure.string/replace pindex1 #":" "") lexval))
+(def pindex3 (clojure.string/replace pindex2 #",\w*?%" ","))
+(def pindex4 (clojure.string/replace pindex3 #",," ","))
+
+;;"{:polarity :Negative, :stemClass :NasalStem, :tam :Imperfect}"
+;;"{:polarity%Negative, :stemClass%NasalStem, :tam%Imperfect}"
+;;":polarity%Negative,:stemClass%NasalStem,:tam%Imperfect"
+;;",number,person,gender,token"
+;;":Verb,:Finite,:polarity%Negative,:stemClass%NasalStem,:tam%Imperfect,number,person,gender"
+;;"Verb,Finite,polarity%Negative,stemClass%NasalStem,tam%Imperfect,number,person,gender:hom"
+;;"Verb,Finite,Negative,NasalStem,Imperfect,number,person,gender:hom"
+
+=====================
+
+    (layout/common
+     [:body
+      [:div 
+       [:p [:b "Ldomain: "] ldomain]
+       [:p [:b "File vlclvec:    "] [:pre @vlclvec]]
+       ;;[:p [:b "File vlcl-table:    "] [:pre req2-table]]
+       ;;[:p [:b "File data-vlcl:     "] [:br] req-dataIDvlcl]
+       ;;[:p [:b "File vlcl-datalID:     "] [:br] req-vlcldataID]
+       [:p "==========================="]]
+     [:script {:src "js/goog/base.js" :type "text/javascript"}]
+     [:script {:src "js/webapp.js" :type "text/javascript"}]
+     [:script {:type "text/javascript"}
+      "goog.require('webapp.core');"]])
+
+
+                [:td [:select#ldomain.required
+                      {:title "Choose a language domain.", :name "ldomain"}
+                      [:optgroup {:label "Languages"} 
+                       (for [language languages]
+                         [:option {:value (lower-case language)} language])]
+                      [:optgroup {:label "Language Families"} 
+                       (for [ldom ldoms]
+                         (let [opts (split ldom #" ")]
+                           [:option {:value (last opts)} (first opts) ]))
+                       [:option {:disabled "disabled"} "Other"]]]]]
+

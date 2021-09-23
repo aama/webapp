@@ -16,7 +16,9 @@
 
 (def aama "http://localhost:3030/aama/query")
 
-(defn update []
+(defn update 
+"[UNDER DEVELOOPMENT] This option will enable a user to update the datastore after an edn data file has been revised in one or more ~/aama-data/data/LANG directories. Webapp page under construction; in the meantime cf. 'Help>Update/Upload>Command Line']"
+[]
   (let [langlist (slurp "pvlists/menu-langs.txt")
         languages (split langlist #"\n")
         ldomlist (slurp "pvlists/ldomainlist.txt")
@@ -46,6 +48,7 @@
                     {:value "Update Datastore", :name "submit", :type "submit"}]]]])])))
 
 (defn edn2rdf
+"Generates rdf file-nam."
   [lang]
   (str lang ".rdf"))
 
