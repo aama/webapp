@@ -215,7 +215,7 @@ def guipdgm(*args):
     # TODO: 1) columns for pdgmpd
     #       2) why ... in token
     pdgmpd = pd.read_csv(StringIO(paradigm))
-    print("\nDataForm:")
+    print("\nDataFrame:")
     print(pdgmpd)
     print("\n")
 
