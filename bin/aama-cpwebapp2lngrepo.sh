@@ -29,6 +29,7 @@ git add etc/*
 git add bin/* 
 git add src/* 
 git add resources/* 
+git add webappy/*
 git commit -am "revised webapp added to aama/webapp"
 git push origin master
 cd ../../webapp
