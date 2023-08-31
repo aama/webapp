@@ -1,4 +1,5 @@
 '''
+Testing to see if I can make this edit stick (08/30/23)
 Comma-separted strings of property values in listbox are keys to full 
 pdgm-defining prop:val strings (pvstrings/pdgm-dict-LANG.py). SPARQL query
  for pdgm  derived from that in pdgmDisp.query. Widgets and grid modeled 
